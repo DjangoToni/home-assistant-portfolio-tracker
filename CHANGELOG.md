@@ -2,6 +2,12 @@
 
 All notable changes to Portfolio Tracker are documented here.
 
+## 1.4.2 - 2026-08-20
+
+- Added lower and upper alert thresholds to the active-assets dashboard table.
+- Added live alert states for active assets: armed, triggered, or not configured.
+- Updated watched-asset alert states to distinguish armed alerts from passive monitoring.
+
 ## 1.4.1 - 2026-08-20
 
 - Added complete German, English, French, and Italian localization.

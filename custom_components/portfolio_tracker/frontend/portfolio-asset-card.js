@@ -2,7 +2,7 @@ const CARD_TAG = "portfolio-asset-card";
 const EDITOR_TAG = "portfolio-asset-card-editor";
 const PORTFOLIO_CARD_TAG = "portfolio-overview-card";
 const PORTFOLIO_EDITOR_TAG = "portfolio-overview-card-editor";
-const CARD_VERSION = "1.4.1";
+const CARD_VERSION = "1.4.2";
 
 const LABELS = {
   de: {
@@ -243,6 +243,8 @@ const PORTFOLIO_LABELS = {
     alertAbove: "Alarm über",
     alarmStatus: "Status",
     monitoring: "Beobachtung aktiv",
+    alarmReady: "Alarm bereit",
+    noAlert: "Kein Alarm",
     alarmActive: "Kursalarm aktiv",
     updated: "Aktualisiert",
     view: "Darstellung",
@@ -307,6 +309,8 @@ const PORTFOLIO_LABELS = {
     alertAbove: "Alert above",
     alarmStatus: "Status",
     monitoring: "Monitoring active",
+    alarmReady: "Alert armed",
+    noAlert: "No alert",
     alarmActive: "Price alert active",
     updated: "Updated",
     view: "View",
@@ -371,6 +375,8 @@ PORTFOLIO_LABELS.fr = {
   alertBelow: "Alerte sous",
   alertAbove: "Alerte au-dessus",
   monitoring: "Surveillance active",
+  alarmReady: "Alerte activée",
+  noAlert: "Aucune alerte",
   alarmActive: "Alerte de cours active",
   updated: "Actualisé",
   view: "Affichage",
@@ -433,6 +439,8 @@ PORTFOLIO_LABELS.it = {
   alertBelow: "Allarme sotto",
   alertAbove: "Allarme sopra",
   monitoring: "Osservazione attiva",
+  alarmReady: "Allarme pronto",
+  noAlert: "Nessun allarme",
   alarmActive: "Allarme prezzo attivo",
   updated: "Aggiornato",
   view: "Vista",
@@ -1281,6 +1289,8 @@ class PortfolioOverviewCard extends HTMLElement {
         watchOnly: Boolean(state.attributes.watch_only),
         metrics: {},
       };
+      if (state.attributes.symbol) asset.symbol = state.attributes.symbol;
+      if (state.attributes.asset_type) asset.assetType = state.attributes.asset_type;
       asset.watchOnly = asset.watchOnly || Boolean(state.attributes.watch_only);
       asset.metrics[metricKey] = state;
       if (metricKey === "holding_price") asset.priceEntityId = entityId;
@@ -1329,6 +1339,10 @@ class PortfolioOverviewCard extends HTMLElement {
         position.displayUnit,
         position.metrics.holding_gain?.state,
         position.metrics.holding_daily_change?.state,
+        position.metrics.price_alert_below?.state,
+        position.metrics.price_alert_below?.attributes?.threshold,
+        position.metrics.price_alert_above?.state,
+        position.metrics.price_alert_above?.attributes?.threshold,
       ]),
       watchlist.map((asset) => [
         asset.priceEntityId,
@@ -1395,10 +1409,28 @@ class PortfolioOverviewCard extends HTMLElement {
       }).join("");
       return `<section class="legend-group"><div class="legend-group-title"><span>${this._escape(labels.assetGroups[group])}</span><small>${groupPositions.length}</small></div>${rows}</section>`;
     }).join("");
+    const alertDetails = (asset, idleLabel) => {
+      const below = asset.metrics.price_alert_below;
+      const above = asset.metrics.price_alert_above;
+      const active = below?.state === "on" || above?.state === "on";
+      const configured = Boolean(below || above);
+      const unit = asset.metrics.holding_price?.attributes?.unit_of_measurement || "";
+      const threshold = (state) => state
+        ? this._formatAmount(Number(state.attributes.threshold), state.attributes.currency || unit)
+        : "—";
+      return {
+        below: threshold(below),
+        above: threshold(above),
+        statusClass: active ? "alarm" : configured ? "ready" : "disabled",
+        statusIcon: active ? "bell-alert" : configured ? "bell-outline" : "bell-off-outline",
+        statusLabel: active ? labels.alarmActive : configured ? labels.alarmReady : idleLabel,
+      };
+    };
     const renderTableRow = (position) => {
       const share = total > 0 ? (position.value / total) * 100 : 0;
       const gain = Number(position.metrics.holding_gain?.state);
       const daily = Number(position.metrics.holding_daily_change?.state);
+      const alert = alertDetails(position, labels.noAlert);
       const selectedClass = position.entityId === this._selectedAssetEntity ? " selected" : "";
       const hasSeparateCurrency = position.displayUnit && position.displayUnit !== position.unit;
       const displayedValue = Number.isFinite(position.displayValue)
@@ -1410,6 +1442,9 @@ class PortfolioOverviewCard extends HTMLElement {
         <span>${this._escape(this._formatPercent(share))}</span>
         <span class="${gain < 0 ? "negative" : "positive"}">${this._escape(this._format(position.metrics.holding_gain))}</span>
         <span class="${daily < 0 ? "negative" : "positive"}">${this._escape(this._format(position.metrics.holding_daily_change, true))}</span>
+        <span>${this._escape(alert.below)}</span>
+        <span>${this._escape(alert.above)}</span>
+        <span class="alert-status ${alert.statusClass}"><ha-icon icon="mdi:${alert.statusIcon}"></ha-icon>${this._escape(alert.statusLabel)}</span>
         <ha-icon icon="mdi:chevron-${position.entityId === this._selectedAssetEntity ? "up" : "down"}"></ha-icon>
       </button>`;
     };
@@ -1427,25 +1462,19 @@ class PortfolioOverviewCard extends HTMLElement {
       ? `<div class="allocation-content"><div class="donut"></div><div class="allocation-list">${legend}</div></div>`
       : `<div class="empty">${labels.noAssets}</div>`;
     const tableContent = positions.length
-      ? `<div class="position-table"><div class="table-head"><span>${labels.asset}</span><span>${labels.value}</span><span>${labels.share}</span><span>${labels.gain}</span><span>${labels.daily}</span><span></span></div>${tableRows}</div><div id="asset-detail"></div>`
+      ? `<div class="position-table"><div class="table-head"><span>${labels.asset}</span><span>${labels.value}</span><span>${labels.share}</span><span>${labels.gain}</span><span>${labels.daily}</span><span>${labels.alertBelow}</span><span>${labels.alertAbove}</span><span>${labels.alarmStatus}</span><span></span></div>${tableRows}</div><div id="asset-detail"></div>`
       : `<div class="empty">${labels.noAssets}</div>`;
     const watchlistRows = watchlist.map((asset) => {
       const daily = Number(asset.metrics.holding_daily_change?.state);
-      const below = asset.metrics.price_alert_below;
-      const above = asset.metrics.price_alert_above;
-      const alarmActive = below?.state === "on" || above?.state === "on";
+      const alert = alertDetails(asset, labels.monitoring);
       const selectedClass = asset.priceEntityId === this._selectedAssetEntity ? " selected" : "";
-      const unit = asset.metrics.holding_price?.attributes?.unit_of_measurement || "";
-      const threshold = (state) => state
-        ? this._formatAmount(Number(state.attributes.threshold), state.attributes.currency || unit)
-        : "—";
       return `<button class="watchlist-row${selectedClass}" data-entity="${this._escape(asset.priceEntityId)}">
         <span class="position-main"><strong>${this._escape(asset.symbol)}</strong><small>${this._escape(labels.assetTypes[asset.assetType] || asset.assetType)}</small></span>
         <strong>${this._escape(this._format(asset.metrics.holding_price))}</strong>
         <span class="${daily < 0 ? "negative" : "positive"}">${this._escape(this._format(asset.metrics.holding_daily_change, true))}</span>
-        <span>${this._escape(threshold(below))}</span>
-        <span>${this._escape(threshold(above))}</span>
-        <span class="watch-status ${alarmActive ? "alarm" : ""}"><ha-icon icon="mdi:${alarmActive ? "bell-alert" : "eye-outline"}"></ha-icon>${alarmActive ? labels.alarmActive : labels.monitoring}</span>
+        <span>${this._escape(alert.below)}</span>
+        <span>${this._escape(alert.above)}</span>
+        <span class="alert-status ${alert.statusClass}"><ha-icon icon="mdi:${alert.statusIcon}"></ha-icon>${this._escape(alert.statusLabel)}</span>
       </button>`;
     }).join("");
     const watchlistContent = watchlist.length ? `
@@ -1569,11 +1598,11 @@ class PortfolioOverviewCard extends HTMLElement {
         .allocation-name { margin-right:auto; }
         .allocation-row strong { min-width:45px; text-align:right; font-size:12px; }
         .position-table { overflow-x:auto; border:1px solid var(--divider-color); border-radius:12px; }
-        .table-head,.position-row { display:grid; grid-template-columns:minmax(150px,1fr) max-content 72px max-content max-content 24px; align-items:center; min-width:650px; column-gap:clamp(8px,1.2vw,18px); padding:10px 14px; }
+        .table-head,.position-row { display:grid; grid-template-columns:minmax(150px,1fr) minmax(110px,max-content) 72px repeat(4,minmax(88px,max-content)) minmax(132px,max-content) 24px; align-items:center; min-width:1040px; column-gap:clamp(8px,1.2vw,18px); padding:10px 14px; }
         .table-head { color:var(--secondary-text-color); background:color-mix(in srgb,var(--secondary-text-color) 6%,transparent); font-size:11px; font-weight:600; text-align:center; }
         .table-head > span:first-child { text-align:left; }
         .asset-group + .asset-group { border-top:1px solid var(--divider-color); }
-        .asset-group-title { display:flex; align-items:center; gap:8px; min-width:650px; padding:8px 14px; color:var(--primary-text-color); background:color-mix(in srgb,var(--primary-color) 7%,transparent); font-size:11px; font-weight:700; letter-spacing:.02em; }
+        .asset-group-title { display:flex; align-items:center; gap:8px; min-width:1040px; padding:8px 14px; color:var(--primary-text-color); background:color-mix(in srgb,var(--primary-color) 7%,transparent); font-size:11px; font-weight:700; letter-spacing:.02em; }
         .asset-group-title small { display:grid; place-items:center; min-width:19px; height:19px; border-radius:10px; color:var(--secondary-text-color); background:color-mix(in srgb,var(--secondary-text-color) 10%,transparent); font-size:10px; }
         .position-row { width:100%; border:0; border-top:1px solid var(--divider-color); color:var(--primary-text-color); background:transparent; font:inherit; font-size:12px; text-align:center; cursor:pointer; }
         .position-row > span:not(.position-main) { justify-self:stretch; text-align:center; white-space:nowrap; font-variant-numeric:tabular-nums; }
@@ -1592,9 +1621,10 @@ class PortfolioOverviewCard extends HTMLElement {
         .watchlist-row { width:100%; border:0; border-top:1px solid var(--divider-color); color:var(--primary-text-color); background:transparent; font:inherit; font-size:12px; text-align:center; cursor:pointer; }
         .watchlist-row:hover,.watchlist-row.selected { background:color-mix(in srgb,var(--primary-color) 8%,transparent); }
         .watchlist-row > span:not(.position-main),.watchlist-row > strong { white-space:nowrap; font-variant-numeric:tabular-nums; }
-        .watch-status { display:flex; align-items:center; justify-content:flex-start; gap:6px; color:var(--success-color,#2eaa65); font-size:11px; font-weight:600; }
-        .watch-status.alarm { color:var(--error-color,#d95c5c); }
-        .watch-status ha-icon { --mdc-icon-size:17px; }
+        .alert-status { display:flex; align-items:center; justify-content:flex-start; gap:6px; color:var(--secondary-text-color); font-size:11px; font-weight:600; }
+        .alert-status.ready { color:var(--success-color,#2eaa65); }
+        .alert-status.alarm { color:var(--error-color,#d95c5c); }
+        .alert-status ha-icon { --mdc-icon-size:17px; }
         #asset-detail { margin-top:18px; }
         .detail-toolbar { display:flex; justify-content:flex-end; margin-bottom:8px; }
         .detail-toolbar button { display:flex; align-items:center; gap:5px; border:0; padding:7px 10px; border-radius:8px; color:var(--primary-color); background:color-mix(in srgb,var(--primary-color) 9%,transparent); font:inherit; font-size:12px; cursor:pointer; }

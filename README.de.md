@@ -70,7 +70,7 @@ Aktive Positionen beeinflussen Portfoliowert, Aufteilung, Gewinn und Performance
 - `AAPL` für Apple
 - `BTC-USD` für Bitcoin in USD
 
-Stückzahl und Kaufpreis bei der Erstellung erzeugen eine Anfangstransaktion. Weitere Käufe und Verkäufe werden über das Transaktionsjournal gepflegt.
+Stückzahl und Kaufpreis bei der Erstellung erzeugen eine Anfangstransaktion. Weitere Käufe und Verkäufe werden über das Transaktionsjournal gepflegt. Untere und obere Alarmgrenzen sowie ihr aktueller Status werden direkt in der Tabelle **Aktive Assets** angezeigt.
 
 ### Beobachtete Assets
 

@@ -70,7 +70,7 @@ Active positions affect portfolio value, allocation, gains, and performance. Ent
 - `AAPL` for Apple
 - `BTC-USD` for Bitcoin quoted in USD
 
-The initial quantity and purchase price create an opening transaction. Further purchases and sales should be maintained through the transaction ledger.
+The initial quantity and purchase price create an opening transaction. Further purchases and sales should be maintained through the transaction ledger. Lower and upper alert thresholds and their current state are shown directly in the **Active assets** table.
 
 ### Watched assets
 
