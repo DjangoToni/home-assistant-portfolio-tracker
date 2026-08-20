@@ -11,6 +11,7 @@ from homeassistant.components.lovelace import LOVELACE_DATA, MODE_STORAGE
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
 from homeassistant.core import CoreState, HomeAssistant
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
@@ -38,6 +39,8 @@ FRONTEND_RESOURCE_PATHS = {FRONTEND_CARD_PATH, FRONTEND_LOADER_PATH}
 DATA_FRONTEND_REGISTERED = f"{DOMAIN}_frontend_registered"
 
 _LOGGER = logging.getLogger(__name__)
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
