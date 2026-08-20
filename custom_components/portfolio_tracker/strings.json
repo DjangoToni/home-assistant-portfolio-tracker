@@ -1,0 +1,310 @@
+{
+  "title": "Portfolio Tracker",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Create portfolio",
+        "description": "Create a portfolio. Positions are added afterwards using Configure.",
+        "data": {
+          "portfolio_name": "Portfolio name",
+          "base_currency": "Base currency",
+          "update_interval": "Update interval"
+        }
+      }
+    },
+    "error": {
+      "invalid_currency": "Enter a three-letter currency code, for example CHF or USD."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Manage portfolio",
+        "description": "Choose the area you want to configure.",
+        "menu_options": {
+          "assets": "Manage assets",
+          "transactions": "Manage transactions",
+          "market": "Market & benchmark",
+          "general": "General settings"
+        },
+        "menu_option_descriptions": {
+          "assets": "Add, edit, or remove active positions and watched assets.",
+          "transactions": "Maintain purchases, sales, and opening balances in the position ledger.",
+          "market": "Manage market indices and the performance benchmark.",
+          "general": "Change the base currency and update interval."
+        }
+      },
+      "assets": {
+        "title": "Manage assets",
+        "description": "Active positions affect the portfolio. Watched assets appear separately and do not change portfolio totals.",
+        "menu_options": {
+          "add_holding": "Add position",
+          "add_watchlist": "Add asset to watchlist",
+          "edit_holding": "Edit asset",
+          "remove_holding": "Remove asset"
+        }
+      },
+      "transactions": {
+        "title": "Manage transactions",
+        "description": "Maintain the ledger for your active positions.",
+        "menu_options": {
+          "add_transaction": "Add transaction",
+          "edit_transaction": "Edit transaction",
+          "remove_transaction": "Remove transaction"
+        }
+      },
+      "market": {
+        "title": "Market & benchmark",
+        "description": "Manage the market overview and professional performance comparison.",
+        "menu_options": {
+          "add_index": "Add market index",
+          "remove_index": "Remove market index",
+          "configure_benchmark": "Set market index for performance"
+        }
+      },
+      "general": {
+        "title": "General settings",
+        "data": {
+          "base_currency": "Base currency",
+          "update_interval": "Update interval"
+        }
+      },
+      "add_holding": {
+        "title": "Add position",
+        "description": "Enter a Yahoo Finance symbol, for example NOVN.SW or BTC-USD. For cryptocurrencies, enter the CoinGecko ID from its URL if it is not detected automatically.",
+        "data": {
+          "symbol": "Yahoo Finance symbol",
+          "name": "Display name (optional)",
+          "asset_type": "Asset type",
+          "quantity": "Quantity",
+          "average_price": "Purchase price or invested total",
+          "transaction_price_mode": "Purchase-price input",
+          "transaction_market_price": "Market price per unit at purchase (optional)",
+          "transaction_market_currency": "Market-price currency (optional)",
+          "coingecko_id": "CoinGecko ID (cryptocurrencies only)",
+          "display_currency": "Display currency (cryptocurrencies only)"
+          ,"alert_below": "Alert below this price (optional)"
+          ,"alert_above": "Alert above this price (optional)"
+        }
+      },
+      "add_watchlist": {
+        "title": "Watch an asset",
+        "description": "Track an asset and its market data without including it in portfolio value, gain, or performance.",
+        "data": {
+          "symbol": "Yahoo Finance symbol",
+          "name": "Display name (optional)",
+          "asset_type": "Asset type",
+          "coingecko_id": "CoinGecko ID (cryptocurrencies only)",
+          "display_currency": "Display currency (cryptocurrencies only)",
+          "alert_below": "Alert below this price (optional)",
+          "alert_above": "Alert above this price (optional)"
+        }
+      },
+      "edit_holding": {
+        "title": "Select asset",
+        "data": { "holding_id": "Active or watched asset" }
+      },
+      "edit_holding_details": {
+        "title": "Edit position",
+        "description": "Quantity and cost basis are calculated from the transaction ledger.",
+        "data": {
+          "symbol": "Yahoo Finance symbol",
+          "name": "Display name",
+          "asset_type": "Asset type",
+          "quantity": "Quantity",
+          "average_price": "Average purchase price",
+          "coingecko_id": "CoinGecko ID (cryptocurrencies only)",
+          "display_currency": "Display currency (cryptocurrencies only)"
+          ,"alert_below": "Alert below this price (optional)"
+          ,"alert_above": "Alert above this price (optional)"
+        }
+      },
+      "remove_holding": {
+        "title": "Remove asset",
+        "description": "The selected asset and its entities will be removed.",
+        "data": { "holding_id": "Active or watched asset" }
+      },
+      "add_index": {
+        "title": "Add market index",
+        "description": "Select a benchmark to display as a separate index device and in the portfolio dashboard.",
+        "data": { "index_symbol": "Market index" }
+      },
+      "remove_index": {
+        "title": "Remove market index",
+        "data": { "index_symbol": "Market index" }
+      },
+      "configure_benchmark": {
+        "title": "Performance benchmark",
+        "description": "Select the market index used to compare the cash-flow-adjusted portfolio performance, or select no benchmark.",
+        "data": { "benchmark_index": "Benchmark index" }
+      },
+      "add_transaction": {
+        "title": "Add transaction",
+        "description": "Record a purchase, sale, or opening balance. Fees and taxes are included in the moving-average calculation.",
+        "data": {
+          "holding_id": "Position",
+          "transaction_type": "Transaction type",
+          "transaction_date": "Trade date (YYYY-MM-DD)",
+          "quantity": "Quantity",
+          "transaction_price": "Price or total amount",
+          "transaction_price_mode": "Price input",
+          "transaction_market_price": "Market price per unit (optional)",
+          "transaction_market_currency": "Market-price currency (optional)",
+          "transaction_currency": "Trading currency",
+          "transaction_fees": "Fees",
+          "transaction_taxes": "Taxes",
+          "transaction_exchange": "Exchange / broker (optional)",
+          "transaction_note": "Note (optional)"
+        }
+      },
+      "edit_transaction": {
+        "title": "Select transaction",
+        "data": { "transaction_id": "Transaction" }
+      },
+      "edit_transaction_details": {
+        "title": "Edit transaction",
+        "data": {
+          "transaction_type": "Transaction type",
+          "transaction_date": "Trade date (YYYY-MM-DD)",
+          "quantity": "Quantity",
+          "transaction_price": "Price or total amount",
+          "transaction_price_mode": "Price input",
+          "transaction_market_price": "Market price per unit (optional)",
+          "transaction_market_currency": "Market-price currency (optional)",
+          "transaction_currency": "Trading currency",
+          "transaction_fees": "Fees",
+          "transaction_taxes": "Taxes",
+          "transaction_exchange": "Exchange / broker (optional)",
+          "transaction_note": "Note (optional)"
+        }
+      },
+      "remove_transaction": {
+        "title": "Remove transaction",
+        "description": "The selected transaction is permanently removed from the position ledger.",
+        "data": { "transaction_id": "Transaction" }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to Yahoo Finance.",
+      "coingecko_cannot_connect": "Could not connect to CoinGecko.",
+      "coingecko_id_required": "Enter the CoinGecko ID for this cryptocurrency.",
+      "coingecko_not_found": "CoinGecko did not recognize this coin ID.",
+      "invalid_currency": "Enter a three-letter currency code, for example CHF or USD.",
+      "symbol_not_found": "Yahoo Finance did not return a quote for this symbol.",
+      "invalid_transaction_date": "Enter a valid date in YYYY-MM-DD format.",
+      "invalid_transaction_price": "The price must be greater than zero.",
+      "invalid_alert_range": "The lower alert price must be smaller than the upper alert price.",
+      "insufficient_quantity": "This sale would exceed the available quantity at the selected date."
+    }
+  },
+  "selector": {
+    "asset_type": {
+      "options": {
+        "stock": "Stock",
+        "etf": "ETF",
+        "crypto": "Cryptocurrency",
+        "fund": "Fund",
+        "currency": "Currency",
+        "other": "Other"
+      }
+    },
+    "transaction_type": {
+      "options": {
+        "opening": "Opening balance",
+        "buy": "Purchase",
+        "sell": "Sale"
+      }
+    },
+    "transaction_price_mode": {
+      "options": {
+        "per_unit": "Price per unit",
+        "total": "Complete amount including fees and taxes"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "portfolio_value": { "name": "Value" },
+      "portfolio_cost": { "name": "Cost basis" },
+      "portfolio_gain": { "name": "Gain/loss" },
+      "portfolio_realized_gain": { "name": "Realized gain/loss" },
+      "portfolio_fees": { "name": "Transaction fees" },
+      "portfolio_taxes": { "name": "Transaction taxes" },
+      "portfolio_purchases": { "name": "Cumulative purchases" },
+      "portfolio_sales": { "name": "Cumulative sales" },
+      "portfolio_net_invested": { "name": "Net invested capital" },
+      "portfolio_total_gain": { "name": "Total gain/loss" },
+      "portfolio_total_return": { "name": "Total return" },
+      "portfolio_transaction_count": { "name": "Transaction count" },
+      "portfolio_time_weighted_return": { "name": "Time-weighted return" },
+      "portfolio_benchmark_return": { "name": "Benchmark return" },
+      "portfolio_excess_return": { "name": "Excess return" },
+      "portfolio_performance_history": { "name": "Professional performance history" },
+      "portfolio_gain_percent": { "name": "Return" },
+      "portfolio_daily_change": { "name": "Daily change" },
+      "holding_price": { "name": "Price" },
+      "holding_quantity": { "name": "Amount owned" },
+      "holding_purchase_price": { "name": "Average purchase price" },
+      "holding_cost": { "name": "Cost basis" },
+      "holding_value": { "name": "Value" },
+      "holding_gain": { "name": "Gain/loss" },
+      "holding_realized_gain": { "name": "Realized gain/loss" },
+      "holding_fees": { "name": "Transaction fees" },
+      "holding_taxes": { "name": "Transaction taxes" },
+      "holding_transactions": { "name": "Transactions" },
+      "holding_gain_percent": { "name": "Return" },
+      "holding_daily_change": { "name": "Daily change" },
+      "holding_previous_close": { "name": "Previous close" },
+      "index_price": { "name": "Index level" },
+      "index_previous_close": { "name": "Previous close" },
+      "index_daily_change": { "name": "Daily change" },
+      "index_fifty_day_average": { "name": "50-day average" },
+      "index_two_hundred_day_average": { "name": "200-day average" },
+      "index_fifty_two_week_high": { "name": "52-week high" },
+      "index_fifty_two_week_low": { "name": "52-week low" },
+      "index_day_high": { "name": "Day high" },
+      "index_day_low": { "name": "Day low" },
+      "index_market_state": { "name": "Market state" },
+      "index_history": { "name": "Historical index data (30 days)" },
+      "crypto_high_24h": { "name": "24h high" },
+      "crypto_low_24h": { "name": "24h low" },
+      "crypto_volume_24h": { "name": "24h volume" },
+      "crypto_ath": { "name": "All-time high" },
+      "crypto_atl": { "name": "All-time low" },
+      "crypto_circulating_supply": { "name": "Circulating supply" },
+      "crypto_fully_diluted_valuation": { "name": "Fully diluted valuation" },
+      "crypto_history": { "name": "Historical crypto data (30 days)" },
+      "crypto_market_cap": { "name": "Market cap" },
+      "crypto_market_cap_change_24h": { "name": "Market cap change 24h" },
+      "crypto_market_cap_rank": { "name": "Market cap rank" },
+      "crypto_price_change_24h": { "name": "Price change 24h" },
+      "crypto_total_supply": { "name": "Total supply" },
+      "stock_fifty_day_average": { "name": "50-day average" },
+      "stock_fifty_two_week_high": { "name": "52-week high" },
+      "stock_fifty_two_week_low": { "name": "52-week low" },
+      "stock_two_hundred_day_average": { "name": "200-day average" },
+      "stock_average_analyst_rating": { "name": "Average analyst rating" },
+      "stock_average_volume_3month": { "name": "Average volume (3 months)" },
+      "stock_average_volume_10day": { "name": "Average volume (10 days)" },
+      "stock_bid": { "name": "Bid" },
+      "stock_bid_size": { "name": "Bid size" },
+      "stock_book_value": { "name": "Book value" },
+      "stock_day_high": { "name": "Day high" },
+      "stock_day_low": { "name": "Day low" },
+      "stock_dividend_rate": { "name": "Dividend rate" },
+      "stock_dividend_yield": { "name": "Dividend yield" },
+      "stock_earnings_per_share": { "name": "Earnings per share (EPS)" },
+      "stock_history": { "name": "Historical stock data (30 days)" },
+      "stock_market_cap": { "name": "Market cap" },
+      "stock_market_state": { "name": "Market state" },
+      "stock_price_earnings_ratio": { "name": "Price-to-earnings ratio" },
+      "stock_shares_outstanding": { "name": "Shares outstanding" },
+      "stock_symbol": { "name": "Symbol" },
+      "stock_volume": { "name": "Volume" }
+    },
+    "binary_sensor": {
+      "price_alert_below": { "name": "Price alert below" },
+      "price_alert_above": { "name": "Price alert above" }
+    }
+  }
+}

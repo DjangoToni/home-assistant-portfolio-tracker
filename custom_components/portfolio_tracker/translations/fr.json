@@ -1,0 +1,482 @@
+{
+  "title": "Portfolio Tracker",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Créer un portefeuille",
+        "description": "Créez un portefeuille. Les positions sont ensuite ajoutées via Configurer.",
+        "data": {
+          "portfolio_name": "Nom du portefeuille",
+          "base_currency": "Devise de base",
+          "update_interval": "Intervalle d'actualisation"
+        }
+      }
+    },
+    "error": {
+      "invalid_currency": "Saisissez un code de devise à trois lettres, par exemple CHF ou USD."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Gérer le portefeuille",
+        "description": "Choisissez la catégorie que vous souhaitez configurer.",
+        "menu_options": {
+          "assets": "Gérer les actifs",
+          "transactions": "Gérer les transactions",
+          "market": "Marché et indice de référence",
+          "general": "Paramètres généraux"
+        },
+        "menu_option_descriptions": {
+          "assets": "Ajoutez, modifiez ou supprimez des positions actives et des actifs surveillés.",
+          "transactions": "Gérez les achats, ventes et soldes initiaux dans le journal des positions.",
+          "market": "Gérez les indices boursiers et l'indice de référence de la performance.",
+          "general": "Modifiez la devise de base et l'intervalle d'actualisation."
+        }
+      },
+      "assets": {
+        "title": "Gérer les actifs",
+        "description": "Les positions actives influencent le portefeuille. Les actifs surveillés sont affichés séparément et ne modifient pas les totaux.",
+        "menu_options": {
+          "add_holding": "Ajouter une position",
+          "add_watchlist": "Ajouter un actif à la liste de surveillance",
+          "edit_holding": "Modifier l'actif",
+          "remove_holding": "Supprimer l'actif"
+        }
+      },
+      "transactions": {
+        "title": "Gérer les transactions",
+        "description": "Gérez le journal de vos positions actives.",
+        "menu_options": {
+          "add_transaction": "Ajouter une transaction",
+          "edit_transaction": "Modifier une transaction",
+          "remove_transaction": "Supprimer une transaction"
+        }
+      },
+      "market": {
+        "title": "Marché et indice de référence",
+        "description": "Gérez l'aperçu du marché et la comparaison professionnelle des performances.",
+        "menu_options": {
+          "add_index": "Ajouter un indice boursier",
+          "remove_index": "Supprimer un indice boursier",
+          "configure_benchmark": "Définir l'indice pour la performance"
+        }
+      },
+      "general": {
+        "title": "Paramètres généraux",
+        "data": {
+          "base_currency": "Devise de base",
+          "update_interval": "Intervalle d'actualisation"
+        }
+      },
+      "add_holding": {
+        "title": "Ajouter une position",
+        "description": "Saisissez un symbole Yahoo Finance, par exemple NOVN.SW ou BTC-USD. Pour les cryptomonnaies, saisissez l'identifiant CoinGecko de son URL s'il n'est pas détecté automatiquement.",
+        "data": {
+          "symbol": "Symbole Yahoo Finance",
+          "name": "Nom d'affichage (facultatif)",
+          "asset_type": "Type d'actif",
+          "quantity": "Quantité",
+          "average_price": "Prix d'achat ou total investi",
+          "transaction_price_mode": "Saisie du prix d'achat",
+          "transaction_market_price": "Prix unitaire du marché lors de l'achat (facultatif)",
+          "transaction_market_currency": "Devise du cours de marché (facultatif)",
+          "coingecko_id": "Identifiant CoinGecko (cryptomonnaies uniquement)",
+          "display_currency": "Devise d'affichage (cryptomonnaies uniquement)",
+          "alert_below": "Alerte sous ce prix (facultatif)",
+          "alert_above": "Alerte au-dessus de ce prix (facultatif)"
+        }
+      },
+      "add_watchlist": {
+        "title": "Surveiller un actif",
+        "description": "Suivez un actif et ses données de marché sans l'inclure dans la valeur, le gain ou la performance du portefeuille.",
+        "data": {
+          "symbol": "Symbole Yahoo Finance",
+          "name": "Nom d'affichage (facultatif)",
+          "asset_type": "Type d'actif",
+          "coingecko_id": "Identifiant CoinGecko (cryptomonnaies uniquement)",
+          "display_currency": "Devise d'affichage (cryptomonnaies uniquement)",
+          "alert_below": "Alerte sous ce prix (facultatif)",
+          "alert_above": "Alerte au-dessus de ce prix (facultatif)"
+        }
+      },
+      "edit_holding": {
+        "title": "Sélectionner un actif",
+        "data": {
+          "holding_id": "Actif actif ou surveillé"
+        }
+      },
+      "edit_holding_details": {
+        "title": "Modifier la position",
+        "description": "La quantité et le prix de revient sont calculés à partir du journal des transactions.",
+        "data": {
+          "symbol": "Symbole Yahoo Finance",
+          "name": "Nom d'affichage",
+          "asset_type": "Type d'actif",
+          "quantity": "Quantité",
+          "average_price": "Prix d'achat moyen",
+          "coingecko_id": "Identifiant CoinGecko (cryptomonnaies uniquement)",
+          "display_currency": "Devise d'affichage (cryptomonnaies uniquement)",
+          "alert_below": "Alerte sous ce prix (facultatif)",
+          "alert_above": "Alerte au-dessus de ce prix (facultatif)"
+        }
+      },
+      "remove_holding": {
+        "title": "Supprimer l'actif",
+        "description": "L'actif sélectionné et ses entités seront supprimés.",
+        "data": {
+          "holding_id": "Actif actif ou surveillé"
+        }
+      },
+      "add_index": {
+        "title": "Ajouter un indice boursier",
+        "description": "Sélectionnez un indice de référence à afficher comme appareil séparé et dans le tableau de bord du portefeuille.",
+        "data": {
+          "index_symbol": "Indice boursier"
+        }
+      },
+      "remove_index": {
+        "title": "Supprimer un indice boursier",
+        "data": {
+          "index_symbol": "Indice boursier"
+        }
+      },
+      "configure_benchmark": {
+        "title": "Indice de référence de la performance",
+        "description": "Sélectionnez l'indice utilisé pour comparer la performance du portefeuille ajustée des flux de trésorerie, ou aucun indice.",
+        "data": {
+          "benchmark_index": "Indice de référence"
+        }
+      },
+      "add_transaction": {
+        "title": "Ajouter une transaction",
+        "description": "Enregistrez un achat, une vente ou un solde initial. Les frais et impôts sont inclus dans le calcul de la moyenne mobile.",
+        "data": {
+          "holding_id": "Position",
+          "transaction_type": "Type de transaction",
+          "transaction_date": "Date de transaction (AAAA-MM-JJ)",
+          "quantity": "Quantité",
+          "transaction_price": "Prix ou montant total",
+          "transaction_price_mode": "Saisie du prix",
+          "transaction_market_price": "Prix unitaire du marché (facultatif)",
+          "transaction_market_currency": "Devise du cours de marché (facultatif)",
+          "transaction_currency": "Devise de transaction",
+          "transaction_fees": "Frais",
+          "transaction_taxes": "Impôts",
+          "transaction_exchange": "Bourse / courtier (facultatif)",
+          "transaction_note": "Note (facultatif)"
+        }
+      },
+      "edit_transaction": {
+        "title": "Sélectionner une transaction",
+        "data": {
+          "transaction_id": "Transaction"
+        }
+      },
+      "edit_transaction_details": {
+        "title": "Modifier une transaction",
+        "data": {
+          "transaction_type": "Type de transaction",
+          "transaction_date": "Date de transaction (AAAA-MM-JJ)",
+          "quantity": "Quantité",
+          "transaction_price": "Prix ou montant total",
+          "transaction_price_mode": "Saisie du prix",
+          "transaction_market_price": "Prix unitaire du marché (facultatif)",
+          "transaction_market_currency": "Devise du cours de marché (facultatif)",
+          "transaction_currency": "Devise de transaction",
+          "transaction_fees": "Frais",
+          "transaction_taxes": "Impôts",
+          "transaction_exchange": "Bourse / courtier (facultatif)",
+          "transaction_note": "Note (facultatif)"
+        }
+      },
+      "remove_transaction": {
+        "title": "Supprimer une transaction",
+        "description": "La transaction sélectionnée est définitivement supprimée du journal de la position.",
+        "data": {
+          "transaction_id": "Transaction"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Impossible de se connecter à Yahoo Finance.",
+      "coingecko_cannot_connect": "Impossible de se connecter à CoinGecko.",
+      "coingecko_id_required": "Saisissez l'identifiant CoinGecko de cette cryptomonnaie.",
+      "coingecko_not_found": "CoinGecko ne reconnaît pas cet identifiant.",
+      "invalid_currency": "Saisissez un code de devise à trois lettres, par exemple CHF ou USD.",
+      "symbol_not_found": "Yahoo Finance n'a renvoyé aucun cours pour ce symbole.",
+      "invalid_transaction_date": "Saisissez une date valide au format AAAA-MM-JJ.",
+      "invalid_transaction_price": "Le prix doit être supérieur à zéro.",
+      "invalid_alert_range": "Le seuil inférieur doit être plus petit que le seuil supérieur.",
+      "insufficient_quantity": "Cette vente dépasserait la quantité disponible à la date sélectionnée."
+    }
+  },
+  "selector": {
+    "asset_type": {
+      "options": {
+        "stock": "Action",
+        "etf": "ETF",
+        "crypto": "Cryptomonnaie",
+        "fund": "Fonds",
+        "currency": "Devise",
+        "other": "Autre"
+      }
+    },
+    "transaction_type": {
+      "options": {
+        "opening": "Solde initial",
+        "buy": "Achat",
+        "sell": "Vente"
+      }
+    },
+    "transaction_price_mode": {
+      "options": {
+        "per_unit": "Prix unitaire",
+        "total": "Montant total incluant les frais et impôts"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "portfolio_value": {
+        "name": "Valeur"
+      },
+      "portfolio_cost": {
+        "name": "Prix de revient"
+      },
+      "portfolio_gain": {
+        "name": "Gain/perte"
+      },
+      "portfolio_realized_gain": {
+        "name": "Gain/perte réalisé"
+      },
+      "portfolio_fees": {
+        "name": "Frais de transaction"
+      },
+      "portfolio_taxes": {
+        "name": "Impôts sur les transactions"
+      },
+      "portfolio_purchases": {
+        "name": "Achats cumulés"
+      },
+      "portfolio_sales": {
+        "name": "Ventes cumulées"
+      },
+      "portfolio_net_invested": {
+        "name": "Capital net investi"
+      },
+      "portfolio_total_gain": {
+        "name": "Gain/perte total"
+      },
+      "portfolio_total_return": {
+        "name": "Rendement total"
+      },
+      "portfolio_transaction_count": {
+        "name": "Nombre de transactions"
+      },
+      "portfolio_time_weighted_return": {
+        "name": "Rendement pondéré dans le temps"
+      },
+      "portfolio_benchmark_return": {
+        "name": "Rendement de l'indice de référence"
+      },
+      "portfolio_excess_return": {
+        "name": "Surperformance"
+      },
+      "portfolio_performance_history": {
+        "name": "Historique professionnel des performances"
+      },
+      "portfolio_gain_percent": {
+        "name": "Rendement"
+      },
+      "portfolio_daily_change": {
+        "name": "Variation journalière"
+      },
+      "holding_price": {
+        "name": "Prix"
+      },
+      "holding_quantity": {
+        "name": "Quantité détenue"
+      },
+      "holding_purchase_price": {
+        "name": "Prix d'achat moyen"
+      },
+      "holding_cost": {
+        "name": "Prix de revient"
+      },
+      "holding_value": {
+        "name": "Valeur"
+      },
+      "holding_gain": {
+        "name": "Gain/perte"
+      },
+      "holding_realized_gain": {
+        "name": "Gain/perte réalisé"
+      },
+      "holding_fees": {
+        "name": "Frais de transaction"
+      },
+      "holding_taxes": {
+        "name": "Impôts sur les transactions"
+      },
+      "holding_transactions": {
+        "name": "Transactions"
+      },
+      "holding_gain_percent": {
+        "name": "Rendement"
+      },
+      "holding_daily_change": {
+        "name": "Variation journalière"
+      },
+      "holding_previous_close": {
+        "name": "Clôture précédente"
+      },
+      "index_price": {
+        "name": "Niveau de l'indice"
+      },
+      "index_previous_close": {
+        "name": "Clôture précédente"
+      },
+      "index_daily_change": {
+        "name": "Variation journalière"
+      },
+      "index_fifty_day_average": {
+        "name": "Moyenne sur 50 jours"
+      },
+      "index_two_hundred_day_average": {
+        "name": "Moyenne sur 200 jours"
+      },
+      "index_fifty_two_week_high": {
+        "name": "Plus haut sur 52 semaines"
+      },
+      "index_fifty_two_week_low": {
+        "name": "Plus bas sur 52 semaines"
+      },
+      "index_day_high": {
+        "name": "Plus haut du jour"
+      },
+      "index_day_low": {
+        "name": "Plus bas du jour"
+      },
+      "index_market_state": {
+        "name": "État du marché"
+      },
+      "index_history": {
+        "name": "Données historiques de l'indice (30 jours)"
+      },
+      "crypto_high_24h": {
+        "name": "Plus haut sur 24 h"
+      },
+      "crypto_low_24h": {
+        "name": "Plus bas sur 24 h"
+      },
+      "crypto_volume_24h": {
+        "name": "Volume sur 24 h"
+      },
+      "crypto_ath": {
+        "name": "Plus haut historique"
+      },
+      "crypto_atl": {
+        "name": "Plus bas historique"
+      },
+      "crypto_circulating_supply": {
+        "name": "Offre en circulation"
+      },
+      "crypto_fully_diluted_valuation": {
+        "name": "Valorisation entièrement diluée"
+      },
+      "crypto_history": {
+        "name": "Données historiques de la cryptomonnaie (30 jours)"
+      },
+      "crypto_market_cap": {
+        "name": "Capitalisation boursière"
+      },
+      "crypto_market_cap_change_24h": {
+        "name": "Variation de la capitalisation sur 24 h"
+      },
+      "crypto_market_cap_rank": {
+        "name": "Rang par capitalisation"
+      },
+      "crypto_price_change_24h": {
+        "name": "Variation du prix sur 24 h"
+      },
+      "crypto_total_supply": {
+        "name": "Offre totale"
+      },
+      "stock_fifty_day_average": {
+        "name": "Moyenne sur 50 jours"
+      },
+      "stock_fifty_two_week_high": {
+        "name": "Plus haut sur 52 semaines"
+      },
+      "stock_fifty_two_week_low": {
+        "name": "Plus bas sur 52 semaines"
+      },
+      "stock_two_hundred_day_average": {
+        "name": "Moyenne sur 200 jours"
+      },
+      "stock_average_analyst_rating": {
+        "name": "Évaluation moyenne des analystes"
+      },
+      "stock_average_volume_3month": {
+        "name": "Volume moyen (3 mois)"
+      },
+      "stock_average_volume_10day": {
+        "name": "Volume moyen (10 jours)"
+      },
+      "stock_bid": {
+        "name": "Cours acheteur"
+      },
+      "stock_bid_size": {
+        "name": "Volume acheteur"
+      },
+      "stock_book_value": {
+        "name": "Valeur comptable"
+      },
+      "stock_day_high": {
+        "name": "Plus haut du jour"
+      },
+      "stock_day_low": {
+        "name": "Plus bas du jour"
+      },
+      "stock_dividend_rate": {
+        "name": "Montant du dividende"
+      },
+      "stock_dividend_yield": {
+        "name": "Rendement du dividende"
+      },
+      "stock_earnings_per_share": {
+        "name": "Bénéfice par action (BPA)"
+      },
+      "stock_history": {
+        "name": "Données historiques de l'action (30 jours)"
+      },
+      "stock_market_cap": {
+        "name": "Capitalisation boursière"
+      },
+      "stock_market_state": {
+        "name": "État du marché"
+      },
+      "stock_price_earnings_ratio": {
+        "name": "Ratio cours/bénéfice"
+      },
+      "stock_shares_outstanding": {
+        "name": "Actions en circulation"
+      },
+      "stock_symbol": {
+        "name": "Symbole"
+      },
+      "stock_volume": {
+        "name": "Volume"
+      }
+    },
+    "binary_sensor": {
+      "price_alert_below": {
+        "name": "Alerte de prix inférieur"
+      },
+      "price_alert_above": {
+        "name": "Alerte de prix supérieur"
+      }
+    }
+  }
+}
