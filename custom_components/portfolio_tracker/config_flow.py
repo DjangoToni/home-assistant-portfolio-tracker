@@ -34,6 +34,7 @@ from .const import (
     CONF_QUANTITY,
     CONF_PRICE_CURRENCY,
     CONF_PRICE_ENTITY,
+    CONF_PRICE_MODE,
     CONF_PRICE_SOURCE,
     CONF_RATIO,
     CONF_EXPIRY,
@@ -52,6 +53,7 @@ from .const import (
     CONF_TRANSACTION_TAXES,
     CONF_TRANSACTION_TYPE,
     CONF_TRANSACTIONS,
+    CONF_TRADING_VENUE,
     CONF_UPDATE_INTERVAL,
     CONF_WATCH_ONLY,
     CONF_WARRANT_TYPE,
@@ -67,10 +69,12 @@ from .const import (
     INDEX_PRESETS,
     MIN_UPDATE_INTERVAL,
     PRICE_SOURCES,
+    PRICE_MODES,
     STANDARD_ASSET_TYPES,
     TRANSACTION_PRICE_MODES,
     TRANSACTION_TYPES,
     WARRANT_TYPES,
+    WARRANT_VENUES,
     coingecko_id_for_holding,
     entry_value,
 )
@@ -237,7 +241,11 @@ def _warrant_schema(
     include_initial_position: bool = True,
 ) -> vol.Schema:
     """Return the dedicated warrant editor."""
+    new_warrant = not defaults
     defaults = defaults or {}
+    default_venue = defaults.get(CONF_TRADING_VENUE) or (
+        "six" if new_warrant or defaults.get(CONF_VALOR) else "other"
+    )
     price_entity_key: Any = vol.Optional(CONF_PRICE_ENTITY)
     if defaults.get(CONF_PRICE_ENTITY):
         price_entity_key = vol.Optional(
@@ -263,10 +271,30 @@ def _warrant_schema(
         price_entity_key: selector.EntitySelector(
             selector.EntitySelectorConfig(domain="sensor")
         ),
+        vol.Required(
+            CONF_PRICE_MODE,
+            default=defaults.get(CONF_PRICE_MODE, "state"),
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=PRICE_MODES,
+                translation_key="price_mode",
+                mode=selector.SelectSelectorMode.DROPDOWN,
+            )
+        ),
         vol.Optional(
             CONF_PRICE_CURRENCY,
-            default=defaults.get(CONF_PRICE_CURRENCY, ""),
+            default=defaults.get(CONF_PRICE_CURRENCY, "CHF"),
         ): selector.TextSelector(),
+        vol.Required(
+            CONF_TRADING_VENUE,
+            default=default_venue,
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=WARRANT_VENUES,
+                translation_key="warrant_venue",
+                mode=selector.SelectSelectorMode.DROPDOWN,
+            )
+        ),
         vol.Optional(
             CONF_ISIN, default=defaults.get(CONF_ISIN, "")
         ): selector.TextSelector(),
@@ -1047,6 +1075,7 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
             errors[CONF_SYMBOL] = "symbol_required"
             return None
         price_source = str(user_input.get(CONF_PRICE_SOURCE, "yahoo"))
+        price_mode = str(user_input.get(CONF_PRICE_MODE, "state"))
         price_entity = str(user_input.get(CONF_PRICE_ENTITY, "")).strip()
         price_currency_raw = str(
             user_input.get(CONF_PRICE_CURRENCY, "")
@@ -1074,6 +1103,7 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
             quote_name = state.name
             quote_currency = price_currency
         else:
+            price_mode = "state"
             try:
                 client = YahooFinanceClient(async_get_clientsession(self.hass))
                 quote = await client.async_get_quote(symbol)
@@ -1088,12 +1118,33 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
             quote_currency = quote.currency
 
         expiry = str(user_input.get(CONF_EXPIRY, "")).strip()
+        valor = (
+            str(user_input.get(CONF_VALOR, ""))
+            .replace("'", "")
+            .replace("\u2019", "")
+            .replace(" ", "")
+            .strip()
+        )
         if user_input[CONF_ASSET_TYPE] == "warrant":
             try:
                 date.fromisoformat(expiry)
             except ValueError:
                 errors[CONF_EXPIRY] = "invalid_warrant_expiry"
                 return None
+            trading_venue = str(
+                user_input.get(CONF_TRADING_VENUE, "six")
+            ).lower()
+            if (
+                trading_venue in {"six", "swiss_dots"}
+                and not valor
+            ):
+                errors[CONF_VALOR] = "valor_required"
+                return None
+            if trading_venue in {"six", "swiss_dots"} and not valor.isdigit():
+                errors[CONF_VALOR] = "invalid_valor"
+                return None
+        else:
+            trading_venue = ""
 
         coingecko_id = ""
         display_currency = entry_value(
@@ -1150,9 +1201,10 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
             CONF_PRICE_SOURCE: price_source,
             CONF_PRICE_ENTITY: price_entity,
             CONF_PRICE_CURRENCY: quote_currency,
+            CONF_PRICE_MODE: price_mode,
             CONF_ISIN: str(user_input.get(CONF_ISIN, "")).strip().upper(),
             CONF_WKN: str(user_input.get(CONF_WKN, "")).strip().upper(),
-            CONF_VALOR: str(user_input.get(CONF_VALOR, "")).strip(),
+            CONF_VALOR: valor,
             CONF_ISSUER: str(user_input.get(CONF_ISSUER, "")).strip(),
             CONF_UNDERLYING: str(user_input.get(CONF_UNDERLYING, "")).strip(),
             CONF_WARRANT_TYPE: str(
@@ -1161,5 +1213,6 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
             CONF_STRIKE: float(user_input.get(CONF_STRIKE, 0)),
             CONF_RATIO: float(user_input.get(CONF_RATIO, 0)),
             CONF_EXPIRY: expiry,
+            CONF_TRADING_VENUE: trading_venue,
             "_quote_currency": quote_currency,
         }

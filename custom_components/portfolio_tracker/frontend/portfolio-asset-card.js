@@ -2,7 +2,7 @@ const CARD_TAG = "portfolio-asset-card";
 const EDITOR_TAG = "portfolio-asset-card-editor";
 const PORTFOLIO_CARD_TAG = "portfolio-overview-card";
 const PORTFOLIO_EDITOR_TAG = "portfolio-overview-card-editor";
-const CARD_VERSION = "1.5.0";
+const CARD_VERSION = "1.5.1";
 
 const LABELS = {
   de: {
@@ -39,6 +39,15 @@ const LABELS = {
     strike: "Strike",
     ratio: "Bezugsverhältnis",
     expiry: "Verfall",
+    venue: "Handelsplatz",
+    six: "SIX Structured Products",
+    swiss_dots: "Swiss DOTS",
+    other: "Anderer Handelsplatz",
+    quoteUsed: "Verwendeter Kurs",
+    priceModes: { state: "Sensorzustand", bid: "Geldkurs", ask: "Briefkurs", midpoint: "Mittel aus Geld/Brief" },
+    bidLabel: "Geldkurs",
+    askLabel: "Briefkurs",
+    spread: "Spread",
     call: "Call",
     put: "Put",
     transactions: "Transaktionshistorie",
@@ -103,6 +112,15 @@ const LABELS = {
     strike: "Strike",
     ratio: "Ratio",
     expiry: "Expiry",
+    venue: "Trading venue",
+    six: "SIX Structured Products",
+    swiss_dots: "Swiss DOTS",
+    other: "Other venue",
+    quoteUsed: "Price used",
+    priceModes: { state: "Sensor state", bid: "Bid", ask: "Ask", midpoint: "Bid/ask midpoint" },
+    bidLabel: "Bid",
+    askLabel: "Ask",
+    spread: "Spread",
     call: "Call",
     put: "Put",
     transactions: "Transaction history",
@@ -164,6 +182,12 @@ LABELS.fr = {
   warrantType: "Type",
   ratio: "Parité",
   expiry: "Échéance",
+  venue: "Place de négoce",
+  other: "Autre place",
+  quoteUsed: "Cours utilisé",
+  priceModes: { state: "État du capteur", bid: "Achat", ask: "Vente", midpoint: "Milieu achat/vente" },
+  bidLabel: "Achat",
+  askLabel: "Vente",
   transactions: "Historique des transactions",
   noTransactions: "Aucune transaction enregistrée",
   realized: "Réalisé",
@@ -222,6 +246,12 @@ LABELS.it = {
   warrantType: "Tipo",
   ratio: "Rapporto",
   expiry: "Scadenza",
+  venue: "Sede di negoziazione",
+  other: "Altra sede",
+  quoteUsed: "Prezzo utilizzato",
+  priceModes: { state: "Stato del sensore", bid: "Denaro", ask: "Lettera", midpoint: "Media denaro/lettera" },
+  bidLabel: "Denaro",
+  askLabel: "Lettera",
   transactions: "Cronologia delle transazioni",
   noTransactions: "Nessuna transazione registrata",
   realized: "Realizzato",
@@ -904,6 +934,11 @@ class PortfolioAssetCard extends HTMLElement {
       </section>` : `<section class="transaction-section"><div class="transaction-heading"><strong>${labels.transactions}</strong></div><div class="no-transactions">${labels.noTransactions}</div></section>`;
     const warrantFields = configuredAssetType === "warrant" ? [
       [labels.warrantType, labels[attributes.warrant_type] || attributes.warrant_type],
+      [labels.venue, labels[attributes.trading_venue] || attributes.trading_venue],
+      [labels.quoteUsed, labels.priceModes[attributes.price_mode] || attributes.price_mode],
+      [labels.bidLabel, attributes.bid !== null && attributes.bid !== undefined ? `${this._compactNumber(attributes.bid)} ${price?.attributes?.unit_of_measurement || ""}` : null],
+      [labels.askLabel, attributes.ask !== null && attributes.ask !== undefined ? `${this._compactNumber(attributes.ask)} ${price?.attributes?.unit_of_measurement || ""}` : null],
+      [labels.spread, attributes.spread_percent !== null && attributes.spread_percent !== undefined ? `${this._compactNumber(attributes.spread_percent)} %` : null],
       [labels.underlying, attributes.underlying],
       [labels.strike, attributes.strike],
       [labels.ratio, attributes.ratio],

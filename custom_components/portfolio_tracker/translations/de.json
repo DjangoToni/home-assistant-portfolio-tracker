@@ -103,13 +103,15 @@
       },
       "add_warrant": {
         "title": "Warrant hinzufügen",
-        "description": "Verwende ein Yahoo-Finance-Symbol oder einen numerischen Home-Assistant-Sensor als Kursquelle. Für die korrekte Portfolio-Umrechnung ist die Kurswährung erforderlich.",
+        "description": "Für Schweizer Warrants von SIX und Swiss DOTS ist die Valorennummer erforderlich. Verwende Yahoo Finance, wenn das Produkt dort geführt wird, oder einen numerischen Broker-/Marktdatensensor mit optionalen Attributen für Geld- und Briefkurs.",
         "data": {
           "symbol": "Ticker / Kurzbezeichnung",
           "name": "Anzeigename (optional)",
           "price_source": "Kursquelle",
           "price_entity": "Home-Assistant-Kurssensor (bei Sensor-Kursquelle)",
+          "price_mode": "Zu verwendender Sensorkurs",
           "price_currency": "Kurswährung (bei Sensor-Kursquelle erforderlich)",
+          "trading_venue": "Handelsplatz",
           "isin": "ISIN (optional)",
           "wkn": "WKN (optional)",
           "valor": "Valorennummer (optional)",
@@ -148,7 +150,9 @@
           ,"alert_above": "Alarm über diesem Kurs (optional)"
           ,"price_source": "Kursquelle"
           ,"price_entity": "Home-Assistant-Kurssensor"
+          ,"price_mode": "Zu verwendender Sensorkurs"
           ,"price_currency": "Kurswährung"
+          ,"trading_venue": "Handelsplatz"
           ,"isin": "ISIN"
           ,"wkn": "WKN"
           ,"valor": "Valorennummer"
@@ -240,6 +244,8 @@
       "invalid_warrant_expiry": "Gib ein gültiges Verfallsdatum ein.",
       "price_entity_not_found": "Wähle einen vorhandenen Home-Assistant-Sensor aus.",
       "price_entity_not_numeric": "Der ausgewählte Home-Assistant-Sensor muss einen numerischen Zustand haben.",
+      "valor_required": "Gib für Warrants von SIX oder Swiss DOTS die Schweizer Valorennummer ein.",
+      "invalid_valor": "Die Schweizer Valorennummer darf nur Ziffern enthalten.",
       "insufficient_quantity": "Dieser Verkauf überschreitet den am gewählten Datum verfügbaren Bestand."
     }
   },
@@ -259,6 +265,21 @@
       "options": {
         "yahoo": "Yahoo Finance",
         "entity": "Home-Assistant-Sensor"
+      }
+    },
+    "price_mode": {
+      "options": {
+        "state": "Sensorzustand",
+        "bid": "Attribut Geldkurs (bid)",
+        "ask": "Attribut Briefkurs (ask)",
+        "midpoint": "Mittelwert aus Geld- und Briefkurs"
+      }
+    },
+    "warrant_venue": {
+      "options": {
+        "six": "SIX Structured Products",
+        "swiss_dots": "Swiss DOTS",
+        "other": "Anderer Handelsplatz"
       }
     },
     "warrant_type": {

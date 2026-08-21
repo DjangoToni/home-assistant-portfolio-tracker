@@ -88,6 +88,22 @@ Es stehen zwei Kursquellen zur Verfügung:
 
 Das optionale Attribut `previous_close` am externen Kurssensor aktiviert die Tagesveränderung in Prozent. Die Historie eines externen Sensors wird nicht in das 30-Tage-Diagramm oder die professionelle Performanceberechnung übernommen, da Home-Assistant-Sensoren keine einheitliche Schnittstelle für historische Kurse besitzen. Aktueller Wert, Gewinn, Transaktionen, Stammdaten und Alarme stehen vollständig zur Verfügung.
 
+#### Schweizer Warrants
+
+Schweizer Warrants können **SIX Structured Products** oder **Swiss DOTS** zugeordnet werden. Die Schweizer Valorennummer ist dabei verpflichtend, CHF ist vorausgewählt und die ISIN kann als internationale Kennung hinterlegt werden. An SIX kotierte strukturierte Produkte besitzen normalerweise zusätzlich ein sechs Zeichen langes Börsensymbol; bei Swiss DOTS dient häufig die Valorennummer als Kennung. Im [Swissquote Derivative Finder](https://www.swissquote.ch/sqi_web_search/market/equity/swissderivatives/SwissDerivativeSearch.action) lassen sich öffentliche Produktdaten beider Handelsplätze finden.
+
+Bei Broker- oder Marktdatensensoren kann die Eingabemaske den Sensorzustand, das Attribut `bid`, das Attribut `ask` oder den Mittelwert aus `bid` und `ask` als Bewertungskurs verwenden. Die optionalen Sensorattribute sehen beispielsweise so aus:
+
+```yaml
+state: 0.433
+attributes:
+  bid: 0.423
+  ask: 0.443
+  previous_close: 0.410
+```
+
+Geldkurs, Briefkurs, Spread, Handelsplatz und der ausgewählte Bewertungskurs erscheinen in der Detailkarte. Fehlt der gewählte Bid-/Ask-Wert vorübergehend, arbeitet Portfolio Tracker mit dem numerischen Sensorzustand weiter. Ein anonymer Direktzugriff auf SIX-Marktdaten ist nicht aktiviert, weil die offizielle SIX Web API ein Kundenzertifikat und Datenabonnement voraussetzt.
+
 ## Transaktionen
 
 Unterstützt werden Anfangsbestand, Kauf und Verkauf. Eine Transaktion kann enthalten:

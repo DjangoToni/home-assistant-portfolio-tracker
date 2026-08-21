@@ -103,13 +103,15 @@
       },
       "add_warrant": {
         "title": "Ajouter un warrant",
-        "description": "Utilisez un symbole Yahoo Finance ou un capteur Home Assistant numérique comme source de cours. La devise du cours est nécessaire pour la conversion du portefeuille.",
+        "description": "Les warrants suisses SIX et Swiss DOTS nécessitent leur numéro de valeur. Utilisez Yahoo Finance si le produit y figure, ou un capteur numérique de courtier/données avec des attributs achat et vente facultatifs.",
         "data": {
           "symbol": "Ticker / identifiant court",
           "name": "Nom affiché (facultatif)",
           "price_source": "Source du cours",
           "price_entity": "Capteur de cours Home Assistant (pour la source capteur)",
+          "price_mode": "Cours du capteur à utiliser",
           "price_currency": "Devise du cours (requise pour la source capteur)",
+          "trading_venue": "Place de négoce",
           "isin": "ISIN (facultatif)",
           "wkn": "WKN (facultatif)",
           "valor": "Numéro de valeur (facultatif)",
@@ -150,7 +152,9 @@
           "alert_above": "Alerte au-dessus de ce prix (facultatif)",
           "price_source": "Source du cours",
           "price_entity": "Capteur de cours Home Assistant",
+          "price_mode": "Cours du capteur à utiliser",
           "price_currency": "Devise du cours",
+          "trading_venue": "Place de négoce",
           "isin": "ISIN",
           "wkn": "WKN",
           "valor": "Numéro de valeur",
@@ -254,6 +258,8 @@
       "invalid_warrant_expiry": "Saisissez une date d'échéance valide.",
       "price_entity_not_found": "Sélectionnez un capteur Home Assistant existant.",
       "price_entity_not_numeric": "Le capteur Home Assistant sélectionné doit avoir un état numérique.",
+      "valor_required": "Saisissez le numéro de valeur suisse pour les warrants SIX ou Swiss DOTS.",
+      "invalid_valor": "Le numéro de valeur suisse ne peut contenir que des chiffres.",
       "insufficient_quantity": "Cette vente dépasserait la quantité disponible à la date sélectionnée."
     }
   },
@@ -273,6 +279,21 @@
       "options": {
         "yahoo": "Yahoo Finance",
         "entity": "Capteur Home Assistant"
+      }
+    },
+    "price_mode": {
+      "options": {
+        "state": "État du capteur",
+        "bid": "Attribut achat (bid)",
+        "ask": "Attribut vente (ask)",
+        "midpoint": "Milieu achat/vente"
+      }
+    },
+    "warrant_venue": {
+      "options": {
+        "six": "SIX Structured Products",
+        "swiss_dots": "Swiss DOTS",
+        "other": "Autre place de négoce"
       }
     },
     "warrant_type": {

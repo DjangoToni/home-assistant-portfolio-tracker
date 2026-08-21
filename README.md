@@ -88,6 +88,22 @@ Two price sources are available:
 
 The optional `previous_close` attribute on an external price sensor enables the daily percentage change. External sensor history is not imported into the 30-day chart or professional performance calculation because no common historical-data contract exists between Home Assistant sensors. Current value, gains, transactions, metadata, and alerts remain fully available.
 
+#### Swiss warrants
+
+Swiss warrants can be assigned to **SIX Structured Products** or **Swiss DOTS**. Their Swiss valor number is required, CHF is preselected, and ISIN remains available as the international identifier. SIX-listed structured products normally also have a six-character exchange symbol; Swiss DOTS products are commonly identified by their valor number. The [Swissquote Derivative Finder](https://www.swissquote.ch/sqi_web_search/market/equity/swissderivatives/SwissDerivativeSearch.action) can be used to find public product data from both venues.
+
+For broker or market-data sensors, the warrant editor can use the sensor state, its `bid` attribute, its `ask` attribute, or the midpoint of `bid` and `ask`. The optional attributes are:
+
+```yaml
+state: 0.433
+attributes:
+  bid: 0.423
+  ask: 0.443
+  previous_close: 0.410
+```
+
+Bid, ask, midpoint spread, venue, and the selected valuation price are shown in the detail card. If the selected bid/ask value is temporarily missing, Portfolio Tracker keeps working with the numeric sensor state. Direct SIX market-data access is not enabled anonymously because the official SIX Web API requires a client certificate and data subscription.
+
 ## Transactions
 
 Supported transaction types are opening balance, purchase, and sale. Each transaction can contain:

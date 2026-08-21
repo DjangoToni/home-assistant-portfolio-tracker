@@ -60,6 +60,7 @@ from .const import (
     CONF_NAME,
     CONF_PRICE_CURRENCY,
     CONF_PRICE_ENTITY,
+    CONF_PRICE_MODE,
     CONF_PRICE_SOURCE,
     CONF_RATIO,
     CONF_EXPIRY,
@@ -67,6 +68,7 @@ from .const import (
     CONF_PORTFOLIO_NAME,
     CONF_SYMBOL,
     CONF_TRANSACTIONS,
+    CONF_TRADING_VENUE,
     CONF_WATCH_ONLY,
     CONF_WARRANT_TYPE,
     CONF_WKN,
@@ -585,6 +587,15 @@ class HoldingEntity(PortfolioEntity):
     @property
     def extra_state_attributes(self):
         quote = quote_for(self.coordinator.data, self._holding)
+        spread_percent = None
+        if (
+            quote is not None
+            and quote.bid is not None
+            and quote.ask is not None
+            and quote.bid + quote.ask > 0
+        ):
+            midpoint = (quote.bid + quote.ask) / 2
+            spread_percent = float((quote.ask - quote.bid) / midpoint * 100)
         average_price = holding_average_price(self.coordinator.data, self._holding)
         base_currency = entry_value(
             self._entry, CONF_BASE_CURRENCY, DEFAULT_BASE_CURRENCY
@@ -614,6 +625,10 @@ class HoldingEntity(PortfolioEntity):
             "price_source": self._holding.get(CONF_PRICE_SOURCE, "yahoo"),
             "price_entity": self._holding.get(CONF_PRICE_ENTITY) or None,
             "price_currency": self._holding.get(CONF_PRICE_CURRENCY) or None,
+            "price_mode": self._holding.get(CONF_PRICE_MODE, "state"),
+            "bid": float(quote.bid) if quote and quote.bid is not None else None,
+            "ask": float(quote.ask) if quote and quote.ask is not None else None,
+            "spread_percent": spread_percent,
             "isin": self._holding.get(CONF_ISIN) or None,
             "wkn": self._holding.get(CONF_WKN) or None,
             "valor": self._holding.get(CONF_VALOR) or None,
@@ -623,6 +638,7 @@ class HoldingEntity(PortfolioEntity):
             "strike": self._holding.get(CONF_STRIKE),
             "ratio": self._holding.get(CONF_RATIO),
             "expiry": self._holding.get(CONF_EXPIRY) or None,
+            "trading_venue": self._holding.get(CONF_TRADING_VENUE) or None,
         }
 
 

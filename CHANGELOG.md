@@ -2,6 +2,14 @@
 
 All notable changes to Portfolio Tracker are documented here.
 
+## 1.5.1 - 2026-08-21
+
+- Optimized warrant configuration for Swiss SIX Structured Products and Swiss DOTS.
+- Made the Swiss valor number mandatory for Swiss warrant venues and defaulted quote currency to CHF.
+- Added selectable external sensor pricing from state, bid, ask, or bid/ask midpoint.
+- Added bid, ask, spread, selected price mode, and trading venue to warrant details.
+- Added graceful state-price fallback when bid or ask attributes are temporarily missing.
+
 ## 1.5.0 - 2026-08-21
 
 - Added a dedicated warrant workflow for active positions and watched assets.

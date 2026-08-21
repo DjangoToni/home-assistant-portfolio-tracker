@@ -24,6 +24,7 @@ from .const import (
     CONF_NAME,
     CONF_PRICE_CURRENCY,
     CONF_PRICE_ENTITY,
+    CONF_PRICE_MODE,
     CONF_PRICE_SOURCE,
     CONF_TRANSACTION_CURRENCY,
     CONF_TRANSACTIONS,
@@ -372,14 +373,28 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
                 state.state,
             )
             return None
-        previous_close = None
-        raw_previous = state.attributes.get("previous_close")
-        if raw_previous is not None:
-            try:
-                candidate = Decimal(str(raw_previous))
-                previous_close = candidate if candidate.is_finite() else None
-            except (InvalidOperation, ValueError):
-                pass
+        bid = self._decimal_attribute(state.attributes, "bid")
+        ask = self._decimal_attribute(state.attributes, "ask")
+        previous_close = self._decimal_attribute(
+            state.attributes, "previous_close"
+        )
+        price_mode = str(holding.get(CONF_PRICE_MODE, "state"))
+        selected_price = {
+            "bid": bid,
+            "ask": ask,
+            "midpoint": (
+                (bid + ask) / Decimal(2)
+                if bid is not None and ask is not None
+                else None
+            ),
+        }.get(price_mode)
+        if price_mode != "state" and selected_price is None:
+            _LOGGER.warning(
+                "External price entity %s has no usable %s quote; using its state",
+                entity_id,
+                price_mode,
+            )
+        price = selected_price if selected_price is not None else price
         symbol = str(holding["symbol"]).upper()
         return Quote(
             symbol=symbol,
@@ -390,7 +405,21 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
             exchange="Home Assistant",
             instrument_type="EXTERNAL",
             timestamp=state.last_updated,
+            bid=bid,
+            ask=ask,
         )
+
+    @staticmethod
+    def _decimal_attribute(attributes: dict, key: str) -> Decimal | None:
+        """Return one finite non-negative decimal state attribute."""
+        raw_value = attributes.get(key)
+        if raw_value is None:
+            return None
+        try:
+            value = Decimal(str(raw_value))
+        except (InvalidOperation, ValueError):
+            return None
+        return value if value.is_finite() and value >= 0 else None
 
     def _notify_price_alerts(self, data: PortfolioData, holdings: list[dict]) -> None:
         """Notify once when a configured asset threshold becomes active."""

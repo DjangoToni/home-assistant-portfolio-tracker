@@ -26,6 +26,7 @@ class Holding(TypedDict):
     price_source: NotRequired[str]
     price_entity: NotRequired[str]
     price_currency: NotRequired[str]
+    price_mode: NotRequired[str]
     isin: NotRequired[str]
     wkn: NotRequired[str]
     valor: NotRequired[str]
@@ -35,6 +36,7 @@ class Holding(TypedDict):
     strike: NotRequired[float]
     ratio: NotRequired[float]
     expiry: NotRequired[str]
+    trading_venue: NotRequired[str]
 
 
 class Transaction(TypedDict):
@@ -81,6 +83,8 @@ class Quote:
     exchange: str | None
     instrument_type: str | None
     timestamp: datetime | None
+    bid: Decimal | None = None
+    ask: Decimal | None = None
 
     @property
     def daily_change_percent(self) -> Decimal | None:

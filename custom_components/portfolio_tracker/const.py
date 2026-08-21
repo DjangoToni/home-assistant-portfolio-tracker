@@ -6,7 +6,7 @@ from typing import Final
 
 DOMAIN: Final = "portfolio_tracker"
 PLATFORMS: Final = ["sensor", "binary_sensor"]
-FRONTEND_VERSION: Final = "1.5.0"
+FRONTEND_VERSION: Final = "1.5.1"
 FRONTEND_URL: Final = "/portfolio_tracker/frontend"
 
 CONF_PORTFOLIO_NAME: Final = "portfolio_name"
@@ -43,6 +43,7 @@ CONF_ALERT_BELOW: Final = "alert_below"
 CONF_PRICE_SOURCE: Final = "price_source"
 CONF_PRICE_ENTITY: Final = "price_entity"
 CONF_PRICE_CURRENCY: Final = "price_currency"
+CONF_PRICE_MODE: Final = "price_mode"
 CONF_ISIN: Final = "isin"
 CONF_WKN: Final = "wkn"
 CONF_VALOR: Final = "valor"
@@ -52,6 +53,7 @@ CONF_WARRANT_TYPE: Final = "warrant_type"
 CONF_STRIKE: Final = "strike"
 CONF_RATIO: Final = "ratio"
 CONF_EXPIRY: Final = "expiry"
+CONF_TRADING_VENUE: Final = "trading_venue"
 
 DEFAULT_BASE_CURRENCY: Final = "CHF"
 DEFAULT_UPDATE_INTERVAL: Final = 15
@@ -60,7 +62,9 @@ MIN_UPDATE_INTERVAL: Final = 5
 ASSET_TYPES: Final = ["stock", "etf", "crypto", "fund", "currency", "warrant", "other"]
 STANDARD_ASSET_TYPES: Final = [item for item in ASSET_TYPES if item != "warrant"]
 PRICE_SOURCES: Final = ["yahoo", "entity"]
+PRICE_MODES: Final = ["state", "bid", "ask", "midpoint"]
 WARRANT_TYPES: Final = ["call", "put"]
+WARRANT_VENUES: Final = ["six", "swiss_dots", "other"]
 CRYPTO_DISPLAY_CURRENCIES: Final = ["CHF", "EUR", "USD", "GBP", "JPY", "CAD", "AUD"]
 TRANSACTION_TYPES: Final = ["opening", "buy", "sell"]
 TRANSACTION_PRICE_MODES: Final = ["per_unit", "total"]
