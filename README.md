@@ -12,7 +12,8 @@ Portfolio Tracker provides native Home Assistant entities and two automatically 
 
 ## Highlights
 
-- Stocks, ETFs, funds, cryptocurrencies, currencies, and other Yahoo Finance symbols
+- Stocks, ETFs, funds, cryptocurrencies, currencies, warrants, and other Yahoo Finance symbols
+- Warrants using either Yahoo Finance or an existing numeric Home Assistant sensor as the price source
 - CoinGecko market details for cryptocurrencies
 - Active positions and a separate watchlist
 - Upper and lower price alerts with binary sensors and persistent notifications
@@ -76,6 +77,17 @@ The initial quantity and purchase price create an opening transaction. Further p
 
 Watched assets receive prices, market details, history, and alerts, but never affect portfolio totals. They are shown in a separate dashboard table with their alert thresholds and current status.
 
+### Warrants
+
+Open **Configure > Assets > Add warrant** to create an active warrant position or a watched warrant. The editor stores the product data needed to identify and assess it: ISIN, WKN, valor number, issuer, underlying, call/put type, strike, ratio, and expiry. All fields except type, strike, ratio, and expiry are optional.
+
+Two price sources are available:
+
+- **Yahoo Finance**: enter the exact Yahoo symbol. Currency and 30-day price history are loaded automatically when Yahoo provides the product.
+- **Home Assistant sensor**: select any existing sensor with a numeric price state, enter a unique ticker or short identifier, and specify the quote currency. This makes broker APIs, REST sensors, MQTT sensors, and template sensors usable even when Yahoo does not list the warrant.
+
+The optional `previous_close` attribute on an external price sensor enables the daily percentage change. External sensor history is not imported into the 30-day chart or professional performance calculation because no common historical-data contract exists between Home Assistant sensors. Current value, gains, transactions, metadata, and alerts remain fully available.
+
 ## Transactions
 
 Supported transaction types are opening balance, purchase, and sale. Each transaction can contain:
@@ -120,6 +132,7 @@ Rows in the active-assets and watched-assets tables can also be expanded directl
 
 - [Yahoo Finance](https://finance.yahoo.com/) supplies quotes, exchange rates, stock details, market indices, and stock history.
 - [CoinGecko](https://www.coingecko.com/) supplies extended cryptocurrency market data and history.
+- Existing numeric Home Assistant sensors can supply warrant prices from another integration, broker, REST endpoint, MQTT topic, or template.
 
 Public provider endpoints can occasionally be unavailable or rate limited. Portfolio Tracker retains the last successful data after startup and retries on the next scheduled update.
 

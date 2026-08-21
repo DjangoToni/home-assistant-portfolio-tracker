@@ -12,7 +12,8 @@ Portfolio Tracker stellt native Home-Assistant-Entitäten und zwei automatisch r
 
 ## Funktionsumfang
 
-- Aktien, ETFs, Fonds, Kryptowährungen, Währungen und weitere Yahoo-Finance-Symbole
+- Aktien, ETFs, Fonds, Kryptowährungen, Währungen, Warrants und weitere Yahoo-Finance-Symbole
+- Warrants wahlweise mit Yahoo Finance oder einem vorhandenen numerischen Home-Assistant-Sensor als Kursquelle
 - Erweiterte CoinGecko-Marktdaten für Kryptowährungen
 - Aktive Positionen und separate Beobachtungsliste
 - Obere und untere Kursalarme mit Binärsensoren und dauerhaften Benachrichtigungen
@@ -76,6 +77,17 @@ Stückzahl und Kaufpreis bei der Erstellung erzeugen eine Anfangstransaktion. We
 
 Beobachtete Assets erhalten Kurse, Marktdetails, Verlauf und Alarme, beeinflussen aber niemals die Portfoliowerte. Im Dashboard werden sie in einer separaten Tabelle mit Alarmgrenzen und aktuellem Status angezeigt.
 
+### Warrants
+
+Unter **Konfigurieren > Assets > Warrant hinzufügen** kann ein Warrant als aktive Position oder nur zur Beobachtung angelegt werden. Die Eingabemaske speichert die relevanten Produktdaten: ISIN, WKN, Valorennummer, Emittent, Basiswert, Call/Put-Typ, Ausübungspreis, Bezugsverhältnis und Verfallsdatum. Bis auf Typ, Ausübungspreis, Bezugsverhältnis und Verfallsdatum sind diese Angaben optional.
+
+Es stehen zwei Kursquellen zur Verfügung:
+
+- **Yahoo Finance**: Das exakte Yahoo-Symbol eingeben. Kurswährung und 30-Tage-Verlauf werden automatisch geladen, sofern Yahoo das Produkt bereitstellt.
+- **Home-Assistant-Sensor**: Einen vorhandenen Sensor mit numerischem Kurszustand auswählen, eine eindeutige Kurzbezeichnung angeben und die Kurswährung festlegen. Damit lassen sich Broker-Integrationen, REST-, MQTT- und Template-Sensoren verwenden, wenn Yahoo den Warrant nicht kennt.
+
+Das optionale Attribut `previous_close` am externen Kurssensor aktiviert die Tagesveränderung in Prozent. Die Historie eines externen Sensors wird nicht in das 30-Tage-Diagramm oder die professionelle Performanceberechnung übernommen, da Home-Assistant-Sensoren keine einheitliche Schnittstelle für historische Kurse besitzen. Aktueller Wert, Gewinn, Transaktionen, Stammdaten und Alarme stehen vollständig zur Verfügung.
+
 ## Transaktionen
 
 Unterstützt werden Anfangsbestand, Kauf und Verkauf. Eine Transaktion kann enthalten:
@@ -120,6 +132,7 @@ Zeilen in den Tabellen für aktive und beobachtete Assets lassen sich außerdem 
 
 - [Yahoo Finance](https://finance.yahoo.com/) liefert Kurse, Wechselkurse, Aktiendetails, Marktindizes und Aktienverläufe.
 - [CoinGecko](https://www.coingecko.com/) liefert erweiterte Kryptomarktdaten und Verläufe.
+- Vorhandene numerische Home-Assistant-Sensoren können Warrant-Kurse aus einer anderen Integration, einem Broker, REST-Endpunkt, MQTT-Topic oder Template liefern.
 
 Öffentliche Anbieter-Endpunkte können vorübergehend nicht erreichbar oder begrenzt sein. Nach dem ersten erfolgreichen Laden behält Portfolio Tracker die letzten gültigen Daten und versucht es beim nächsten Intervall erneut.
 

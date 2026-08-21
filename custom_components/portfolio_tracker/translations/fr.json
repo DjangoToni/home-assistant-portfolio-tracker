@@ -40,6 +40,7 @@
         "menu_options": {
           "add_holding": "Ajouter une position",
           "add_watchlist": "Ajouter un actif à la liste de surveillance",
+          "add_warrant": "Ajouter un warrant",
           "edit_holding": "Modifier l'actif",
           "remove_holding": "Supprimer l'actif"
         }
@@ -100,6 +101,34 @@
           "alert_above": "Alerte au-dessus de ce prix (facultatif)"
         }
       },
+      "add_warrant": {
+        "title": "Ajouter un warrant",
+        "description": "Utilisez un symbole Yahoo Finance ou un capteur Home Assistant numérique comme source de cours. La devise du cours est nécessaire pour la conversion du portefeuille.",
+        "data": {
+          "symbol": "Ticker / identifiant court",
+          "name": "Nom affiché (facultatif)",
+          "price_source": "Source du cours",
+          "price_entity": "Capteur de cours Home Assistant (pour la source capteur)",
+          "price_currency": "Devise du cours (requise pour la source capteur)",
+          "isin": "ISIN (facultatif)",
+          "wkn": "WKN (facultatif)",
+          "valor": "Numéro de valeur (facultatif)",
+          "issuer": "Émetteur (facultatif)",
+          "underlying": "Sous-jacent (facultatif)",
+          "warrant_type": "Type de warrant",
+          "strike": "Prix d'exercice",
+          "ratio": "Parité",
+          "expiry": "Date d'échéance",
+          "watch_only": "Surveiller uniquement; ne pas inclure dans le portefeuille",
+          "quantity": "Quantité",
+          "average_price": "Prix d'achat ou montant total investi",
+          "transaction_price_mode": "Saisie du prix d'achat",
+          "transaction_market_price": "Cours par unité lors de l'achat (facultatif)",
+          "transaction_market_currency": "Devise du cours (facultatif)",
+          "alert_below": "Alerte sous ce cours (facultatif)",
+          "alert_above": "Alerte au-dessus de ce cours (facultatif)"
+        }
+      },
       "edit_holding": {
         "title": "Sélectionner un actif",
         "data": {
@@ -118,7 +147,20 @@
           "coingecko_id": "Identifiant CoinGecko (cryptomonnaies uniquement)",
           "display_currency": "Devise d'affichage (cryptomonnaies uniquement)",
           "alert_below": "Alerte sous ce prix (facultatif)",
-          "alert_above": "Alerte au-dessus de ce prix (facultatif)"
+          "alert_above": "Alerte au-dessus de ce prix (facultatif)",
+          "price_source": "Source du cours",
+          "price_entity": "Capteur de cours Home Assistant",
+          "price_currency": "Devise du cours",
+          "isin": "ISIN",
+          "wkn": "WKN",
+          "valor": "Numéro de valeur",
+          "issuer": "Émetteur",
+          "underlying": "Sous-jacent",
+          "warrant_type": "Type de warrant",
+          "strike": "Prix d'exercice",
+          "ratio": "Parité",
+          "expiry": "Date d'échéance",
+          "watch_only": "Surveiller uniquement; ne pas inclure dans le portefeuille"
         }
       },
       "remove_holding": {
@@ -205,9 +247,13 @@
       "coingecko_not_found": "CoinGecko ne reconnaît pas cet identifiant.",
       "invalid_currency": "Saisissez un code de devise à trois lettres, par exemple CHF ou USD.",
       "symbol_not_found": "Yahoo Finance n'a renvoyé aucun cours pour ce symbole.",
+      "symbol_required": "Saisissez un ticker ou un identifiant court.",
       "invalid_transaction_date": "Saisissez une date valide au format AAAA-MM-JJ.",
       "invalid_transaction_price": "Le prix doit être supérieur à zéro.",
       "invalid_alert_range": "Le seuil inférieur doit être plus petit que le seuil supérieur.",
+      "invalid_warrant_expiry": "Saisissez une date d'échéance valide.",
+      "price_entity_not_found": "Sélectionnez un capteur Home Assistant existant.",
+      "price_entity_not_numeric": "Le capteur Home Assistant sélectionné doit avoir un état numérique.",
       "insufficient_quantity": "Cette vente dépasserait la quantité disponible à la date sélectionnée."
     }
   },
@@ -219,7 +265,20 @@
         "crypto": "Cryptomonnaie",
         "fund": "Fonds",
         "currency": "Devise",
+        "warrant": "Warrant",
         "other": "Autre"
+      }
+    },
+    "price_source": {
+      "options": {
+        "yahoo": "Yahoo Finance",
+        "entity": "Capteur Home Assistant"
+      }
+    },
+    "warrant_type": {
+      "options": {
+        "call": "Call",
+        "put": "Put"
       }
     },
     "transaction_type": {

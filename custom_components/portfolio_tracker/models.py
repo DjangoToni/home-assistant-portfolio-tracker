@@ -23,6 +23,18 @@ class Holding(TypedDict):
     watch_only: NotRequired[bool]
     alert_below: NotRequired[float]
     alert_above: NotRequired[float]
+    price_source: NotRequired[str]
+    price_entity: NotRequired[str]
+    price_currency: NotRequired[str]
+    isin: NotRequired[str]
+    wkn: NotRequired[str]
+    valor: NotRequired[str]
+    issuer: NotRequired[str]
+    underlying: NotRequired[str]
+    warrant_type: NotRequired[str]
+    strike: NotRequired[float]
+    ratio: NotRequired[float]
+    expiry: NotRequired[str]
 
 
 class Transaction(TypedDict):

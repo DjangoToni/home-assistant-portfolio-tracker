@@ -55,11 +55,23 @@ from .const import (
     CONF_HOLDING_ID,
     CONF_HOLDINGS,
     CONF_INDEXES,
+    CONF_ISIN,
+    CONF_ISSUER,
     CONF_NAME,
+    CONF_PRICE_CURRENCY,
+    CONF_PRICE_ENTITY,
+    CONF_PRICE_SOURCE,
+    CONF_RATIO,
+    CONF_EXPIRY,
+    CONF_STRIKE,
     CONF_PORTFOLIO_NAME,
     CONF_SYMBOL,
     CONF_TRANSACTIONS,
     CONF_WATCH_ONLY,
+    CONF_WARRANT_TYPE,
+    CONF_WKN,
+    CONF_VALOR,
+    CONF_UNDERLYING,
     DEFAULT_BASE_CURRENCY,
     DEFAULT_INDEXES,
     DOMAIN,
@@ -296,6 +308,11 @@ async def async_setup_entry(
                     StockHistorySensor(coordinator, entry, holding),
                 ]
             )
+        if (
+            holding[CONF_ASSET_TYPE] == "warrant"
+            and holding.get(CONF_PRICE_SOURCE, "yahoo") == "yahoo"
+        ):
+            entities.append(StockHistorySensor(coordinator, entry, holding))
     for symbol in indexes:
         entities.extend(
             [
@@ -557,7 +574,11 @@ class HoldingEntity(PortfolioEntity):
             identifiers={(DOMAIN, f"{entry.entry_id}_{holding_id}")},
             name=holding[CONF_NAME],
             manufacturer="Portfolio Tracker",
-            model=f"Yahoo Finance {holding[CONF_ASSET_TYPE].title()}",
+            model=(
+                f"Home Assistant {holding[CONF_ASSET_TYPE].title()}"
+                if holding.get(CONF_PRICE_SOURCE, "yahoo") == "entity"
+                else f"Yahoo Finance {holding[CONF_ASSET_TYPE].title()}"
+            ),
             via_device=(DOMAIN, entry.entry_id),
         )
 
@@ -590,6 +611,18 @@ class HoldingEntity(PortfolioEntity):
             else None,
             "metric_key": getattr(self, "_metric_key", None),
             "watch_only": bool(self._holding.get(CONF_WATCH_ONLY, False)),
+            "price_source": self._holding.get(CONF_PRICE_SOURCE, "yahoo"),
+            "price_entity": self._holding.get(CONF_PRICE_ENTITY) or None,
+            "price_currency": self._holding.get(CONF_PRICE_CURRENCY) or None,
+            "isin": self._holding.get(CONF_ISIN) or None,
+            "wkn": self._holding.get(CONF_WKN) or None,
+            "valor": self._holding.get(CONF_VALOR) or None,
+            "issuer": self._holding.get(CONF_ISSUER) or None,
+            "underlying": self._holding.get(CONF_UNDERLYING) or None,
+            "warrant_type": self._holding.get(CONF_WARRANT_TYPE) or None,
+            "strike": self._holding.get(CONF_STRIKE),
+            "ratio": self._holding.get(CONF_RATIO),
+            "expiry": self._holding.get(CONF_EXPIRY) or None,
         }
 
 

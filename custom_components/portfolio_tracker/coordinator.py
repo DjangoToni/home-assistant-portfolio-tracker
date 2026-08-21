@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import timedelta
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -21,6 +21,10 @@ from .const import (
     CONF_BASE_CURRENCY,
     CONF_HOLDINGS,
     CONF_INDEXES,
+    CONF_NAME,
+    CONF_PRICE_CURRENCY,
+    CONF_PRICE_ENTITY,
+    CONF_PRICE_SOURCE,
     CONF_TRANSACTION_CURRENCY,
     CONF_TRANSACTIONS,
     CONF_UPDATE_INTERVAL,
@@ -103,11 +107,20 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
         base = entry_value(
             self.entry, CONF_BASE_CURRENCY, DEFAULT_BASE_CURRENCY
         ).upper()
+        external_holdings = [
+            holding
+            for holding in holdings
+            if holding.get(CONF_PRICE_SOURCE, "yahoo") == "entity"
+        ]
         symbols = sorted(
-            {holding["symbol"].upper() for holding in holdings}
+            {
+                holding["symbol"].upper()
+                for holding in holdings
+                if holding.get(CONF_PRICE_SOURCE, "yahoo") != "entity"
+            }
             | {symbol.upper() for symbol in indexes}
         )
-        if not symbols:
+        if not symbols and not external_holdings:
             return PortfolioData(
                 quotes={}, fx_rates={base: Decimal(1)}, base_currency=base
             )
@@ -131,10 +144,13 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
             *(fetch_quote(symbol) for symbol in symbols),
             return_exceptions=True,
         )
+        quote_symbols = set(symbols) | {
+            holding["symbol"].upper() for holding in external_holdings
+        }
         quotes: dict[str, Quote] = {
             symbol: quote
             for symbol, quote in (previous.quotes.items() if previous else ())
-            if symbol in symbols
+            if symbol in quote_symbols
         }
         updated_quotes = 0
         for symbol, result in zip(symbols, results, strict=True):
@@ -143,12 +159,16 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
             else:
                 quotes[result.symbol] = result
                 updated_quotes += 1
+        for holding in external_holdings:
+            external_quote = self._external_quote(holding)
+            if external_quote is not None:
+                quotes[external_quote.symbol] = external_quote
         if not quotes:
             _LOGGER.warning(
-                "Yahoo Finance returned no portfolio quotes; entities remain loaded "
+                "No portfolio price source returned a quote; entities remain loaded "
                 "and will retry during the next scheduled update"
             )
-        elif updated_quotes == 0:
+        elif symbols and updated_quotes == 0:
             _LOGGER.warning(
                 "Yahoo Finance returned no fresh quotes; retaining the last "
                 "successful portfolio data"
@@ -261,6 +281,7 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
                 holding["symbol"]
                 for holding in holdings
                 if holding.get(CONF_ASSET_TYPE) == "stock"
+                and holding.get(CONF_PRICE_SOURCE, "yahoo") != "entity"
             }
             | set(indexes)
         )
@@ -269,6 +290,7 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
                 holding["symbol"]
                 for holding in holdings
                 if holding.get(CONF_ASSET_TYPE) != "crypto"
+                and holding.get(CONF_PRICE_SOURCE, "yahoo") != "entity"
             }
             | set(indexes)
         )
@@ -322,6 +344,53 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
         )
         self._notify_price_alerts(data, holdings)
         return data
+
+    def _external_quote(self, holding: dict) -> Quote | None:
+        """Normalize a numeric Home Assistant sensor as a market quote."""
+        entity_id = str(holding.get(CONF_PRICE_ENTITY, "")).strip()
+        state = self.hass.states.get(entity_id) if entity_id else None
+        if state is None or str(state.state).lower() in {"unknown", "unavailable"}:
+            _LOGGER.warning(
+                "External price entity %s for %s is unavailable",
+                entity_id or "<not configured>",
+                holding.get("symbol"),
+            )
+            return None
+        try:
+            price = Decimal(str(state.state))
+        except (InvalidOperation, ValueError):
+            _LOGGER.warning(
+                "External price entity %s has non-numeric state %s",
+                entity_id,
+                state.state,
+            )
+            return None
+        if not price.is_finite() or price < 0:
+            _LOGGER.warning(
+                "External price entity %s has invalid price %s",
+                entity_id,
+                state.state,
+            )
+            return None
+        previous_close = None
+        raw_previous = state.attributes.get("previous_close")
+        if raw_previous is not None:
+            try:
+                candidate = Decimal(str(raw_previous))
+                previous_close = candidate if candidate.is_finite() else None
+            except (InvalidOperation, ValueError):
+                pass
+        symbol = str(holding["symbol"]).upper()
+        return Quote(
+            symbol=symbol,
+            name=str(holding.get(CONF_NAME) or state.name or symbol),
+            price=price,
+            previous_close=previous_close,
+            currency=str(holding.get(CONF_PRICE_CURRENCY) or "USD").upper(),
+            exchange="Home Assistant",
+            instrument_type="EXTERNAL",
+            timestamp=state.last_updated,
+        )
 
     def _notify_price_alerts(self, data: PortfolioData, holdings: list[dict]) -> None:
         """Notify once when a configured asset threshold becomes active."""

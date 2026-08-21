@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from datetime import date
+from datetime import date, timedelta
+from math import isfinite
 from typing import Any
 from uuid import uuid4
 
@@ -14,7 +15,6 @@ from homeassistant.helpers import selector
 
 from .coingecko import CoinGeckoClient, CoinGeckoCoinNotFound, CoinGeckoError
 from .const import (
-    ASSET_TYPES,
     CONF_ASSET_TYPE,
     CONF_AVERAGE_PRICE,
     CONF_ALERT_ABOVE,
@@ -27,9 +27,17 @@ from .const import (
     CONF_HOLDINGS,
     CONF_INDEX_SYMBOL,
     CONF_INDEXES,
+    CONF_ISIN,
+    CONF_ISSUER,
     CONF_NAME,
     CONF_PORTFOLIO_NAME,
     CONF_QUANTITY,
+    CONF_PRICE_CURRENCY,
+    CONF_PRICE_ENTITY,
+    CONF_PRICE_SOURCE,
+    CONF_RATIO,
+    CONF_EXPIRY,
+    CONF_STRIKE,
     CONF_SYMBOL,
     CONF_TRANSACTION_CURRENCY,
     CONF_TRANSACTION_DATE,
@@ -46,6 +54,10 @@ from .const import (
     CONF_TRANSACTIONS,
     CONF_UPDATE_INTERVAL,
     CONF_WATCH_ONLY,
+    CONF_WARRANT_TYPE,
+    CONF_WKN,
+    CONF_VALOR,
+    CONF_UNDERLYING,
     CRYPTO_DISPLAY_CURRENCIES,
     DEFAULT_BASE_CURRENCY,
     DEFAULT_BENCHMARK_INDEX,
@@ -54,8 +66,11 @@ from .const import (
     DOMAIN,
     INDEX_PRESETS,
     MIN_UPDATE_INTERVAL,
+    PRICE_SOURCES,
+    STANDARD_ASSET_TYPES,
     TRANSACTION_PRICE_MODES,
     TRANSACTION_TYPES,
+    WARRANT_TYPES,
     coingecko_id_for_holding,
     entry_value,
 )
@@ -166,7 +181,7 @@ def _holding_schema(
             CONF_ASSET_TYPE, default=defaults.get(CONF_ASSET_TYPE, "stock")
         ): selector.SelectSelector(
             selector.SelectSelectorConfig(
-                options=ASSET_TYPES,
+                options=STANDARD_ASSET_TYPES,
                 translation_key="asset_type",
                 mode=selector.SelectSelectorMode.DROPDOWN,
             )
@@ -185,6 +200,119 @@ def _holding_schema(
         vol.Optional(
             CONF_ALERT_ABOVE, default=defaults.get(CONF_ALERT_ABOVE, 0.0)
         ): vol.All(vol.Coerce(float), vol.Range(min=0)),
+    }
+    if include_initial_position:
+        schema[
+            vol.Required(CONF_QUANTITY, default=defaults.get(CONF_QUANTITY, 1.0))
+        ] = vol.All(vol.Coerce(float), vol.Range(min=0))
+        schema[
+            vol.Required(
+                CONF_AVERAGE_PRICE, default=defaults.get(CONF_AVERAGE_PRICE, 0.0)
+            )
+        ] = vol.All(vol.Coerce(float), vol.Range(min=0))
+        schema[
+            vol.Required(
+                CONF_TRANSACTION_PRICE_MODE,
+                default=defaults.get(CONF_TRANSACTION_PRICE_MODE, "per_unit"),
+            )
+        ] = vol.In(TRANSACTION_PRICE_MODES)
+        schema[
+            vol.Optional(
+                CONF_TRANSACTION_MARKET_PRICE,
+                default=defaults.get(CONF_TRANSACTION_MARKET_PRICE, 0.0),
+            )
+        ] = vol.All(vol.Coerce(float), vol.Range(min=0))
+        schema[
+            vol.Optional(
+                CONF_TRANSACTION_MARKET_CURRENCY,
+                default=defaults.get(CONF_TRANSACTION_MARKET_CURRENCY, ""),
+            )
+        ] = str
+    return vol.Schema(schema)
+
+
+def _warrant_schema(
+    defaults: dict[str, Any] | None = None,
+    *,
+    include_initial_position: bool = True,
+) -> vol.Schema:
+    """Return the dedicated warrant editor."""
+    defaults = defaults or {}
+    price_entity_key: Any = vol.Optional(CONF_PRICE_ENTITY)
+    if defaults.get(CONF_PRICE_ENTITY):
+        price_entity_key = vol.Optional(
+            CONF_PRICE_ENTITY, default=defaults[CONF_PRICE_ENTITY]
+        )
+    schema: dict[Any, Any] = {
+        vol.Required(
+            CONF_SYMBOL, default=defaults.get(CONF_SYMBOL, "")
+        ): selector.TextSelector(),
+        vol.Optional(
+            CONF_NAME, default=defaults.get(CONF_NAME, "")
+        ): selector.TextSelector(),
+        vol.Required(
+            CONF_PRICE_SOURCE,
+            default=defaults.get(CONF_PRICE_SOURCE, "yahoo"),
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=PRICE_SOURCES,
+                translation_key="price_source",
+                mode=selector.SelectSelectorMode.DROPDOWN,
+            )
+        ),
+        price_entity_key: selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor")
+        ),
+        vol.Optional(
+            CONF_PRICE_CURRENCY,
+            default=defaults.get(CONF_PRICE_CURRENCY, ""),
+        ): selector.TextSelector(),
+        vol.Optional(
+            CONF_ISIN, default=defaults.get(CONF_ISIN, "")
+        ): selector.TextSelector(),
+        vol.Optional(
+            CONF_WKN, default=defaults.get(CONF_WKN, "")
+        ): selector.TextSelector(),
+        vol.Optional(
+            CONF_VALOR, default=defaults.get(CONF_VALOR, "")
+        ): selector.TextSelector(),
+        vol.Optional(
+            CONF_ISSUER, default=defaults.get(CONF_ISSUER, "")
+        ): selector.TextSelector(),
+        vol.Optional(
+            CONF_UNDERLYING, default=defaults.get(CONF_UNDERLYING, "")
+        ): selector.TextSelector(),
+        vol.Required(
+            CONF_WARRANT_TYPE,
+            default=defaults.get(CONF_WARRANT_TYPE, "call"),
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=WARRANT_TYPES,
+                translation_key="warrant_type",
+                mode=selector.SelectSelectorMode.DROPDOWN,
+            )
+        ),
+        vol.Required(
+            CONF_STRIKE, default=defaults.get(CONF_STRIKE, 0.0)
+        ): vol.All(vol.Coerce(float), vol.Range(min=0, min_included=False)),
+        vol.Required(
+            CONF_RATIO, default=defaults.get(CONF_RATIO, 1.0)
+        ): vol.All(vol.Coerce(float), vol.Range(min=0, min_included=False)),
+        vol.Required(
+            CONF_EXPIRY,
+            default=defaults.get(
+                CONF_EXPIRY, (date.today() + timedelta(days=365)).isoformat()
+            ),
+        ): selector.DateSelector(),
+        vol.Optional(
+            CONF_ALERT_BELOW, default=defaults.get(CONF_ALERT_BELOW, 0.0)
+        ): vol.All(vol.Coerce(float), vol.Range(min=0)),
+        vol.Optional(
+            CONF_ALERT_ABOVE, default=defaults.get(CONF_ALERT_ABOVE, 0.0)
+        ): vol.All(vol.Coerce(float), vol.Range(min=0)),
+        vol.Required(
+            CONF_WATCH_ONLY, default=bool(defaults.get(CONF_WATCH_ONLY, False))
+        ): selector.BooleanSelector(),
     }
     if include_initial_position:
         schema[
@@ -397,7 +525,7 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """Show actions for active and watched assets."""
-        menu = ["add_holding", "add_watchlist"]
+        menu = ["add_holding", "add_watchlist", "add_warrant"]
         if self._holdings:
             menu.extend(["edit_holding", "remove_holding"])
         return self.async_show_menu(step_id="assets", menu_options=menu)
@@ -587,6 +715,40 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
             errors=errors,
         )
 
+    async def async_step_add_warrant(
+        self, user_input: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        """Validate and add an active or watched warrant."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            user_input[CONF_ASSET_TYPE] = "warrant"
+            normalized = await self._async_validate_holding(user_input, errors)
+            if normalized is not None:
+                normalized[CONF_HOLDING_ID] = uuid4().hex
+                quote_currency = normalized.pop(
+                    "_quote_currency",
+                    entry_value(
+                        self._entry, CONF_BASE_CURRENCY, DEFAULT_BASE_CURRENCY
+                    ),
+                )
+                opening = opening_transaction(normalized, quote_currency)
+                normalized.pop(CONF_TRANSACTION_PRICE_MODE, None)
+                normalized.pop(CONF_TRANSACTION_MARKET_PRICE, None)
+                normalized.pop(CONF_TRANSACTION_MARKET_CURRENCY, None)
+                normalized[CONF_TRANSACTIONS] = (
+                    []
+                    if normalized.get(CONF_WATCH_ONLY, False)
+                    else [opening] if opening else []
+                )
+                holdings = self._holdings
+                holdings.append(normalized)
+                return self._save(holdings)
+        return self.async_show_form(
+            step_id="add_warrant",
+            data_schema=_warrant_schema(user_input),
+            errors=errors,
+        )
+
     async def async_step_edit_holding(
         self, user_input: dict[str, Any] | None = None
     ) -> dict[str, Any]:
@@ -621,16 +783,24 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
                 )
                 holdings[holdings.index(selected)] = normalized
                 return self._save(holdings)
-        return self.async_show_form(
-            step_id="edit_holding_details",
-            data_schema=_holding_schema(
+        schema = (
+            _warrant_schema(
+                user_input or selected,
+                include_initial_position=False,
+            )
+            if selected.get(CONF_ASSET_TYPE) == "warrant"
+            else _holding_schema(
                 user_input or selected,
                 entry_value(
                     self._entry, CONF_BASE_CURRENCY, DEFAULT_BASE_CURRENCY
                 ),
                 include_initial_position=False,
                 watch_only=bool(selected.get(CONF_WATCH_ONLY, False)),
-            ),
+            )
+        )
+        return self.async_show_form(
+            step_id="edit_holding_details",
+            data_schema=schema,
             errors=errors,
         )
 
@@ -873,15 +1043,57 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
             errors["base"] = "invalid_alert_range"
             return None
         symbol = user_input[CONF_SYMBOL].strip().upper()
-        try:
-            client = YahooFinanceClient(async_get_clientsession(self.hass))
-            quote = await client.async_get_quote(symbol)
-        except YahooSymbolNotFound:
-            errors[CONF_SYMBOL] = "symbol_not_found"
+        if not symbol:
+            errors[CONF_SYMBOL] = "symbol_required"
             return None
-        except YahooFinanceError:
-            errors["base"] = "cannot_connect"
-            return None
+        price_source = str(user_input.get(CONF_PRICE_SOURCE, "yahoo"))
+        price_entity = str(user_input.get(CONF_PRICE_ENTITY, "")).strip()
+        price_currency_raw = str(
+            user_input.get(CONF_PRICE_CURRENCY, "")
+        ).strip()
+        price_currency = (
+            _normalize_currency(price_currency_raw) if price_currency_raw else None
+        )
+        if price_source == "entity":
+            state = self.hass.states.get(price_entity) if price_entity else None
+            if state is None:
+                errors[CONF_PRICE_ENTITY] = "price_entity_not_found"
+                return None
+            try:
+                entity_price = float(state.state)
+            except (TypeError, ValueError):
+                errors[CONF_PRICE_ENTITY] = "price_entity_not_numeric"
+                return None
+            if not isfinite(entity_price) or entity_price < 0:
+                errors[CONF_PRICE_ENTITY] = "price_entity_not_numeric"
+                return None
+            if price_currency is None:
+                errors[CONF_PRICE_CURRENCY] = "invalid_currency"
+                return None
+            quote_symbol = symbol
+            quote_name = state.name
+            quote_currency = price_currency
+        else:
+            try:
+                client = YahooFinanceClient(async_get_clientsession(self.hass))
+                quote = await client.async_get_quote(symbol)
+            except YahooSymbolNotFound:
+                errors[CONF_SYMBOL] = "symbol_not_found"
+                return None
+            except YahooFinanceError:
+                errors["base"] = "cannot_connect"
+                return None
+            quote_symbol = quote.symbol
+            quote_name = quote.name
+            quote_currency = quote.currency
+
+        expiry = str(user_input.get(CONF_EXPIRY, "")).strip()
+        if user_input[CONF_ASSET_TYPE] == "warrant":
+            try:
+                date.fromisoformat(expiry)
+            except ValueError:
+                errors[CONF_EXPIRY] = "invalid_warrant_expiry"
+                return None
 
         coingecko_id = ""
         display_currency = entry_value(
@@ -890,7 +1102,7 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
         if user_input[CONF_ASSET_TYPE] == "crypto":
             display_currency = user_input[CONF_DISPLAY_CURRENCY]
             candidate = dict(user_input)
-            candidate[CONF_SYMBOL] = quote.symbol
+            candidate[CONF_SYMBOL] = quote_symbol
             coingecko_id = coingecko_id_for_holding(candidate) or ""
             if not coingecko_id:
                 errors[CONF_COINGECKO_ID] = "coingecko_id_required"
@@ -920,8 +1132,8 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
             return None
 
         return {
-            CONF_SYMBOL: quote.symbol,
-            CONF_NAME: user_input[CONF_NAME].strip() or quote.name,
+            CONF_SYMBOL: quote_symbol,
+            CONF_NAME: user_input[CONF_NAME].strip() or quote_name,
             CONF_ASSET_TYPE: user_input[CONF_ASSET_TYPE],
             CONF_QUANTITY: float(user_input.get(CONF_QUANTITY, 0)),
             CONF_AVERAGE_PRICE: float(user_input.get(CONF_AVERAGE_PRICE, 0)),
@@ -935,5 +1147,19 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
             CONF_WATCH_ONLY: bool(user_input.get(CONF_WATCH_ONLY, False)),
             CONF_ALERT_BELOW: float(user_input.get(CONF_ALERT_BELOW, 0)),
             CONF_ALERT_ABOVE: float(user_input.get(CONF_ALERT_ABOVE, 0)),
-            "_quote_currency": quote.currency,
+            CONF_PRICE_SOURCE: price_source,
+            CONF_PRICE_ENTITY: price_entity,
+            CONF_PRICE_CURRENCY: quote_currency,
+            CONF_ISIN: str(user_input.get(CONF_ISIN, "")).strip().upper(),
+            CONF_WKN: str(user_input.get(CONF_WKN, "")).strip().upper(),
+            CONF_VALOR: str(user_input.get(CONF_VALOR, "")).strip(),
+            CONF_ISSUER: str(user_input.get(CONF_ISSUER, "")).strip(),
+            CONF_UNDERLYING: str(user_input.get(CONF_UNDERLYING, "")).strip(),
+            CONF_WARRANT_TYPE: str(
+                user_input.get(CONF_WARRANT_TYPE, "")
+            ).lower(),
+            CONF_STRIKE: float(user_input.get(CONF_STRIKE, 0)),
+            CONF_RATIO: float(user_input.get(CONF_RATIO, 0)),
+            CONF_EXPIRY: expiry,
+            "_quote_currency": quote_currency,
         }

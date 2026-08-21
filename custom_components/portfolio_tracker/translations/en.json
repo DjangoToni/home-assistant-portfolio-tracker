@@ -40,6 +40,7 @@
         "menu_options": {
           "add_holding": "Add position",
           "add_watchlist": "Add asset to watchlist",
+          "add_warrant": "Add warrant",
           "edit_holding": "Edit asset",
           "remove_holding": "Remove asset"
         }
@@ -100,6 +101,34 @@
           "alert_above": "Alert above this price (optional)"
         }
       },
+      "add_warrant": {
+        "title": "Add warrant",
+        "description": "Use a Yahoo Finance symbol or a numeric Home Assistant sensor as the price source. The sensor currency is required for correct portfolio conversion.",
+        "data": {
+          "symbol": "Ticker / short identifier",
+          "name": "Display name (optional)",
+          "price_source": "Price source",
+          "price_entity": "Home Assistant price sensor (for sensor source)",
+          "price_currency": "Quote currency (required for sensor source)",
+          "isin": "ISIN (optional)",
+          "wkn": "WKN (optional)",
+          "valor": "Valor number (optional)",
+          "issuer": "Issuer (optional)",
+          "underlying": "Underlying (optional)",
+          "warrant_type": "Warrant type",
+          "strike": "Strike",
+          "ratio": "Ratio",
+          "expiry": "Expiry date",
+          "watch_only": "Watch only; do not include in portfolio",
+          "quantity": "Quantity",
+          "average_price": "Purchase price or invested total",
+          "transaction_price_mode": "Purchase-price input",
+          "transaction_market_price": "Market price per unit at purchase (optional)",
+          "transaction_market_currency": "Market-price currency (optional)",
+          "alert_below": "Alert below this price (optional)",
+          "alert_above": "Alert above this price (optional)"
+        }
+      },
       "edit_holding": {
         "title": "Select asset",
         "data": { "holding_id": "Active or watched asset" }
@@ -117,6 +146,19 @@
           "display_currency": "Display currency (cryptocurrencies only)"
           ,"alert_below": "Alert below this price (optional)"
           ,"alert_above": "Alert above this price (optional)"
+          ,"price_source": "Price source"
+          ,"price_entity": "Home Assistant price sensor"
+          ,"price_currency": "Quote currency"
+          ,"isin": "ISIN"
+          ,"wkn": "WKN"
+          ,"valor": "Valor number"
+          ,"issuer": "Issuer"
+          ,"underlying": "Underlying"
+          ,"warrant_type": "Warrant type"
+          ,"strike": "Strike"
+          ,"ratio": "Ratio"
+          ,"expiry": "Expiry date"
+          ,"watch_only": "Watch only; do not include in portfolio"
         }
       },
       "remove_holding": {
@@ -191,9 +233,13 @@
       "coingecko_not_found": "CoinGecko did not recognize this coin ID.",
       "invalid_currency": "Enter a three-letter currency code, for example CHF or USD.",
       "symbol_not_found": "Yahoo Finance did not return a quote for this symbol.",
+      "symbol_required": "Enter a ticker or short identifier.",
       "invalid_transaction_date": "Enter a valid date in YYYY-MM-DD format.",
       "invalid_transaction_price": "The price must be greater than zero.",
       "invalid_alert_range": "The lower alert price must be smaller than the upper alert price.",
+      "invalid_warrant_expiry": "Enter a valid expiry date.",
+      "price_entity_not_found": "Select an existing Home Assistant sensor.",
+      "price_entity_not_numeric": "The selected Home Assistant sensor must have a numeric state.",
       "insufficient_quantity": "This sale would exceed the available quantity at the selected date."
     }
   },
@@ -205,7 +251,20 @@
         "crypto": "Cryptocurrency",
         "fund": "Fund",
         "currency": "Currency",
+        "warrant": "Warrant",
         "other": "Other"
+      }
+    },
+    "price_source": {
+      "options": {
+        "yahoo": "Yahoo Finance",
+        "entity": "Home Assistant sensor"
+      }
+    },
+    "warrant_type": {
+      "options": {
+        "call": "Call",
+        "put": "Put"
       }
     },
     "transaction_type": {

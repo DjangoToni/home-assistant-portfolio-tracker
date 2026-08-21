@@ -40,6 +40,7 @@
         "menu_options": {
           "add_holding": "Aggiungi posizione",
           "add_watchlist": "Aggiungi asset alla lista di osservazione",
+          "add_warrant": "Aggiungi warrant",
           "edit_holding": "Modifica asset",
           "remove_holding": "Rimuovi asset"
         }
@@ -100,6 +101,34 @@
           "alert_above": "Allarme sopra questo prezzo (facoltativo)"
         }
       },
+      "add_warrant": {
+        "title": "Aggiungi warrant",
+        "description": "Usa un simbolo Yahoo Finance o un sensore numerico di Home Assistant come fonte del prezzo. La valuta del prezzo è necessaria per la conversione del portafoglio.",
+        "data": {
+          "symbol": "Ticker / identificatore breve",
+          "name": "Nome visualizzato (facoltativo)",
+          "price_source": "Fonte del prezzo",
+          "price_entity": "Sensore prezzo Home Assistant (per la fonte sensore)",
+          "price_currency": "Valuta del prezzo (necessaria per la fonte sensore)",
+          "isin": "ISIN (facoltativo)",
+          "wkn": "WKN (facoltativo)",
+          "valor": "Numero di valore (facoltativo)",
+          "issuer": "Emittente (facoltativo)",
+          "underlying": "Sottostante (facoltativo)",
+          "warrant_type": "Tipo di warrant",
+          "strike": "Prezzo di esercizio",
+          "ratio": "Rapporto",
+          "expiry": "Data di scadenza",
+          "watch_only": "Solo osservazione; non includere nel portafoglio",
+          "quantity": "Quantità",
+          "average_price": "Prezzo di acquisto o importo totale investito",
+          "transaction_price_mode": "Inserimento del prezzo d'acquisto",
+          "transaction_market_price": "Prezzo di mercato per unità all'acquisto (facoltativo)",
+          "transaction_market_currency": "Valuta del prezzo di mercato (facoltativa)",
+          "alert_below": "Allarme sotto questo prezzo (facoltativo)",
+          "alert_above": "Allarme sopra questo prezzo (facoltativo)"
+        }
+      },
       "edit_holding": {
         "title": "Seleziona asset",
         "data": {
@@ -118,7 +147,20 @@
           "coingecko_id": "ID CoinGecko (solo criptovalute)",
           "display_currency": "Valuta di visualizzazione (solo criptovalute)",
           "alert_below": "Allarme sotto questo prezzo (facoltativo)",
-          "alert_above": "Allarme sopra questo prezzo (facoltativo)"
+          "alert_above": "Allarme sopra questo prezzo (facoltativo)",
+          "price_source": "Fonte del prezzo",
+          "price_entity": "Sensore prezzo Home Assistant",
+          "price_currency": "Valuta del prezzo",
+          "isin": "ISIN",
+          "wkn": "WKN",
+          "valor": "Numero di valore",
+          "issuer": "Emittente",
+          "underlying": "Sottostante",
+          "warrant_type": "Tipo di warrant",
+          "strike": "Prezzo di esercizio",
+          "ratio": "Rapporto",
+          "expiry": "Data di scadenza",
+          "watch_only": "Solo osservazione; non includere nel portafoglio"
         }
       },
       "remove_holding": {
@@ -205,9 +247,13 @@
       "coingecko_not_found": "CoinGecko non riconosce questo ID.",
       "invalid_currency": "Inserisci un codice valuta di tre lettere, ad esempio CHF o USD.",
       "symbol_not_found": "Yahoo Finance non ha restituito una quotazione per questo simbolo.",
+      "symbol_required": "Inserisci un ticker o un identificatore breve.",
       "invalid_transaction_date": "Inserisci una data valida nel formato AAAA-MM-GG.",
       "invalid_transaction_price": "Il prezzo deve essere maggiore di zero.",
       "invalid_alert_range": "Il prezzo di allarme inferiore deve essere minore di quello superiore.",
+      "invalid_warrant_expiry": "Inserisci una data di scadenza valida.",
+      "price_entity_not_found": "Seleziona un sensore Home Assistant esistente.",
+      "price_entity_not_numeric": "Il sensore Home Assistant selezionato deve avere uno stato numerico.",
       "insufficient_quantity": "Questa vendita supererebbe la quantità disponibile alla data selezionata."
     }
   },
@@ -219,7 +265,20 @@
         "crypto": "Criptovaluta",
         "fund": "Fondo",
         "currency": "Valuta",
+        "warrant": "Warrant",
         "other": "Altro"
+      }
+    },
+    "price_source": {
+      "options": {
+        "yahoo": "Yahoo Finance",
+        "entity": "Sensore Home Assistant"
+      }
+    },
+    "warrant_type": {
+      "options": {
+        "call": "Call",
+        "put": "Put"
       }
     },
     "transaction_type": {

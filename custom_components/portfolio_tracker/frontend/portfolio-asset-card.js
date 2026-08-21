@@ -2,7 +2,7 @@ const CARD_TAG = "portfolio-asset-card";
 const EDITOR_TAG = "portfolio-asset-card-editor";
 const PORTFOLIO_CARD_TAG = "portfolio-overview-card";
 const PORTFOLIO_EDITOR_TAG = "portfolio-overview-card-editor";
-const CARD_VERSION = "1.4.2";
+const CARD_VERSION = "1.5.0";
 
 const LABELS = {
   de: {
@@ -12,6 +12,7 @@ const LABELS = {
     details: "Details",
     sourceYahoo: "Yahoo Finance",
     sourceCoinGecko: "CoinGecko",
+    sourceHomeAssistant: "Home-Assistant-Sensor",
     noHistory: "Noch keine historischen Daten verfügbar",
     selectEntity: "Asset",
     selectHint: "Wähle direkt die Aktie, Kryptowährung oder das andere Asset.",
@@ -27,6 +28,19 @@ const LABELS = {
     open: "Markt offen",
     closed: "Markt geschlossen",
     active: "24/7 aktiv",
+    priceAvailable: "Kurs verfügbar",
+    warrantData: "Warrant-Stammdaten",
+    isin: "ISIN",
+    wkn: "WKN",
+    valor: "Valor",
+    issuer: "Emittent",
+    underlying: "Basiswert",
+    warrantType: "Typ",
+    strike: "Strike",
+    ratio: "Bezugsverhältnis",
+    expiry: "Verfall",
+    call: "Call",
+    put: "Put",
     transactions: "Transaktionshistorie",
     noTransactions: "Noch keine Transaktionen erfasst",
     realized: "Realisiert",
@@ -62,6 +76,7 @@ const LABELS = {
     details: "Details",
     sourceYahoo: "Yahoo Finance",
     sourceCoinGecko: "CoinGecko",
+    sourceHomeAssistant: "Home Assistant sensor",
     noHistory: "Historical data is not available yet",
     selectEntity: "Asset",
     selectHint: "Select the stock, cryptocurrency, or other asset directly.",
@@ -77,6 +92,19 @@ const LABELS = {
     open: "Market open",
     closed: "Market closed",
     active: "Active 24/7",
+    priceAvailable: "Price available",
+    warrantData: "Warrant details",
+    isin: "ISIN",
+    wkn: "WKN",
+    valor: "Valor",
+    issuer: "Issuer",
+    underlying: "Underlying",
+    warrantType: "Type",
+    strike: "Strike",
+    ratio: "Ratio",
+    expiry: "Expiry",
+    call: "Call",
+    put: "Put",
     transactions: "Transaction history",
     noTransactions: "No transactions recorded yet",
     realized: "Realized",
@@ -113,6 +141,7 @@ LABELS.fr = {
   today: "aujourd'hui",
   range: "Historique du cours",
   details: "Détails",
+  sourceHomeAssistant: "Capteur Home Assistant",
   noHistory: "Les données historiques ne sont pas encore disponibles",
   selectEntity: "Actif",
   selectHint: "Sélectionnez directement l'action, la cryptomonnaie ou un autre actif.",
@@ -128,6 +157,13 @@ LABELS.fr = {
   open: "Marché ouvert",
   closed: "Marché fermé",
   active: "Actif 24 h/24",
+  priceAvailable: "Cours disponible",
+  warrantData: "Données du warrant",
+  issuer: "Émetteur",
+  underlying: "Sous-jacent",
+  warrantType: "Type",
+  ratio: "Parité",
+  expiry: "Échéance",
   transactions: "Historique des transactions",
   noTransactions: "Aucune transaction enregistrée",
   realized: "Réalisé",
@@ -163,6 +199,7 @@ LABELS.it = {
   today: "oggi",
   range: "Andamento del prezzo",
   details: "Dettagli",
+  sourceHomeAssistant: "Sensore Home Assistant",
   noHistory: "I dati storici non sono ancora disponibili",
   selectEntity: "Asset",
   selectHint: "Seleziona direttamente l'azione, la criptovaluta o un altro asset.",
@@ -178,6 +215,13 @@ LABELS.it = {
   open: "Mercato aperto",
   closed: "Mercato chiuso",
   active: "Attivo 24/7",
+  priceAvailable: "Prezzo disponibile",
+  warrantData: "Dati warrant",
+  issuer: "Emittente",
+  underlying: "Sottostante",
+  warrantType: "Tipo",
+  ratio: "Rapporto",
+  expiry: "Scadenza",
   transactions: "Cronologia delle transazioni",
   noTransactions: "Nessuna transazione registrata",
   realized: "Realizzato",
@@ -263,6 +307,7 @@ const PORTFOLIO_LABELS = {
       etf: "ETFs",
       fund: "Fonds",
       currency: "Währungen",
+      warrant: "Warrants",
       other: "Sonstige",
     },
     assetTypes: {
@@ -271,6 +316,7 @@ const PORTFOLIO_LABELS = {
       etf: "ETF",
       fund: "Fonds",
       currency: "Währung",
+      warrant: "Warrant",
       other: "Sonstiges",
     },
   },
@@ -329,6 +375,7 @@ const PORTFOLIO_LABELS = {
       etf: "ETFs",
       fund: "Funds",
       currency: "Currencies",
+      warrant: "Warrants",
       other: "Other",
     },
     assetTypes: {
@@ -337,6 +384,7 @@ const PORTFOLIO_LABELS = {
       etf: "ETF",
       fund: "Fund",
       currency: "Currency",
+      warrant: "Warrant",
       other: "Other",
     },
   },
@@ -394,6 +442,7 @@ PORTFOLIO_LABELS.fr = {
     etf: "ETF",
     fund: "Fonds",
     currency: "Devises",
+    warrant: "Warrants",
     other: "Autres",
   },
   assetTypes: {
@@ -402,6 +451,7 @@ PORTFOLIO_LABELS.fr = {
     etf: "ETF",
     fund: "Fonds",
     currency: "Devise",
+    warrant: "Warrant",
     other: "Autre",
   },
 };
@@ -458,6 +508,7 @@ PORTFOLIO_LABELS.it = {
     etf: "ETF",
     fund: "Fondi",
     currency: "Valute",
+    warrant: "Warrant",
     other: "Altro",
   },
   assetTypes: {
@@ -466,6 +517,7 @@ PORTFOLIO_LABELS.it = {
     etf: "ETF",
     fund: "Fondo",
     currency: "Valuta",
+    warrant: "Warrant",
     other: "Altro",
   },
 };
@@ -541,6 +593,7 @@ const METRIC_KEYS = {
     ["weekRange", "stock_fifty_two_week_low", "stock_fifty_two_week_high", "range"],
     ["average50", "stock_fifty_day_average"],
   ],
+  warrant: [],
 };
 
 class PortfolioAssetCard extends HTMLElement {
@@ -724,6 +777,7 @@ class PortfolioAssetCard extends HTMLElement {
       fund: "mdi:bank-outline",
       crypto: "mdi:currency-btc",
       currency: "mdi:swap-horizontal",
+      warrant: "mdi:finance",
       index: "mdi:chart-timeline-variant",
       other: "mdi:finance",
     };
@@ -754,9 +808,9 @@ class PortfolioAssetCard extends HTMLElement {
       return;
     }
     const configuredAssetType = attributes.asset_type || "other";
-    const assetType = configuredAssetType === "crypto"
-      ? "crypto"
-      : configuredAssetType === "index" ? "index" : "stock";
+    const assetType = ["crypto", "index", "warrant"].includes(configuredAssetType)
+      ? configuredAssetType
+      : "stock";
     const assetIcon = this._assetIcon(configuredAssetType);
     const price = entities.holding_price || selected;
     const value = entities.holding_value;
@@ -770,13 +824,18 @@ class PortfolioAssetCard extends HTMLElement {
     const device = deviceId ? this._hass.devices?.[deviceId] : null;
     const name = this._config.name || device?.name_by_user || device?.name || attributes.friendly_name || symbol;
     const stateEntity = entities.stock_market_state;
-    const state = assetType === "crypto"
-      ? labels.active
-      : stateEntity?.state === "REGULAR" ? labels.open : labels.closed;
-    const statusClass = assetType === "crypto" || stateEntity?.state === "REGULAR" ? "positive" : "neutral";
+    const externalPrice = attributes.price_source === "entity";
+    const state = externalPrice || assetType === "warrant"
+      ? labels.priceAvailable
+      : assetType === "crypto"
+        ? labels.active
+        : stateEntity?.state === "REGULAR" ? labels.open : labels.closed;
+    const statusClass = externalPrice || assetType === "warrant" || assetType === "crypto" || stateEntity?.state === "REGULAR" ? "positive" : "neutral";
     const changeValue = Number(daily?.state);
     const direction = Number.isFinite(changeValue) && changeValue < 0 ? "negative" : "positive";
-    const source = assetType === "crypto" ? labels.sourceCoinGecko : labels.sourceYahoo;
+    const source = externalPrice
+      ? labels.sourceHomeAssistant
+      : assetType === "crypto" ? labels.sourceCoinGecko : labels.sourceYahoo;
     const assetTypeName = configuredAssetType === "index"
       ? labels.index
       : PORTFOLIO_LABELS[this._language()].assetTypes[configuredAssetType]
@@ -843,6 +902,24 @@ class PortfolioAssetCard extends HTMLElement {
         </div>
         <div class="transaction-list">${transactionRows}</div>
       </section>` : `<section class="transaction-section"><div class="transaction-heading"><strong>${labels.transactions}</strong></div><div class="no-transactions">${labels.noTransactions}</div></section>`;
+    const warrantFields = configuredAssetType === "warrant" ? [
+      [labels.warrantType, labels[attributes.warrant_type] || attributes.warrant_type],
+      [labels.underlying, attributes.underlying],
+      [labels.strike, attributes.strike],
+      [labels.ratio, attributes.ratio],
+      [labels.expiry, attributes.expiry],
+      [labels.issuer, attributes.issuer],
+      [labels.isin, attributes.isin],
+      [labels.wkn, attributes.wkn],
+      [labels.valor, attributes.valor],
+    ].filter(([, value]) => value !== null && value !== undefined && value !== "") : [];
+    const warrantHtml = warrantFields.length ? `
+      <section class="warrant-section">
+        <div class="transaction-heading"><strong>${labels.warrantData}</strong></div>
+        <div class="warrant-grid">${warrantFields.map(([label, value]) => `
+          <div><small>${this._escape(label)}</small><strong>${this._escape(value)}</strong></div>`).join("")}
+        </div>
+      </section>` : "";
 
     this.shadowRoot.innerHTML = `
       <style>${this._styles()}</style>
@@ -876,7 +953,8 @@ class PortfolioAssetCard extends HTMLElement {
             </div>
             ${chartHtml}
           </section>
-          <section class="metrics">${metricHtml}</section>
+          ${metricHtml ? `<section class="metrics">${metricHtml}</section>` : ""}
+          ${warrantHtml}
           ${transactionHtml}
           <footer>
             <span>${source} · ${this._relativeTime(price?.last_updated)} · v${CARD_VERSION}</span>
@@ -977,6 +1055,11 @@ class PortfolioAssetCard extends HTMLElement {
       .metric:nth-child(n + 4) { border-top: 1px solid var(--divider-color); }
       .metric-label { color: var(--secondary-text-color); font-size: 12px; }
       .metric-value { margin-top: 5px; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+      .warrant-section { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--divider-color); }
+      .warrant-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-top: 12px; }
+      .warrant-grid div { display: grid; gap: 4px; padding: 10px 12px; border: 1px solid var(--divider-color); border-radius: 8px; }
+      .warrant-grid small { color: var(--secondary-text-color); font-size: 10px; }
+      .warrant-grid strong { font-size: 13px; overflow-wrap: anywhere; }
       .transaction-section { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--divider-color); }
       .transaction-heading { display: flex; align-items: center; gap: 8px; font-size: 14px; }
       .transaction-heading span { display: grid; place-items: center; min-width: 20px; height: 20px; border-radius: 10px; color: var(--secondary-text-color); background: color-mix(in srgb, var(--secondary-text-color) 10%, transparent); font-size: 10px; }
@@ -1363,7 +1446,7 @@ class PortfolioOverviewCard extends HTMLElement {
     const gainValue = Number(metrics.portfolio_gain?.state);
     const dailyValue = Number(metrics.portfolio_daily_change?.state);
     const colors = ["#5b8def", "#35b779", "#f4a340", "#a56de2", "#e56767", "#38a7b8"];
-    const groupOrder = ["stock", "crypto", "etf", "fund", "currency", "other"];
+    const groupOrder = ["stock", "warrant", "crypto", "etf", "fund", "currency", "other"];
     const currencyGroups = new Map();
     for (const position of positions) {
       if (!position.displayUnit || !Number.isFinite(position.displayValue)) continue;

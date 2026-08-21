@@ -17,6 +17,7 @@ from .const import (
     CONF_HOLDING_ID,
     CONF_HOLDINGS,
     CONF_NAME,
+    CONF_PRICE_SOURCE,
     CONF_SYMBOL,
     DOMAIN,
     entry_value,
@@ -64,7 +65,11 @@ class PriceAlertSensor(CoordinatorEntity[PortfolioCoordinator], BinarySensorEnti
             identifiers={(DOMAIN, f"{entry.entry_id}_{holding[CONF_HOLDING_ID]}")},
             name=holding[CONF_NAME],
             manufacturer="Portfolio Tracker",
-            model="Yahoo Finance Asset",
+            model=(
+                "Home Assistant Asset"
+                if holding.get(CONF_PRICE_SOURCE, "yahoo") == "entity"
+                else "Yahoo Finance Asset"
+            ),
             via_device=(DOMAIN, entry.entry_id),
         )
 

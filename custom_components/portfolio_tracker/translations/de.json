@@ -40,6 +40,7 @@
         "menu_options": {
           "add_holding": "Position hinzufügen",
           "add_watchlist": "Asset nur beobachten",
+          "add_warrant": "Warrant hinzufügen",
           "edit_holding": "Asset bearbeiten",
           "remove_holding": "Asset entfernen"
         }
@@ -100,6 +101,34 @@
           "alert_above": "Alarm über diesem Kurs (optional)"
         }
       },
+      "add_warrant": {
+        "title": "Warrant hinzufügen",
+        "description": "Verwende ein Yahoo-Finance-Symbol oder einen numerischen Home-Assistant-Sensor als Kursquelle. Für die korrekte Portfolio-Umrechnung ist die Kurswährung erforderlich.",
+        "data": {
+          "symbol": "Ticker / Kurzbezeichnung",
+          "name": "Anzeigename (optional)",
+          "price_source": "Kursquelle",
+          "price_entity": "Home-Assistant-Kurssensor (bei Sensor-Kursquelle)",
+          "price_currency": "Kurswährung (bei Sensor-Kursquelle erforderlich)",
+          "isin": "ISIN (optional)",
+          "wkn": "WKN (optional)",
+          "valor": "Valorennummer (optional)",
+          "issuer": "Emittent (optional)",
+          "underlying": "Basiswert (optional)",
+          "warrant_type": "Warrant-Typ",
+          "strike": "Ausübungspreis",
+          "ratio": "Bezugsverhältnis",
+          "expiry": "Verfallsdatum",
+          "watch_only": "Nur beobachten; nicht ins Portfolio einrechnen",
+          "quantity": "Stückzahl",
+          "average_price": "Kaufpreis oder investierter Gesamtbetrag",
+          "transaction_price_mode": "Art der Kaufpreiseingabe",
+          "transaction_market_price": "Marktkurs pro Einheit beim Kauf (optional)",
+          "transaction_market_currency": "Währung des Marktkurses (optional)",
+          "alert_below": "Alarm unter diesem Kurs (optional)",
+          "alert_above": "Alarm über diesem Kurs (optional)"
+        }
+      },
       "edit_holding": {
         "title": "Asset auswählen",
         "data": { "holding_id": "Aktives oder beobachtetes Asset" }
@@ -117,6 +146,19 @@
           "display_currency": "Anzeigewährung (nur Kryptowährungen)"
           ,"alert_below": "Alarm unter diesem Kurs (optional)"
           ,"alert_above": "Alarm über diesem Kurs (optional)"
+          ,"price_source": "Kursquelle"
+          ,"price_entity": "Home-Assistant-Kurssensor"
+          ,"price_currency": "Kurswährung"
+          ,"isin": "ISIN"
+          ,"wkn": "WKN"
+          ,"valor": "Valorennummer"
+          ,"issuer": "Emittent"
+          ,"underlying": "Basiswert"
+          ,"warrant_type": "Warrant-Typ"
+          ,"strike": "Ausübungspreis"
+          ,"ratio": "Bezugsverhältnis"
+          ,"expiry": "Verfallsdatum"
+          ,"watch_only": "Nur beobachten; nicht ins Portfolio einrechnen"
         }
       },
       "remove_holding": {
@@ -191,9 +233,13 @@
       "coingecko_not_found": "CoinGecko kennt diese Coin-ID nicht.",
       "invalid_currency": "Gib einen dreistelligen Währungscode ein, zum Beispiel CHF oder USD.",
       "symbol_not_found": "Yahoo Finance hat für dieses Symbol keinen Kurs geliefert.",
+      "symbol_required": "Gib einen Ticker oder eine Kurzbezeichnung ein.",
       "invalid_transaction_date": "Gib ein gültiges Datum im Format JJJJ-MM-TT ein.",
       "invalid_transaction_price": "Der Preis muss größer als null sein.",
       "invalid_alert_range": "Der untere Alarmkurs muss kleiner als der obere Alarmkurs sein.",
+      "invalid_warrant_expiry": "Gib ein gültiges Verfallsdatum ein.",
+      "price_entity_not_found": "Wähle einen vorhandenen Home-Assistant-Sensor aus.",
+      "price_entity_not_numeric": "Der ausgewählte Home-Assistant-Sensor muss einen numerischen Zustand haben.",
       "insufficient_quantity": "Dieser Verkauf überschreitet den am gewählten Datum verfügbaren Bestand."
     }
   },
@@ -205,7 +251,20 @@
         "crypto": "Kryptowährung",
         "fund": "Fonds",
         "currency": "Währung",
+        "warrant": "Warrant",
         "other": "Sonstiges"
+      }
+    },
+    "price_source": {
+      "options": {
+        "yahoo": "Yahoo Finance",
+        "entity": "Home-Assistant-Sensor"
+      }
+    },
+    "warrant_type": {
+      "options": {
+        "call": "Call",
+        "put": "Put"
       }
     },
     "transaction_type": {

@@ -2,6 +2,15 @@
 
 All notable changes to Portfolio Tracker are documented here.
 
+## 1.5.0 - 2026-08-21
+
+- Added a dedicated warrant workflow for active positions and watched assets.
+- Added Yahoo Finance and numeric Home Assistant sensor price sources for warrants.
+- Added warrant metadata including ISIN, WKN, valor number, issuer, underlying, type, strike, ratio, and expiry.
+- Added warrant details, transactions, and price-alert states to the dashboard.
+- Added immediate refreshes when a configured Home Assistant price sensor changes.
+- Added complete German, English, French, and Italian warrant configuration texts.
+
 ## 1.4.2 - 2026-08-20
 
 - Added lower and upper alert thresholds to the active-assets dashboard table.

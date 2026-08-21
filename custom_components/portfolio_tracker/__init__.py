@@ -10,15 +10,18 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.components.lovelace import LOVELACE_DATA, MODE_STORAGE
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
-from homeassistant.core import CoreState, HomeAssistant
+from homeassistant.core import CoreState, HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.event import async_track_state_change_event
 
 from .const import (
     CONF_BASE_CURRENCY,
     CONF_HOLDINGS,
     CONF_INDEXES,
+    CONF_PRICE_ENTITY,
+    CONF_PRICE_SOURCE,
     DEFAULT_BASE_CURRENCY,
     DEFAULT_INDEXES,
     DOMAIN,
@@ -134,6 +137,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_config_entry_first_refresh()
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     entry.async_on_unload(entry.add_update_listener(_async_reload_entry))
+    external_price_entities = {
+        str(holding.get(CONF_PRICE_ENTITY, "")).strip()
+        for holding in entry_value(entry, CONF_HOLDINGS, [])
+        if holding.get(CONF_PRICE_SOURCE, "yahoo") == "entity"
+        and holding.get(CONF_PRICE_ENTITY)
+    }
+    if external_price_entities:
+
+        @callback
+        def _external_price_changed(_event) -> None:
+            """Refresh promptly when a configured external price changes."""
+            hass.async_create_task(coordinator.async_request_refresh())
+
+        entry.async_on_unload(
+            async_track_state_change_event(
+                hass,
+                external_price_entities,
+                _external_price_changed,
+            )
+        )
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 

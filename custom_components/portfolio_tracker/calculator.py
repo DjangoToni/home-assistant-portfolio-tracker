@@ -14,6 +14,7 @@ from typing import Any
 
 from .const import (
     CONF_ASSET_TYPE,
+    CONF_PRICE_SOURCE,
     CONF_WATCH_ONLY,
     crypto_currency_for_holding,
     CONF_SYMBOL,
@@ -38,6 +39,7 @@ def professional_holdings(holdings: list[HoldingValue]) -> list[HoldingValue]:
         holding
         for holding in holdings
         if holding.get(CONF_ASSET_TYPE) != "crypto"
+        and holding.get(CONF_PRICE_SOURCE, "yahoo") != "entity"
         and not holding.get(CONF_WATCH_ONLY, False)
     ]
 
