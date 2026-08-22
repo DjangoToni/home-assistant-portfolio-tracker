@@ -79,6 +79,11 @@ from .const import (
     entry_value,
 )
 from .transactions import opening_transaction, transaction_balances_are_valid
+from .swissquote import (
+    SwissquoteClient,
+    SwissquoteError,
+    SwissquoteWarrantNotFound,
+)
 from .yahoo import YahooFinanceClient, YahooFinanceError, YahooSymbolNotFound
 
 CURRENCY_SCHEMA = str
@@ -246,13 +251,19 @@ def _warrant_schema(
     default_venue = defaults.get(CONF_TRADING_VENUE) or (
         "six" if new_warrant or defaults.get(CONF_VALOR) else "other"
     )
+    default_price_source = defaults.get(CONF_PRICE_SOURCE) or (
+        "swissquote" if default_venue in {"six", "swiss_dots"} else "yahoo"
+    )
+    default_price_mode = defaults.get(CONF_PRICE_MODE) or (
+        "midpoint" if default_price_source == "swissquote" else "state"
+    )
     price_entity_key: Any = vol.Optional(CONF_PRICE_ENTITY)
     if defaults.get(CONF_PRICE_ENTITY):
         price_entity_key = vol.Optional(
             CONF_PRICE_ENTITY, default=defaults[CONF_PRICE_ENTITY]
         )
     schema: dict[Any, Any] = {
-        vol.Required(
+        vol.Optional(
             CONF_SYMBOL, default=defaults.get(CONF_SYMBOL, "")
         ): selector.TextSelector(),
         vol.Optional(
@@ -260,7 +271,7 @@ def _warrant_schema(
         ): selector.TextSelector(),
         vol.Required(
             CONF_PRICE_SOURCE,
-            default=defaults.get(CONF_PRICE_SOURCE, "yahoo"),
+            default=default_price_source,
         ): selector.SelectSelector(
             selector.SelectSelectorConfig(
                 options=PRICE_SOURCES,
@@ -273,7 +284,7 @@ def _warrant_schema(
         ),
         vol.Required(
             CONF_PRICE_MODE,
-            default=defaults.get(CONF_PRICE_MODE, "state"),
+            default=default_price_mode,
         ): selector.SelectSelector(
             selector.SelectSelectorConfig(
                 options=PRICE_MODES,
@@ -1070,11 +1081,28 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
         if below > 0 and above > 0 and below >= above:
             errors["base"] = "invalid_alert_range"
             return None
-        symbol = user_input[CONF_SYMBOL].strip().upper()
+        price_source = str(user_input.get(CONF_PRICE_SOURCE, "yahoo"))
+        valor = (
+            str(user_input.get(CONF_VALOR, ""))
+            .replace("'", "")
+            .replace("\u2019", "")
+            .replace(" ", "")
+            .strip()
+        )
+        if price_source == "swissquote" and not valor:
+            errors[CONF_VALOR] = "valor_required"
+            return None
+        if price_source == "swissquote" and (
+            not valor.isdigit() or len(valor) > 9
+        ):
+            errors[CONF_VALOR] = "invalid_valor"
+            return None
+        symbol = str(user_input.get(CONF_SYMBOL, "")).strip().upper()
+        if not symbol and price_source == "swissquote" and valor:
+            symbol = valor
         if not symbol:
             errors[CONF_SYMBOL] = "symbol_required"
             return None
-        price_source = str(user_input.get(CONF_PRICE_SOURCE, "yahoo"))
         price_mode = str(user_input.get(CONF_PRICE_MODE, "state"))
         price_entity = str(user_input.get(CONF_PRICE_ENTITY, "")).strip()
         price_currency_raw = str(
@@ -1083,6 +1111,27 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
         price_currency = (
             _normalize_currency(price_currency_raw) if price_currency_raw else None
         )
+        expiry = str(user_input.get(CONF_EXPIRY, "")).strip()
+        if user_input[CONF_ASSET_TYPE] == "warrant":
+            try:
+                date.fromisoformat(expiry)
+            except ValueError:
+                errors[CONF_EXPIRY] = "invalid_warrant_expiry"
+                return None
+            trading_venue = str(
+                user_input.get(CONF_TRADING_VENUE, "six")
+            ).lower()
+            if trading_venue in {"six", "swiss_dots"} and not valor:
+                errors[CONF_VALOR] = "valor_required"
+                return None
+            if trading_venue in {"six", "swiss_dots"} and (
+                not valor.isdigit() or len(valor) > 9
+            ):
+                errors[CONF_VALOR] = "invalid_valor"
+                return None
+        else:
+            trading_venue = ""
+
         if price_source == "entity":
             state = self.hass.states.get(price_entity) if price_entity else None
             if state is None:
@@ -1102,6 +1151,24 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
             quote_symbol = symbol
             quote_name = state.name
             quote_currency = price_currency
+        elif price_source == "swissquote":
+            try:
+                client = SwissquoteClient(async_get_clientsession(self.hass))
+                quote = await client.async_get_quote(
+                    valor,
+                    price_mode=price_mode,
+                    trading_venue=trading_venue,
+                    symbol=symbol,
+                )
+            except SwissquoteWarrantNotFound:
+                errors[CONF_VALOR] = "swissquote_warrant_not_found"
+                return None
+            except SwissquoteError:
+                errors["base"] = "swissquote_cannot_connect"
+                return None
+            quote_symbol = quote.symbol
+            quote_name = quote.name
+            quote_currency = quote.currency
         else:
             price_mode = "state"
             try:
@@ -1116,35 +1183,6 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
             quote_symbol = quote.symbol
             quote_name = quote.name
             quote_currency = quote.currency
-
-        expiry = str(user_input.get(CONF_EXPIRY, "")).strip()
-        valor = (
-            str(user_input.get(CONF_VALOR, ""))
-            .replace("'", "")
-            .replace("\u2019", "")
-            .replace(" ", "")
-            .strip()
-        )
-        if user_input[CONF_ASSET_TYPE] == "warrant":
-            try:
-                date.fromisoformat(expiry)
-            except ValueError:
-                errors[CONF_EXPIRY] = "invalid_warrant_expiry"
-                return None
-            trading_venue = str(
-                user_input.get(CONF_TRADING_VENUE, "six")
-            ).lower()
-            if (
-                trading_venue in {"six", "swiss_dots"}
-                and not valor
-            ):
-                errors[CONF_VALOR] = "valor_required"
-                return None
-            if trading_venue in {"six", "swiss_dots"} and not valor.isdigit():
-                errors[CONF_VALOR] = "invalid_valor"
-                return None
-        else:
-            trading_venue = ""
 
         coingecko_id = ""
         display_currency = entry_value(

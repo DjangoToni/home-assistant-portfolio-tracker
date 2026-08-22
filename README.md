@@ -81,8 +81,9 @@ Watched assets receive prices, market details, history, and alerts, but never af
 
 Open **Configure > Assets > Add warrant** to create an active warrant position or a watched warrant. The editor stores the product data needed to identify and assess it: ISIN, WKN, valor number, issuer, underlying, call/put type, strike, ratio, and expiry. All fields except type, strike, ratio, and expiry are optional.
 
-Two price sources are available:
+Three price sources are available:
 
+- **Swissquote (Swiss warrants)**: enter the Swiss valor number and select SIX Structured Products or Swiss DOTS. Portfolio Tracker resolves the product automatically and loads the last price, bid, ask, previous close, currency, and quote timestamp.
 - **Yahoo Finance**: enter the exact Yahoo symbol. Currency and 30-day price history are loaded automatically when Yahoo provides the product.
 - **Home Assistant sensor**: select any existing sensor with a numeric price state, enter a unique ticker or short identifier, and specify the quote currency. This makes broker APIs, REST sensors, MQTT sensors, and template sensors usable even when Yahoo does not list the warrant.
 
@@ -90,7 +91,7 @@ The optional `previous_close` attribute on an external price sensor enables the 
 
 #### Swiss warrants
 
-Swiss warrants can be assigned to **SIX Structured Products** or **Swiss DOTS**. Their Swiss valor number is required, CHF is preselected, and ISIN remains available as the international identifier. SIX-listed structured products normally also have a six-character exchange symbol; Swiss DOTS products are commonly identified by their valor number. The [Swissquote Derivative Finder](https://www.swissquote.ch/sqi_web_search/market/equity/swissderivatives/SwissDerivativeSearch.action) can be used to find public product data from both venues.
+Swiss warrants can be assigned to **SIX Structured Products** or **Swiss DOTS**. Their Swiss valor number is required, CHF is preselected, and ISIN remains available as the international identifier. Swissquote is the default source for this workflow and validates that the exact valor exists on the selected venue. The [Swissquote Derivative Finder](https://www.swissquote.ch/sqi_web_search/market/equity/swissderivatives/SwissDerivativeSearch.action) can be used to find public product data from both venues.
 
 For broker or market-data sensors, the warrant editor can use the sensor state, its `bid` attribute, its `ask` attribute, or the midpoint of `bid` and `ask`. The optional attributes are:
 
@@ -102,7 +103,7 @@ attributes:
   previous_close: 0.410
 ```
 
-Bid, ask, midpoint spread, venue, and the selected valuation price are shown in the detail card. If the selected bid/ask value is temporarily missing, Portfolio Tracker keeps working with the numeric sensor state. Direct SIX market-data access is not enabled anonymously because the official SIX Web API requires a client certificate and data subscription.
+Bid, ask, midpoint spread, venue, and the selected valuation price are shown in the detail card. Swissquote and external sensors can use last, bid, ask, or midpoint pricing. If an external sensor's selected bid/ask value is temporarily missing, Portfolio Tracker keeps working with its numeric state. Direct SIX market-data access is not enabled anonymously because the official SIX Web API requires a client certificate and data subscription.
 
 ## Transactions
 
@@ -147,6 +148,7 @@ Rows in the active-assets and watched-assets tables can also be expanded directl
 ## Data sources
 
 - [Yahoo Finance](https://finance.yahoo.com/) supplies quotes, exchange rates, stock details, market indices, and stock history.
+- [Swissquote](https://www.swissquote.ch/sqi_web_search/market/equity/swissderivatives/SwissDerivativeSearch.action) supplies public SIX and Swiss DOTS warrant identification and quotes by valor number.
 - [CoinGecko](https://www.coingecko.com/) supplies extended cryptocurrency market data and history.
 - Existing numeric Home Assistant sensors can supply warrant prices from another integration, broker, REST endpoint, MQTT topic, or template.
 
@@ -163,7 +165,7 @@ Public provider endpoints can occasionally be unavailable or rate limited. Portf
 
 ### No quotes are available
 
-Temporary Yahoo Finance failures do not remove existing entities. Once data has previously loaded, the last successful values remain available until the provider responds again.
+Temporary Yahoo Finance or Swissquote failures do not remove existing entities. Once data has previously loaded, the last successful values remain available until the provider responds again.
 
 ### Integration is not offered after HACS installation
 

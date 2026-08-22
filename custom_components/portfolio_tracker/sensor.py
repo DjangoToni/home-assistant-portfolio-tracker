@@ -577,9 +577,11 @@ class HoldingEntity(PortfolioEntity):
             name=holding[CONF_NAME],
             manufacturer="Portfolio Tracker",
             model=(
-                f"Home Assistant {holding[CONF_ASSET_TYPE].title()}"
-                if holding.get(CONF_PRICE_SOURCE, "yahoo") == "entity"
-                else f"Yahoo Finance {holding[CONF_ASSET_TYPE].title()}"
+                {
+                    "entity": "Home Assistant",
+                    "swissquote": "Swissquote",
+                }.get(holding.get(CONF_PRICE_SOURCE, "yahoo"), "Yahoo Finance")
+                + f" {holding[CONF_ASSET_TYPE].title()}"
             ),
             via_device=(DOMAIN, entry.entry_id),
         )

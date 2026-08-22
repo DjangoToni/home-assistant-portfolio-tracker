@@ -81,8 +81,9 @@ Beobachtete Assets erhalten Kurse, Marktdetails, Verlauf und Alarme, beeinflusse
 
 Unter **Konfigurieren > Assets > Warrant hinzufügen** kann ein Warrant als aktive Position oder nur zur Beobachtung angelegt werden. Die Eingabemaske speichert die relevanten Produktdaten: ISIN, WKN, Valorennummer, Emittent, Basiswert, Call/Put-Typ, Ausübungspreis, Bezugsverhältnis und Verfallsdatum. Bis auf Typ, Ausübungspreis, Bezugsverhältnis und Verfallsdatum sind diese Angaben optional.
 
-Es stehen zwei Kursquellen zur Verfügung:
+Es stehen drei Kursquellen zur Verfügung:
 
+- **Swissquote (Schweizer Warrants)**: Die Schweizer Valorennummer eingeben und SIX Structured Products oder Swiss DOTS auswählen. Portfolio Tracker löst das Produkt automatisch auf und lädt letzten Kurs, Geldkurs, Briefkurs, Schlusskurs, Währung und Kurszeitpunkt.
 - **Yahoo Finance**: Das exakte Yahoo-Symbol eingeben. Kurswährung und 30-Tage-Verlauf werden automatisch geladen, sofern Yahoo das Produkt bereitstellt.
 - **Home-Assistant-Sensor**: Einen vorhandenen Sensor mit numerischem Kurszustand auswählen, eine eindeutige Kurzbezeichnung angeben und die Kurswährung festlegen. Damit lassen sich Broker-Integrationen, REST-, MQTT- und Template-Sensoren verwenden, wenn Yahoo den Warrant nicht kennt.
 
@@ -90,7 +91,7 @@ Das optionale Attribut `previous_close` am externen Kurssensor aktiviert die Tag
 
 #### Schweizer Warrants
 
-Schweizer Warrants können **SIX Structured Products** oder **Swiss DOTS** zugeordnet werden. Die Schweizer Valorennummer ist dabei verpflichtend, CHF ist vorausgewählt und die ISIN kann als internationale Kennung hinterlegt werden. An SIX kotierte strukturierte Produkte besitzen normalerweise zusätzlich ein sechs Zeichen langes Börsensymbol; bei Swiss DOTS dient häufig die Valorennummer als Kennung. Im [Swissquote Derivative Finder](https://www.swissquote.ch/sqi_web_search/market/equity/swissderivatives/SwissDerivativeSearch.action) lassen sich öffentliche Produktdaten beider Handelsplätze finden.
+Schweizer Warrants können **SIX Structured Products** oder **Swiss DOTS** zugeordnet werden. Die Schweizer Valorennummer ist dabei verpflichtend, CHF ist vorausgewählt und die ISIN kann als internationale Kennung hinterlegt werden. Swissquote ist für diesen Ablauf die vorausgewählte Kursquelle und prüft, ob die exakte Valorennummer am gewählten Handelsplatz vorhanden ist. Im [Swissquote Derivative Finder](https://www.swissquote.ch/sqi_web_search/market/equity/swissderivatives/SwissDerivativeSearch.action) lassen sich öffentliche Produktdaten beider Handelsplätze finden.
 
 Bei Broker- oder Marktdatensensoren kann die Eingabemaske den Sensorzustand, das Attribut `bid`, das Attribut `ask` oder den Mittelwert aus `bid` und `ask` als Bewertungskurs verwenden. Die optionalen Sensorattribute sehen beispielsweise so aus:
 
@@ -102,7 +103,7 @@ attributes:
   previous_close: 0.410
 ```
 
-Geldkurs, Briefkurs, Spread, Handelsplatz und der ausgewählte Bewertungskurs erscheinen in der Detailkarte. Fehlt der gewählte Bid-/Ask-Wert vorübergehend, arbeitet Portfolio Tracker mit dem numerischen Sensorzustand weiter. Ein anonymer Direktzugriff auf SIX-Marktdaten ist nicht aktiviert, weil die offizielle SIX Web API ein Kundenzertifikat und Datenabonnement voraussetzt.
+Geldkurs, Briefkurs, Spread, Handelsplatz und der ausgewählte Bewertungskurs erscheinen in der Detailkarte. Bei Swissquote und externen Sensoren kann letzter Kurs, Geldkurs, Briefkurs oder Mittelwert verwendet werden. Fehlt bei einem externen Sensor der gewählte Bid-/Ask-Wert vorübergehend, arbeitet Portfolio Tracker mit dem numerischen Sensorzustand weiter. Ein anonymer Direktzugriff auf SIX-Marktdaten ist nicht aktiviert, weil die offizielle SIX Web API ein Kundenzertifikat und Datenabonnement voraussetzt.
 
 ## Transaktionen
 
@@ -147,6 +148,7 @@ Zeilen in den Tabellen für aktive und beobachtete Assets lassen sich außerdem 
 ## Datenquellen
 
 - [Yahoo Finance](https://finance.yahoo.com/) liefert Kurse, Wechselkurse, Aktiendetails, Marktindizes und Aktienverläufe.
+- [Swissquote](https://www.swissquote.ch/sqi_web_search/market/equity/swissderivatives/SwissDerivativeSearch.action) liefert öffentliche Produktkennungen und Kurse für Warrants von SIX und Swiss DOTS anhand der Valorennummer.
 - [CoinGecko](https://www.coingecko.com/) liefert erweiterte Kryptomarktdaten und Verläufe.
 - Vorhandene numerische Home-Assistant-Sensoren können Warrant-Kurse aus einer anderen Integration, einem Broker, REST-Endpunkt, MQTT-Topic oder Template liefern.
 
@@ -163,7 +165,7 @@ Zeilen in den Tabellen für aktive und beobachtete Assets lassen sich außerdem 
 
 ### Es werden keine Kurse geliefert
 
-Vorübergehende Yahoo-Finance-Ausfälle entfernen keine bestehenden Entitäten. Sobald zuvor Daten geladen wurden, bleiben die letzten erfolgreichen Werte bis zur nächsten erfolgreichen Aktualisierung erhalten.
+Vorübergehende Ausfälle von Yahoo Finance oder Swissquote entfernen keine bestehenden Entitäten. Sobald zuvor Daten geladen wurden, bleiben die letzten erfolgreichen Werte bis zur nächsten erfolgreichen Aktualisierung erhalten.
 
 ### Die Integration erscheint nach der HACS-Installation nicht
 

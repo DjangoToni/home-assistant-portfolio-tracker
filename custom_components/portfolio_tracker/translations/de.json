@@ -103,13 +103,13 @@
       },
       "add_warrant": {
         "title": "Warrant hinzufügen",
-        "description": "Für Schweizer Warrants von SIX und Swiss DOTS ist die Valorennummer erforderlich. Verwende Yahoo Finance, wenn das Produkt dort geführt wird, oder einen numerischen Broker-/Marktdatensensor mit optionalen Attributen für Geld- und Briefkurs.",
+        "description": "Wähle für Schweizer Warrants von SIX und Swiss DOTS Swissquote und gib die Valorennummer ein. Yahoo Finance und numerische Home-Assistant-Kurssensoren bleiben als Alternativen verfügbar.",
         "data": {
-          "symbol": "Ticker / Kurzbezeichnung",
+          "symbol": "Ticker / Kurzbezeichnung (bei Swissquote optional)",
           "name": "Anzeigename (optional)",
           "price_source": "Kursquelle",
           "price_entity": "Home-Assistant-Kurssensor (bei Sensor-Kursquelle)",
-          "price_mode": "Zu verwendender Sensorkurs",
+          "price_mode": "Zu verwendender Kurs",
           "price_currency": "Kurswährung (bei Sensor-Kursquelle erforderlich)",
           "trading_venue": "Handelsplatz",
           "isin": "ISIN (optional)",
@@ -150,7 +150,7 @@
           ,"alert_above": "Alarm über diesem Kurs (optional)"
           ,"price_source": "Kursquelle"
           ,"price_entity": "Home-Assistant-Kurssensor"
-          ,"price_mode": "Zu verwendender Sensorkurs"
+          ,"price_mode": "Zu verwendender Kurs"
           ,"price_currency": "Kurswährung"
           ,"trading_venue": "Handelsplatz"
           ,"isin": "ISIN"
@@ -245,7 +245,9 @@
       "price_entity_not_found": "Wähle einen vorhandenen Home-Assistant-Sensor aus.",
       "price_entity_not_numeric": "Der ausgewählte Home-Assistant-Sensor muss einen numerischen Zustand haben.",
       "valor_required": "Gib für Warrants von SIX oder Swiss DOTS die Schweizer Valorennummer ein.",
-      "invalid_valor": "Die Schweizer Valorennummer darf nur Ziffern enthalten.",
+      "invalid_valor": "Die Schweizer Valorennummer darf höchstens neun Ziffern enthalten.",
+      "swissquote_cannot_connect": "Swissquote konnte nicht erreicht werden.",
+      "swissquote_warrant_not_found": "Swissquote hat diese Valorennummer am ausgewählten Handelsplatz nicht gefunden.",
       "insufficient_quantity": "Dieser Verkauf überschreitet den am gewählten Datum verfügbaren Bestand."
     }
   },
@@ -263,15 +265,16 @@
     },
     "price_source": {
       "options": {
+        "swissquote": "Swissquote (Schweizer Warrants)",
         "yahoo": "Yahoo Finance",
         "entity": "Home-Assistant-Sensor"
       }
     },
     "price_mode": {
       "options": {
-        "state": "Sensorzustand",
-        "bid": "Attribut Geldkurs (bid)",
-        "ask": "Attribut Briefkurs (ask)",
+        "state": "Letzter Kurs / Sensorzustand",
+        "bid": "Geldkurs (bid)",
+        "ask": "Briefkurs (ask)",
         "midpoint": "Mittelwert aus Geld- und Briefkurs"
       }
     },

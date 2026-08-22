@@ -103,13 +103,13 @@
       },
       "add_warrant": {
         "title": "Aggiungi warrant",
-        "description": "I warrant svizzeri SIX e Swiss DOTS richiedono il numero di valore. Usa Yahoo Finance se il prodotto è disponibile oppure un sensore numerico del broker/dati con attributi denaro e lettera facoltativi.",
+        "description": "Per i warrant svizzeri SIX e Swiss DOTS, seleziona Swissquote e inserisci il numero di valore. Yahoo Finance e i sensori prezzo Home Assistant restano disponibili come alternative.",
         "data": {
-          "symbol": "Ticker / identificatore breve",
+          "symbol": "Ticker / identificatore breve (facoltativo con Swissquote)",
           "name": "Nome visualizzato (facoltativo)",
           "price_source": "Fonte del prezzo",
           "price_entity": "Sensore prezzo Home Assistant (per la fonte sensore)",
-          "price_mode": "Prezzo del sensore da utilizzare",
+          "price_mode": "Prezzo da utilizzare",
           "price_currency": "Valuta del prezzo (necessaria per la fonte sensore)",
           "trading_venue": "Sede di negoziazione",
           "isin": "ISIN (facoltativo)",
@@ -152,7 +152,7 @@
           "alert_above": "Allarme sopra questo prezzo (facoltativo)",
           "price_source": "Fonte del prezzo",
           "price_entity": "Sensore prezzo Home Assistant",
-          "price_mode": "Prezzo del sensore da utilizzare",
+          "price_mode": "Prezzo da utilizzare",
           "price_currency": "Valuta del prezzo",
           "trading_venue": "Sede di negoziazione",
           "isin": "ISIN",
@@ -259,7 +259,9 @@
       "price_entity_not_found": "Seleziona un sensore Home Assistant esistente.",
       "price_entity_not_numeric": "Il sensore Home Assistant selezionato deve avere uno stato numerico.",
       "valor_required": "Inserisci il numero di valore svizzero per i warrant SIX o Swiss DOTS.",
-      "invalid_valor": "Il numero di valore svizzero può contenere solo cifre.",
+      "invalid_valor": "Il numero di valore svizzero può contenere al massimo nove cifre.",
+      "swissquote_cannot_connect": "Impossibile connettersi a Swissquote.",
+      "swissquote_warrant_not_found": "Swissquote non ha trovato questo numero di valore nella sede di negoziazione selezionata.",
       "insufficient_quantity": "Questa vendita supererebbe la quantità disponibile alla data selezionata."
     }
   },
@@ -277,15 +279,16 @@
     },
     "price_source": {
       "options": {
+        "swissquote": "Swissquote (warrant svizzeri)",
         "yahoo": "Yahoo Finance",
         "entity": "Sensore Home Assistant"
       }
     },
     "price_mode": {
       "options": {
-        "state": "Stato del sensore",
-        "bid": "Attributo denaro (bid)",
-        "ask": "Attributo lettera (ask)",
+        "state": "Ultimo prezzo / stato del sensore",
+        "bid": "Prezzo denaro (bid)",
+        "ask": "Prezzo lettera (ask)",
         "midpoint": "Media denaro/lettera"
       }
     },

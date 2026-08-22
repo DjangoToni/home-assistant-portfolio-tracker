@@ -103,13 +103,13 @@
       },
       "add_warrant": {
         "title": "Add warrant",
-        "description": "Swiss SIX and Swiss DOTS warrants require their valor number. Use Yahoo Finance when it lists the product, or a numeric Home Assistant broker/market-data sensor with optional bid and ask attributes.",
+        "description": "For Swiss SIX and Swiss DOTS warrants, select Swissquote and enter the valor number. Yahoo Finance and numeric Home Assistant price sensors remain available as alternatives.",
         "data": {
-          "symbol": "Ticker / short identifier",
+          "symbol": "Ticker / short identifier (optional with Swissquote)",
           "name": "Display name (optional)",
           "price_source": "Price source",
           "price_entity": "Home Assistant price sensor (for sensor source)",
-          "price_mode": "Sensor price to use",
+          "price_mode": "Price to use",
           "price_currency": "Quote currency (required for sensor source)",
           "trading_venue": "Trading venue",
           "isin": "ISIN (optional)",
@@ -150,7 +150,7 @@
           ,"alert_above": "Alert above this price (optional)"
           ,"price_source": "Price source"
           ,"price_entity": "Home Assistant price sensor"
-          ,"price_mode": "Sensor price to use"
+          ,"price_mode": "Price to use"
           ,"price_currency": "Quote currency"
           ,"trading_venue": "Trading venue"
           ,"isin": "ISIN"
@@ -245,7 +245,9 @@
       "price_entity_not_found": "Select an existing Home Assistant sensor.",
       "price_entity_not_numeric": "The selected Home Assistant sensor must have a numeric state.",
       "valor_required": "Enter the Swiss valor number for SIX or Swiss DOTS warrants.",
-      "invalid_valor": "The Swiss valor number may contain digits only.",
+      "invalid_valor": "The Swiss valor number may contain no more than nine digits.",
+      "swissquote_cannot_connect": "Could not connect to Swissquote.",
+      "swissquote_warrant_not_found": "Swissquote did not find this valor number on the selected trading venue.",
       "insufficient_quantity": "This sale would exceed the available quantity at the selected date."
     }
   },
@@ -263,15 +265,16 @@
     },
     "price_source": {
       "options": {
+        "swissquote": "Swissquote (Swiss warrants)",
         "yahoo": "Yahoo Finance",
         "entity": "Home Assistant sensor"
       }
     },
     "price_mode": {
       "options": {
-        "state": "Sensor state",
-        "bid": "Bid attribute",
-        "ask": "Ask attribute",
+        "state": "Last price / sensor state",
+        "bid": "Bid price",
+        "ask": "Ask price",
         "midpoint": "Bid/ask midpoint"
       }
     },

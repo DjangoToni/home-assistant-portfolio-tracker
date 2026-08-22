@@ -103,13 +103,13 @@
       },
       "add_warrant": {
         "title": "Ajouter un warrant",
-        "description": "Les warrants suisses SIX et Swiss DOTS nécessitent leur numéro de valeur. Utilisez Yahoo Finance si le produit y figure, ou un capteur numérique de courtier/données avec des attributs achat et vente facultatifs.",
+        "description": "Pour les warrants suisses SIX et Swiss DOTS, sélectionnez Swissquote et saisissez le numéro de valeur. Yahoo Finance et les capteurs de cours Home Assistant restent disponibles comme alternatives.",
         "data": {
-          "symbol": "Ticker / identifiant court",
+          "symbol": "Ticker / identifiant court (facultatif avec Swissquote)",
           "name": "Nom affiché (facultatif)",
           "price_source": "Source du cours",
           "price_entity": "Capteur de cours Home Assistant (pour la source capteur)",
-          "price_mode": "Cours du capteur à utiliser",
+          "price_mode": "Cours à utiliser",
           "price_currency": "Devise du cours (requise pour la source capteur)",
           "trading_venue": "Place de négoce",
           "isin": "ISIN (facultatif)",
@@ -152,7 +152,7 @@
           "alert_above": "Alerte au-dessus de ce prix (facultatif)",
           "price_source": "Source du cours",
           "price_entity": "Capteur de cours Home Assistant",
-          "price_mode": "Cours du capteur à utiliser",
+          "price_mode": "Cours à utiliser",
           "price_currency": "Devise du cours",
           "trading_venue": "Place de négoce",
           "isin": "ISIN",
@@ -259,7 +259,9 @@
       "price_entity_not_found": "Sélectionnez un capteur Home Assistant existant.",
       "price_entity_not_numeric": "Le capteur Home Assistant sélectionné doit avoir un état numérique.",
       "valor_required": "Saisissez le numéro de valeur suisse pour les warrants SIX ou Swiss DOTS.",
-      "invalid_valor": "Le numéro de valeur suisse ne peut contenir que des chiffres.",
+      "invalid_valor": "Le numéro de valeur suisse ne peut pas contenir plus de neuf chiffres.",
+      "swissquote_cannot_connect": "Impossible de se connecter à Swissquote.",
+      "swissquote_warrant_not_found": "Swissquote n'a pas trouvé ce numéro de valeur sur la place de négoce sélectionnée.",
       "insufficient_quantity": "Cette vente dépasserait la quantité disponible à la date sélectionnée."
     }
   },
@@ -277,15 +279,16 @@
     },
     "price_source": {
       "options": {
+        "swissquote": "Swissquote (warrants suisses)",
         "yahoo": "Yahoo Finance",
         "entity": "Capteur Home Assistant"
       }
     },
     "price_mode": {
       "options": {
-        "state": "État du capteur",
-        "bid": "Attribut achat (bid)",
-        "ask": "Attribut vente (ask)",
+        "state": "Dernier cours / état du capteur",
+        "bid": "Cours acheteur (bid)",
+        "ask": "Cours vendeur (ask)",
         "midpoint": "Milieu achat/vente"
       }
     },

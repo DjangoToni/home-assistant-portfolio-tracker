@@ -2,6 +2,14 @@
 
 All notable changes to Portfolio Tracker are documented here.
 
+## 1.6.0 - 2026-08-22
+
+- Added Swissquote as a dedicated price source for Swiss warrants.
+- Added exact valor-number lookup and venue validation for SIX Structured Products and Swiss DOTS.
+- Added last, bid, ask, midpoint, previous-close, currency, and timestamp quote normalization.
+- Kept the last successful quote available during temporary Swissquote failures.
+- Made Swissquote with midpoint pricing the default for newly configured Swiss warrants.
+
 ## 1.5.1 - 2026-08-21
 
 - Optimized warrant configuration for Swiss SIX Structured Products and Swiss DOTS.

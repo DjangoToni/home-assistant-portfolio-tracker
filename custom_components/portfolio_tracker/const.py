@@ -6,7 +6,7 @@ from typing import Final
 
 DOMAIN: Final = "portfolio_tracker"
 PLATFORMS: Final = ["sensor", "binary_sensor"]
-FRONTEND_VERSION: Final = "1.5.1"
+FRONTEND_VERSION: Final = "1.6.0"
 FRONTEND_URL: Final = "/portfolio_tracker/frontend"
 
 CONF_PORTFOLIO_NAME: Final = "portfolio_name"
@@ -61,7 +61,7 @@ MIN_UPDATE_INTERVAL: Final = 5
 
 ASSET_TYPES: Final = ["stock", "etf", "crypto", "fund", "currency", "warrant", "other"]
 STANDARD_ASSET_TYPES: Final = [item for item in ASSET_TYPES if item != "warrant"]
-PRICE_SOURCES: Final = ["yahoo", "entity"]
+PRICE_SOURCES: Final = ["swissquote", "yahoo", "entity"]
 PRICE_MODES: Final = ["state", "bid", "ask", "midpoint"]
 WARRANT_TYPES: Final = ["call", "put"]
 WARRANT_VENUES: Final = ["six", "swiss_dots", "other"]

@@ -26,6 +26,8 @@ from .const import (
     CONF_PRICE_ENTITY,
     CONF_PRICE_MODE,
     CONF_PRICE_SOURCE,
+    CONF_TRADING_VENUE,
+    CONF_VALOR,
     CONF_TRANSACTION_CURRENCY,
     CONF_TRANSACTIONS,
     CONF_UPDATE_INTERVAL,
@@ -41,6 +43,7 @@ from .const import (
 from .models import PortfolioData, Quote
 from .calculator import holding_alert_price
 from .yahoo import YahooFinanceClient
+from .swissquote import SwissquoteClient
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -90,6 +93,7 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.entry = entry
         self.client = YahooFinanceClient(async_get_clientsession(hass))
+        self.swissquote = SwissquoteClient(async_get_clientsession(hass))
         self.coingecko = CoinGeckoClient(async_get_clientsession(hass))
         self._active_alerts: set[str] = set()
         interval = int(
@@ -113,15 +117,20 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
             for holding in holdings
             if holding.get(CONF_PRICE_SOURCE, "yahoo") == "entity"
         ]
+        swissquote_holdings = [
+            holding
+            for holding in holdings
+            if holding.get(CONF_PRICE_SOURCE, "yahoo") == "swissquote"
+        ]
         symbols = sorted(
             {
                 holding["symbol"].upper()
                 for holding in holdings
-                if holding.get(CONF_PRICE_SOURCE, "yahoo") != "entity"
+                if holding.get(CONF_PRICE_SOURCE, "yahoo") == "yahoo"
             }
             | {symbol.upper() for symbol in indexes}
         )
-        if not symbols and not external_holdings:
+        if not symbols and not external_holdings and not swissquote_holdings:
             return PortfolioData(
                 quotes={}, fx_rates={base: Decimal(1)}, base_currency=base
             )
@@ -141,12 +150,36 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
                         raise
                 raise RuntimeError("Unreachable quote retry state")
 
+        async def fetch_swissquote(holding: dict) -> Quote:
+            async with request_limit:
+                for attempt in range(2):
+                    try:
+                        return await self.swissquote.async_get_quote(
+                            str(holding.get(CONF_VALOR, "")),
+                            price_mode=str(holding.get(CONF_PRICE_MODE, "state")),
+                            trading_venue=str(
+                                holding.get(CONF_TRADING_VENUE, "")
+                            ),
+                            symbol=str(holding["symbol"]),
+                        )
+                    except Exception:
+                        if attempt == 0:
+                            await asyncio.sleep(1)
+                            continue
+                        raise
+                raise RuntimeError("Unreachable Swissquote retry state")
+
         results = await asyncio.gather(
             *(fetch_quote(symbol) for symbol in symbols),
             return_exceptions=True,
         )
+        swissquote_results = await asyncio.gather(
+            *(fetch_swissquote(holding) for holding in swissquote_holdings),
+            return_exceptions=True,
+        )
         quote_symbols = set(symbols) | {
-            holding["symbol"].upper() for holding in external_holdings
+            holding["symbol"].upper()
+            for holding in external_holdings + swissquote_holdings
         }
         quotes: dict[str, Quote] = {
             symbol: quote
@@ -160,6 +193,19 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
             else:
                 quotes[result.symbol] = result
                 updated_quotes += 1
+        for holding, result in zip(
+            swissquote_holdings, swissquote_results, strict=True
+        ):
+            if isinstance(result, BaseException):
+                _LOGGER.warning(
+                    "Could not update Swissquote warrant %s (valor %s): %s",
+                    holding.get("symbol"),
+                    holding.get(CONF_VALOR),
+                    result,
+                )
+            else:
+                quotes[result.symbol] = result
+                updated_quotes += 1
         for holding in external_holdings:
             external_quote = self._external_quote(holding)
             if external_quote is not None:
@@ -169,10 +215,10 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
                 "No portfolio price source returned a quote; entities remain loaded "
                 "and will retry during the next scheduled update"
             )
-        elif symbols and updated_quotes == 0:
+        elif (symbols or swissquote_holdings) and updated_quotes == 0:
             _LOGGER.warning(
-                "Yahoo Finance returned no fresh quotes; retaining the last "
-                "successful portfolio data"
+                "No cloud price source returned a fresh quote; retaining the "
+                "last successful portfolio data"
             )
 
         crypto_groups: dict[str, set[str]] = {}
@@ -282,7 +328,7 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
                 holding["symbol"]
                 for holding in holdings
                 if holding.get(CONF_ASSET_TYPE) == "stock"
-                and holding.get(CONF_PRICE_SOURCE, "yahoo") != "entity"
+                and holding.get(CONF_PRICE_SOURCE, "yahoo") == "yahoo"
             }
             | set(indexes)
         )
@@ -291,7 +337,7 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
                 holding["symbol"]
                 for holding in holdings
                 if holding.get(CONF_ASSET_TYPE) != "crypto"
-                and holding.get(CONF_PRICE_SOURCE, "yahoo") != "entity"
+                and holding.get(CONF_PRICE_SOURCE, "yahoo") == "yahoo"
             }
             | set(indexes)
         )

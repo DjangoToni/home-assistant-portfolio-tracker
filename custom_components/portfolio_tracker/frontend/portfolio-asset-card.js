@@ -2,7 +2,7 @@ const CARD_TAG = "portfolio-asset-card";
 const EDITOR_TAG = "portfolio-asset-card-editor";
 const PORTFOLIO_CARD_TAG = "portfolio-overview-card";
 const PORTFOLIO_EDITOR_TAG = "portfolio-overview-card-editor";
-const CARD_VERSION = "1.5.1";
+const CARD_VERSION = "1.6.0";
 
 const LABELS = {
   de: {
@@ -11,6 +11,7 @@ const LABELS = {
     range: "Kursverlauf",
     details: "Details",
     sourceYahoo: "Yahoo Finance",
+    sourceSwissquote: "Swissquote",
     sourceCoinGecko: "CoinGecko",
     sourceHomeAssistant: "Home-Assistant-Sensor",
     noHistory: "Noch keine historischen Daten verfügbar",
@@ -44,7 +45,7 @@ const LABELS = {
     swiss_dots: "Swiss DOTS",
     other: "Anderer Handelsplatz",
     quoteUsed: "Verwendeter Kurs",
-    priceModes: { state: "Sensorzustand", bid: "Geldkurs", ask: "Briefkurs", midpoint: "Mittel aus Geld/Brief" },
+    priceModes: { state: "Letzter Kurs / Sensorzustand", bid: "Geldkurs", ask: "Briefkurs", midpoint: "Mittel aus Geld/Brief" },
     bidLabel: "Geldkurs",
     askLabel: "Briefkurs",
     spread: "Spread",
@@ -84,6 +85,7 @@ const LABELS = {
     range: "Price history",
     details: "Details",
     sourceYahoo: "Yahoo Finance",
+    sourceSwissquote: "Swissquote",
     sourceCoinGecko: "CoinGecko",
     sourceHomeAssistant: "Home Assistant sensor",
     noHistory: "Historical data is not available yet",
@@ -117,7 +119,7 @@ const LABELS = {
     swiss_dots: "Swiss DOTS",
     other: "Other venue",
     quoteUsed: "Price used",
-    priceModes: { state: "Sensor state", bid: "Bid", ask: "Ask", midpoint: "Bid/ask midpoint" },
+    priceModes: { state: "Last price / sensor state", bid: "Bid", ask: "Ask", midpoint: "Bid/ask midpoint" },
     bidLabel: "Bid",
     askLabel: "Ask",
     spread: "Spread",
@@ -160,6 +162,7 @@ LABELS.fr = {
   range: "Historique du cours",
   details: "Détails",
   sourceHomeAssistant: "Capteur Home Assistant",
+  sourceSwissquote: "Swissquote",
   noHistory: "Les données historiques ne sont pas encore disponibles",
   selectEntity: "Actif",
   selectHint: "Sélectionnez directement l'action, la cryptomonnaie ou un autre actif.",
@@ -185,7 +188,7 @@ LABELS.fr = {
   venue: "Place de négoce",
   other: "Autre place",
   quoteUsed: "Cours utilisé",
-  priceModes: { state: "État du capteur", bid: "Achat", ask: "Vente", midpoint: "Milieu achat/vente" },
+  priceModes: { state: "Dernier cours / état du capteur", bid: "Achat", ask: "Vente", midpoint: "Milieu achat/vente" },
   bidLabel: "Achat",
   askLabel: "Vente",
   transactions: "Historique des transactions",
@@ -224,6 +227,7 @@ LABELS.it = {
   range: "Andamento del prezzo",
   details: "Dettagli",
   sourceHomeAssistant: "Sensore Home Assistant",
+  sourceSwissquote: "Swissquote",
   noHistory: "I dati storici non sono ancora disponibili",
   selectEntity: "Asset",
   selectHint: "Seleziona direttamente l'azione, la criptovaluta o un altro asset.",
@@ -249,7 +253,7 @@ LABELS.it = {
   venue: "Sede di negoziazione",
   other: "Altra sede",
   quoteUsed: "Prezzo utilizzato",
-  priceModes: { state: "Stato del sensore", bid: "Denaro", ask: "Lettera", midpoint: "Media denaro/lettera" },
+  priceModes: { state: "Ultimo prezzo / stato del sensore", bid: "Denaro", ask: "Lettera", midpoint: "Media denaro/lettera" },
   bidLabel: "Denaro",
   askLabel: "Lettera",
   transactions: "Cronologia delle transazioni",
@@ -854,7 +858,8 @@ class PortfolioAssetCard extends HTMLElement {
     const device = deviceId ? this._hass.devices?.[deviceId] : null;
     const name = this._config.name || device?.name_by_user || device?.name || attributes.friendly_name || symbol;
     const stateEntity = entities.stock_market_state;
-    const externalPrice = attributes.price_source === "entity";
+    const priceSource = attributes.price_source || "yahoo";
+    const externalPrice = priceSource === "entity";
     const state = externalPrice || assetType === "warrant"
       ? labels.priceAvailable
       : assetType === "crypto"
@@ -865,7 +870,9 @@ class PortfolioAssetCard extends HTMLElement {
     const direction = Number.isFinite(changeValue) && changeValue < 0 ? "negative" : "positive";
     const source = externalPrice
       ? labels.sourceHomeAssistant
-      : assetType === "crypto" ? labels.sourceCoinGecko : labels.sourceYahoo;
+      : priceSource === "swissquote"
+        ? labels.sourceSwissquote
+        : assetType === "crypto" ? labels.sourceCoinGecko : labels.sourceYahoo;
     const assetTypeName = configuredAssetType === "index"
       ? labels.index
       : PORTFOLIO_LABELS[this._language()].assetTypes[configuredAssetType]

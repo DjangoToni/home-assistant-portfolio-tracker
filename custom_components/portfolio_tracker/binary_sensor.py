@@ -66,9 +66,13 @@ class PriceAlertSensor(CoordinatorEntity[PortfolioCoordinator], BinarySensorEnti
             name=holding[CONF_NAME],
             manufacturer="Portfolio Tracker",
             model=(
-                "Home Assistant Asset"
-                if holding.get(CONF_PRICE_SOURCE, "yahoo") == "entity"
-                else "Yahoo Finance Asset"
+                {
+                    "entity": "Home Assistant Asset",
+                    "swissquote": "Swissquote Asset",
+                }.get(
+                    holding.get(CONF_PRICE_SOURCE, "yahoo"),
+                    "Yahoo Finance Asset",
+                )
             ),
             via_device=(DOMAIN, entry.entry_id),
         )
