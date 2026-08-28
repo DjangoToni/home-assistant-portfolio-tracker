@@ -143,6 +143,17 @@ def _normalize_currency(value: str) -> str | None:
     return normalized
 
 
+def _optional_alert_field(key: str, defaults: dict[str, Any]) -> Any:
+    """Prefill an alert without restoring it after the user clears the field."""
+    try:
+        value = float(defaults.get(key, 0))
+    except (TypeError, ValueError):
+        value = 0
+    if value > 0:
+        return vol.Optional(key, description={"suggested_value": value})
+    return vol.Optional(key)
+
+
 def _general_schema(
     defaults: dict[str, Any], *, include_name: bool = True, default_name: str = "My Portfolio"
 ) -> vol.Schema:
@@ -203,12 +214,12 @@ def _holding_schema(
             CONF_DISPLAY_CURRENCY,
             default=defaults.get(CONF_DISPLAY_CURRENCY, default_currency),
         ): vol.In(display_currencies),
-        vol.Optional(
-            CONF_ALERT_BELOW, default=defaults.get(CONF_ALERT_BELOW, 0.0)
-        ): vol.All(vol.Coerce(float), vol.Range(min=0)),
-        vol.Optional(
-            CONF_ALERT_ABOVE, default=defaults.get(CONF_ALERT_ABOVE, 0.0)
-        ): vol.All(vol.Coerce(float), vol.Range(min=0)),
+        _optional_alert_field(CONF_ALERT_BELOW, defaults): vol.All(
+            vol.Coerce(float), vol.Range(min=0)
+        ),
+        _optional_alert_field(CONF_ALERT_ABOVE, defaults): vol.All(
+            vol.Coerce(float), vol.Range(min=0)
+        ),
     }
     if include_initial_position:
         schema[
@@ -343,12 +354,12 @@ def _warrant_schema(
                 CONF_EXPIRY, (date.today() + timedelta(days=365)).isoformat()
             ),
         ): selector.DateSelector(),
-        vol.Optional(
-            CONF_ALERT_BELOW, default=defaults.get(CONF_ALERT_BELOW, 0.0)
-        ): vol.All(vol.Coerce(float), vol.Range(min=0)),
-        vol.Optional(
-            CONF_ALERT_ABOVE, default=defaults.get(CONF_ALERT_ABOVE, 0.0)
-        ): vol.All(vol.Coerce(float), vol.Range(min=0)),
+        _optional_alert_field(CONF_ALERT_BELOW, defaults): vol.All(
+            vol.Coerce(float), vol.Range(min=0)
+        ),
+        _optional_alert_field(CONF_ALERT_ABOVE, defaults): vol.All(
+            vol.Coerce(float), vol.Range(min=0)
+        ),
         vol.Required(
             CONF_WATCH_ONLY, default=bool(defaults.get(CONF_WATCH_ONLY, False))
         ): selector.BooleanSelector(),

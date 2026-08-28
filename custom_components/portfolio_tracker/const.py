@@ -6,7 +6,7 @@ from typing import Final
 
 DOMAIN: Final = "portfolio_tracker"
 PLATFORMS: Final = ["sensor", "binary_sensor"]
-FRONTEND_VERSION: Final = "1.6.1"
+FRONTEND_VERSION: Final = "1.6.2"
 FRONTEND_URL: Final = "/portfolio_tracker/frontend"
 
 CONF_PORTFOLIO_NAME: Final = "portfolio_name"

@@ -2,6 +2,10 @@
 
 All notable changes to Portfolio Tracker are documented here.
 
+## 1.6.2 - 2026-08-28
+
+- Allow lower and upper alert thresholds to be removed by clearing their fields.
+
 ## 1.6.1 - 2026-08-28
 
 - Added 30-day Swissquote OHLCV history and detail charts for SIX and Swiss DOTS warrants.
