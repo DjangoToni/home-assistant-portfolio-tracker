@@ -811,8 +811,14 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
         )
         errors: dict[str, str] = {}
         if user_input is not None:
+            edit_input = {
+                **selected,
+                CONF_ALERT_BELOW: 0.0,
+                CONF_ALERT_ABOVE: 0.0,
+                **user_input,
+            }
             normalized = await self._async_validate_holding(
-                {**selected, **user_input}, errors
+                edit_input, errors
             )
             if normalized is not None:
                 normalized[CONF_HOLDING_ID] = selected[CONF_HOLDING_ID]

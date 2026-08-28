@@ -312,7 +312,7 @@ async def async_setup_entry(
             )
         if (
             holding[CONF_ASSET_TYPE] == "warrant"
-            and holding.get(CONF_PRICE_SOURCE, "yahoo") == "yahoo"
+            and holding.get(CONF_PRICE_SOURCE, "yahoo") in {"yahoo", "swissquote"}
         ):
             entities.append(StockHistorySensor(coordinator, entry, holding))
     for symbol in indexes:
@@ -1033,7 +1033,7 @@ class StockPercentSensor(StockMetricSensor):
 
 
 class StockHistorySensor(HoldingEntity):
-    """Latest 30 daily Yahoo OHLCV points exposed as attributes."""
+    """Latest 30 daily OHLCV points exposed as attributes."""
 
     _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_icon = "mdi:chart-candlestick"
@@ -1066,7 +1066,11 @@ class StockHistorySensor(HoldingEntity):
         quote = quote_for(self.coordinator.data, self._holding)
         attributes.update(
             {
-                "source": "Yahoo Finance",
+                "source": (
+                    "Swissquote"
+                    if self._holding.get(CONF_PRICE_SOURCE) == "swissquote"
+                    else "Yahoo Finance"
+                ),
                 "period_trading_days": len(self.history),
                 "currency": quote.currency if quote else None,
                 "history": [

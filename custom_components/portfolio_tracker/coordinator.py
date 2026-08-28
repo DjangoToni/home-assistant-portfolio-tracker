@@ -40,7 +40,7 @@ from .const import (
     crypto_data_key,
     entry_value,
 )
-from .models import PortfolioData, Quote
+from .models import PortfolioData, Quote, StockHistoryPoint
 from .calculator import holding_alert_price
 from .yahoo import YahooFinanceClient
 from .swissquote import SwissquoteClient
@@ -168,6 +168,25 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
                             continue
                         raise
                 raise RuntimeError("Unreachable Swissquote retry state")
+
+        async def fetch_swissquote_history(
+            holding: dict,
+        ) -> tuple[StockHistoryPoint, ...]:
+            async with request_limit:
+                for attempt in range(2):
+                    try:
+                        return await self.swissquote.async_get_history(
+                            str(holding.get(CONF_VALOR, "")),
+                            trading_venue=str(
+                                holding.get(CONF_TRADING_VENUE, "")
+                            ),
+                        )
+                    except Exception:
+                        if attempt == 0:
+                            await asyncio.sleep(1)
+                            continue
+                        raise
+                raise RuntimeError("Unreachable Swissquote history retry state")
 
         results = await asyncio.gather(
             *(fetch_quote(symbol) for symbol in symbols),
@@ -341,6 +360,9 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
             }
             | set(indexes)
         )
+        retained_history_symbols = set(history_symbols) | {
+            holding["symbol"] for holding in swissquote_holdings
+        }
         stock_markets = {
             symbol: market
             for symbol, market in (previous.stock_markets.items() if previous else ())
@@ -349,7 +371,7 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
         stock_history = {
             symbol: history
             for symbol, history in (previous.stock_history.items() if previous else ())
-            if symbol in history_symbols
+            if symbol in retained_history_symbols
         }
         if history_symbols:
             stock_results = await asyncio.gather(
@@ -379,6 +401,26 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
                     )
                 else:
                     stock_history[symbol] = result
+
+        swissquote_history_results = await asyncio.gather(
+            *(
+                fetch_swissquote_history(holding)
+                for holding in swissquote_holdings
+            ),
+            return_exceptions=True,
+        )
+        for holding, result in zip(
+            swissquote_holdings, swissquote_history_results, strict=True
+        ):
+            symbol = holding["symbol"]
+            if isinstance(result, BaseException):
+                _LOGGER.warning(
+                    "Could not update Swissquote warrant history for %s: %s",
+                    symbol,
+                    result,
+                )
+            elif result:
+                stock_history[symbol] = result
 
         data = PortfolioData(
             quotes=quotes,

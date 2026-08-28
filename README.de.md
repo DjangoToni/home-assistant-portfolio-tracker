@@ -13,7 +13,7 @@ Portfolio Tracker stellt native Home-Assistant-Entitäten und zwei automatisch r
 ## Funktionsumfang
 
 - Aktien, ETFs, Fonds, Kryptowährungen, Währungen, Warrants und weitere Yahoo-Finance-Symbole
-- Warrants wahlweise mit Yahoo Finance oder einem vorhandenen numerischen Home-Assistant-Sensor als Kursquelle
+- Warrants wahlweise mit Swissquote, Yahoo Finance oder einem vorhandenen numerischen Home-Assistant-Sensor als Kursquelle
 - Erweiterte CoinGecko-Marktdaten für Kryptowährungen
 - Aktive Positionen und separate Beobachtungsliste
 - Obere und untere Kursalarme mit Binärsensoren und dauerhaften Benachrichtigungen
@@ -83,7 +83,7 @@ Unter **Konfigurieren > Assets > Warrant hinzufügen** kann ein Warrant als akti
 
 Es stehen drei Kursquellen zur Verfügung:
 
-- **Swissquote (Schweizer Warrants)**: Die Schweizer Valorennummer eingeben und SIX Structured Products oder Swiss DOTS auswählen. Portfolio Tracker löst das Produkt automatisch auf und lädt letzten Kurs, Geldkurs, Briefkurs, Schlusskurs, Währung und Kurszeitpunkt.
+- **Swissquote (Schweizer Warrants)**: Die Schweizer Valorennummer eingeben und SIX Structured Products oder Swiss DOTS auswählen. Portfolio Tracker löst das Produkt automatisch auf und lädt letzten Kurs, Geldkurs, Briefkurs, Schlusskurs, Währung, Kurszeitpunkt und den 30-Tage-Verlauf.
 - **Yahoo Finance**: Das exakte Yahoo-Symbol eingeben. Kurswährung und 30-Tage-Verlauf werden automatisch geladen, sofern Yahoo das Produkt bereitstellt.
 - **Home-Assistant-Sensor**: Einen vorhandenen Sensor mit numerischem Kurszustand auswählen, eine eindeutige Kurzbezeichnung angeben und die Kurswährung festlegen. Damit lassen sich Broker-Integrationen, REST-, MQTT- und Template-Sensoren verwenden, wenn Yahoo den Warrant nicht kennt.
 
@@ -148,7 +148,7 @@ Zeilen in den Tabellen für aktive und beobachtete Assets lassen sich außerdem 
 ## Datenquellen
 
 - [Yahoo Finance](https://finance.yahoo.com/) liefert Kurse, Wechselkurse, Aktiendetails, Marktindizes und Aktienverläufe.
-- [Swissquote](https://www.swissquote.ch/sqi_web_search/market/equity/swissderivatives/SwissDerivativeSearch.action) liefert öffentliche Produktkennungen und Kurse für Warrants von SIX und Swiss DOTS anhand der Valorennummer.
+- [Swissquote](https://www.swissquote.ch/sqi_web_search/market/equity/swissderivatives/SwissDerivativeSearch.action) liefert öffentliche Produktkennungen, Kurse und 30-Tage-Verläufe für Warrants von SIX und Swiss DOTS anhand der Valorennummer.
 - [CoinGecko](https://www.coingecko.com/) liefert erweiterte Kryptomarktdaten und Verläufe.
 - Vorhandene numerische Home-Assistant-Sensoren können Warrant-Kurse aus einer anderen Integration, einem Broker, REST-Endpunkt, MQTT-Topic oder Template liefern.
 

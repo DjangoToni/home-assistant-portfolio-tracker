@@ -13,7 +13,7 @@ Portfolio Tracker provides native Home Assistant entities and two automatically 
 ## Highlights
 
 - Stocks, ETFs, funds, cryptocurrencies, currencies, warrants, and other Yahoo Finance symbols
-- Warrants using either Yahoo Finance or an existing numeric Home Assistant sensor as the price source
+- Warrants using Swissquote, Yahoo Finance, or an existing numeric Home Assistant sensor as the price source
 - CoinGecko market details for cryptocurrencies
 - Active positions and a separate watchlist
 - Upper and lower price alerts with binary sensors and persistent notifications
@@ -83,7 +83,7 @@ Open **Configure > Assets > Add warrant** to create an active warrant position o
 
 Three price sources are available:
 
-- **Swissquote (Swiss warrants)**: enter the Swiss valor number and select SIX Structured Products or Swiss DOTS. Portfolio Tracker resolves the product automatically and loads the last price, bid, ask, previous close, currency, and quote timestamp.
+- **Swissquote (Swiss warrants)**: enter the Swiss valor number and select SIX Structured Products or Swiss DOTS. Portfolio Tracker resolves the product automatically and loads the last price, bid, ask, previous close, currency, quote timestamp, and 30-day history.
 - **Yahoo Finance**: enter the exact Yahoo symbol. Currency and 30-day price history are loaded automatically when Yahoo provides the product.
 - **Home Assistant sensor**: select any existing sensor with a numeric price state, enter a unique ticker or short identifier, and specify the quote currency. This makes broker APIs, REST sensors, MQTT sensors, and template sensors usable even when Yahoo does not list the warrant.
 
@@ -148,7 +148,7 @@ Rows in the active-assets and watched-assets tables can also be expanded directl
 ## Data sources
 
 - [Yahoo Finance](https://finance.yahoo.com/) supplies quotes, exchange rates, stock details, market indices, and stock history.
-- [Swissquote](https://www.swissquote.ch/sqi_web_search/market/equity/swissderivatives/SwissDerivativeSearch.action) supplies public SIX and Swiss DOTS warrant identification and quotes by valor number.
+- [Swissquote](https://www.swissquote.ch/sqi_web_search/market/equity/swissderivatives/SwissDerivativeSearch.action) supplies public SIX and Swiss DOTS warrant identification, quotes, and 30-day history by valor number.
 - [CoinGecko](https://www.coingecko.com/) supplies extended cryptocurrency market data and history.
 - Existing numeric Home Assistant sensors can supply warrant prices from another integration, broker, REST endpoint, MQTT topic, or template.
 
