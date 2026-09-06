@@ -25,12 +25,14 @@
           "assets": "Manage assets",
           "transactions": "Manage transactions",
           "market": "Market & benchmark",
+          "notifications": "Notifications",
           "general": "General settings"
         },
         "menu_option_descriptions": {
           "assets": "Add, edit, or remove active positions and watched assets.",
           "transactions": "Maintain purchases, sales, and opening balances in the position ledger.",
           "market": "Manage market indices and the performance benchmark.",
+          "notifications": "Select mobile notification targets and configure Home Assistant notifications.",
           "general": "Change the base currency and update interval."
         }
       },
@@ -61,6 +63,14 @@
           "add_index": "Add market index",
           "remove_index": "Remove market index",
           "configure_benchmark": "Set market index for performance"
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Select one or more notify entities for mobile price alerts. A notification is sent once when a threshold becomes active and can trigger again after the price returns to the normal range.",
+        "data": {
+          "notify_targets": "Mobile notification targets",
+          "persistent_notifications": "Also show notifications in Home Assistant"
         }
       },
       "general": {

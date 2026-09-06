@@ -34,6 +34,8 @@ from .coordinator import PortfolioCoordinator
 from .registry import active_device_identifiers
 from .transactions import migrate_opening_transactions
 
+PortfolioConfigEntry = ConfigEntry[PortfolioCoordinator]
+
 FRONTEND_PATH = Path(__file__).parent / "frontend"
 FRONTEND_CARD_PATH = f"{FRONTEND_URL}/portfolio-asset-card.js"
 FRONTEND_LOADER_PATH = f"{FRONTEND_URL}/portfolio-asset-card-loader.js"
@@ -128,14 +130,14 @@ async def _async_ensure_lovelace_resource(hass: HomeAssistant) -> bool:
     return True
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: PortfolioConfigEntry) -> bool:
     """Set up a portfolio config entry."""
     await _async_register_frontend(hass)
     # Also clean positions removed before this version was installed.
     _async_remove_stale_devices(hass, entry)
     coordinator = PortfolioCoordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
+    entry.runtime_data = coordinator
     entry.async_on_unload(entry.add_update_listener(_async_reload_entry))
     external_price_entities = {
         str(holding.get(CONF_PRICE_ENTITY, "")).strip()
@@ -178,15 +180,14 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: PortfolioConfigEntry) -> bool:
     """Unload a portfolio config entry."""
-    unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    if unloaded:
-        hass.data[DOMAIN].pop(entry.entry_id)
-    return unloaded
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 
-async def _async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+async def _async_reload_entry(
+    hass: HomeAssistant, entry: PortfolioConfigEntry
+) -> None:
     """Reload after UI options change."""
     _async_remove_stale_devices(hass, entry)
     await hass.config_entries.async_reload(entry.entry_id)

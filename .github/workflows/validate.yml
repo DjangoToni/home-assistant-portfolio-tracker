@@ -33,7 +33,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
+      - name: Install supported Home Assistant
+        run: python -m pip install "homeassistant==2026.9.1"
+      - name: Import integration with Home Assistant
+        run: python -c "import custom_components.portfolio_tracker, custom_components.portfolio_tracker.binary_sensor, custom_components.portfolio_tracker.config_flow, custom_components.portfolio_tracker.sensor"
       - name: Compile Python
         run: python -m compileall -q custom_components/portfolio_tracker
       - name: Validate JSON

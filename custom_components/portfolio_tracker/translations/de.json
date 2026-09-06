@@ -25,12 +25,14 @@
           "assets": "Assets verwalten",
           "transactions": "Transaktionen verwalten",
           "market": "Markt & Vergleich",
+          "notifications": "Benachrichtigungen",
           "general": "Allgemeine Einstellungen"
         },
         "menu_option_descriptions": {
           "assets": "Aktive Positionen und beobachtete Assets hinzufügen, bearbeiten oder entfernen.",
           "transactions": "Käufe, Verkäufe und Anfangsbestände im Positionsjournal pflegen.",
           "market": "Marktindizes und den Vergleichsindex für die Performance festlegen.",
+          "notifications": "Mobile Benachrichtigungsziele und Home-Assistant-Meldungen festlegen.",
           "general": "Basiswährung und Aktualisierungsintervall ändern."
         }
       },
@@ -61,6 +63,14 @@
           "add_index": "Marktindex hinzufügen",
           "remove_index": "Marktindex entfernen",
           "configure_benchmark": "Marktindex für Performance festlegen"
+        }
+      },
+      "notifications": {
+        "title": "Benachrichtigungen",
+        "description": "Wähle eine oder mehrere Notify-Entitäten für mobile Kursalarme. Eine Meldung wird einmalig beim Erreichen der Alarmgrenze gesendet und kann nach der Rückkehr in den Normalbereich erneut ausgelöst werden.",
+        "data": {
+          "notify_targets": "Mobile Benachrichtigungsziele",
+          "persistent_notifications": "Meldung zusätzlich in Home Assistant anzeigen"
         }
       },
       "general": {

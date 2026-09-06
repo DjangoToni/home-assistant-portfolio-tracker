@@ -10,12 +10,12 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from . import PortfolioConfigEntry
 from .calculator import (
     convert_quote_amount,
     holding_average_price,
@@ -130,11 +130,11 @@ STOCK_TEXT_METRICS = (
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    entry: PortfolioConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Create portfolio and holding sensors."""
-    coordinator: PortfolioCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
     holdings = entry_value(entry, CONF_HOLDINGS, [])
     indexes = entry_value(entry, CONF_INDEXES, DEFAULT_INDEXES)
     entities: list[SensorEntity] = [
@@ -388,7 +388,9 @@ class PortfolioEntity(CoordinatorEntity[PortfolioCoordinator], SensorEntity):
 
     _attr_has_entity_name = True
 
-    def __init__(self, coordinator: PortfolioCoordinator, entry: ConfigEntry) -> None:
+    def __init__(
+        self, coordinator: PortfolioCoordinator, entry: PortfolioConfigEntry
+    ) -> None:
         super().__init__(coordinator)
         self._entry = entry
         self._attr_device_info = DeviceInfo(

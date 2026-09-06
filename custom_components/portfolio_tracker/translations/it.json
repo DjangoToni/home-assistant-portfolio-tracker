@@ -25,12 +25,14 @@
           "assets": "Gestisci asset",
           "transactions": "Gestisci transazioni",
           "market": "Mercato e indice di riferimento",
+          "notifications": "Notifiche",
           "general": "Impostazioni generali"
         },
         "menu_option_descriptions": {
           "assets": "Aggiungi, modifica o rimuovi posizioni attive e asset osservati.",
           "transactions": "Gestisci acquisti, vendite e saldi iniziali nel registro delle posizioni.",
           "market": "Gestisci gli indici di mercato e l'indice di riferimento della performance.",
+          "notifications": "Seleziona i destinatari mobili e configura le notifiche di Home Assistant.",
           "general": "Modifica la valuta base e l'intervallo di aggiornamento."
         }
       },
@@ -61,6 +63,14 @@
           "add_index": "Aggiungi indice di mercato",
           "remove_index": "Rimuovi indice di mercato",
           "configure_benchmark": "Imposta indice per la performance"
+        }
+      },
+      "notifications": {
+        "title": "Notifiche",
+        "description": "Seleziona una o più entità di notifica per gli avvisi di prezzo sul cellulare. La notifica viene inviata una sola volta quando la soglia diventa attiva e può essere inviata di nuovo dopo il ritorno del prezzo nell'intervallo normale.",
+        "data": {
+          "notify_targets": "Destinatari delle notifiche mobili",
+          "persistent_notifications": "Mostra la notifica anche in Home Assistant"
         }
       },
       "general": {

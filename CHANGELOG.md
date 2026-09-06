@@ -2,6 +2,17 @@
 
 All notable changes to Portfolio Tracker are documented here.
 
+## 1.7.0 - 2026-09-06
+
+- Add configurable mobile push notifications for price alerts through Home
+  Assistant notify entities.
+- Allow persistent Home Assistant price-alert notifications to be disabled.
+- Verified compatibility with Home Assistant 2026.9.1.
+- Store the coordinator in typed config-entry runtime data and explicitly bind it
+  to the config entry for cleaner lifecycle handling.
+- Avoid entity updates when fetched portfolio data has not changed.
+- Validate integration imports against Home Assistant 2026.9.1 on Python 3.14.
+
 ## 1.6.2 - 2026-08-28
 
 - Allow lower and upper alert thresholds to be removed by clearing their fields.

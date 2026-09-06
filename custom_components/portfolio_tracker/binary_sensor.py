@@ -5,12 +5,12 @@ from __future__ import annotations
 from decimal import Decimal
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from . import PortfolioConfigEntry
 from .const import (
     CONF_ALERT_ABOVE,
     CONF_ALERT_BELOW,
@@ -29,11 +29,11 @@ from .const import CONF_ASSET_TYPE, crypto_currency_for_holding
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    entry: PortfolioConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Create one binary sensor for every configured threshold."""
-    coordinator: PortfolioCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
     entities = []
     for holding in entry_value(entry, CONF_HOLDINGS, []):
         if float(holding.get(CONF_ALERT_BELOW, 0)) > 0:

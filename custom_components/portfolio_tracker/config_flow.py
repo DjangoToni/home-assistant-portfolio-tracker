@@ -30,6 +30,8 @@ from .const import (
     CONF_ISIN,
     CONF_ISSUER,
     CONF_NAME,
+    CONF_NOTIFY_TARGETS,
+    CONF_PERSISTENT_NOTIFICATIONS,
     CONF_PORTFOLIO_NAME,
     CONF_QUANTITY,
     CONF_PRICE_CURRENCY,
@@ -64,6 +66,7 @@ from .const import (
     DEFAULT_BASE_CURRENCY,
     DEFAULT_BENCHMARK_INDEX,
     DEFAULT_INDEXES,
+    DEFAULT_PERSISTENT_NOTIFICATIONS,
     DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
     INDEX_PRESETS,
@@ -181,6 +184,29 @@ def _general_schema(
         vol.Range(min=MIN_UPDATE_INTERVAL, max=1440),
     )
     return vol.Schema(schema)
+
+
+def _notification_schema(defaults: dict[str, Any]) -> vol.Schema:
+    """Configure Home Assistant and mobile notification destinations."""
+    return vol.Schema(
+        {
+            vol.Optional(
+                CONF_NOTIFY_TARGETS,
+                default=list(defaults.get(CONF_NOTIFY_TARGETS, [])),
+            ): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="notify", multiple=True)
+            ),
+            vol.Required(
+                CONF_PERSISTENT_NOTIFICATIONS,
+                default=bool(
+                    defaults.get(
+                        CONF_PERSISTENT_NOTIFICATIONS,
+                        DEFAULT_PERSISTENT_NOTIFICATIONS,
+                    )
+                ),
+            ): selector.BooleanSelector(),
+        }
+    )
 
 
 def _holding_schema(
@@ -568,7 +594,7 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
             for holding in self._holdings
         ):
             menu.append("transactions")
-        menu.extend(["market", "general"])
+        menu.extend(["market", "notifications", "general"])
         return self.async_show_menu(step_id="init", menu_options=menu)
 
     async def async_step_assets(
@@ -697,6 +723,34 @@ class PortfolioOptionsFlow(config_entries.OptionsFlow):
             step_id="general",
             data_schema=_general_schema(user_input or defaults, include_name=False),
             errors=errors,
+        )
+
+    async def async_step_notifications(
+        self, user_input: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        """Configure price-alert notification destinations."""
+        if user_input is not None:
+            options = dict(self._entry.options)
+            options[CONF_NOTIFY_TARGETS] = list(
+                user_input.get(CONF_NOTIFY_TARGETS, [])
+            )
+            options[CONF_PERSISTENT_NOTIFICATIONS] = bool(
+                user_input[CONF_PERSISTENT_NOTIFICATIONS]
+            )
+            return self.async_create_entry(data=options)
+        defaults = {
+            CONF_NOTIFY_TARGETS: entry_value(
+                self._entry, CONF_NOTIFY_TARGETS, []
+            ),
+            CONF_PERSISTENT_NOTIFICATIONS: entry_value(
+                self._entry,
+                CONF_PERSISTENT_NOTIFICATIONS,
+                DEFAULT_PERSISTENT_NOTIFICATIONS,
+            ),
+        }
+        return self.async_show_form(
+            step_id="notifications",
+            data_schema=_notification_schema(defaults),
         )
 
     async def async_step_add_holding(

@@ -3,11 +3,11 @@
   "name": "Portfolio Tracker",
   "codeowners": ["@DjangoToni"],
   "config_flow": true,
-  "dependencies": ["frontend", "http", "lovelace"],
+  "dependencies": ["frontend", "http", "lovelace", "notify"],
   "documentation": "https://github.com/DjangoToni/home-assistant-portfolio-tracker#readme",
   "integration_type": "service",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/DjangoToni/home-assistant-portfolio-tracker/issues",
   "requirements": [],
-  "version": "1.6.2"
+  "version": "1.7.0"
 }

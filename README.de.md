@@ -16,7 +16,7 @@ Portfolio Tracker stellt native Home-Assistant-Entitäten und zwei automatisch r
 - Warrants wahlweise mit Swissquote, Yahoo Finance oder einem vorhandenen numerischen Home-Assistant-Sensor als Kursquelle
 - Erweiterte CoinGecko-Marktdaten für Kryptowährungen
 - Aktive Positionen und separate Beobachtungsliste
-- Obere und untere Kursalarme mit Binärsensoren und dauerhaften Benachrichtigungen
+- Obere und untere Kursalarme mit Binärsensoren, mobilen Push-Meldungen und optionalen dauerhaften Benachrichtigungen
 - Bearbeitbares Transaktionsjournal für Käufe, Verkäufe und Anfangsbestände
 - Einstandswert, realisierte und unrealisierte Gewinne, Gebühren, Steuern, Gesamtrendite und zeitgewichtete Rendite
 - Performancevergleich mit konfigurierbaren Marktindizes
@@ -52,11 +52,12 @@ Bei der Ersteinrichtung werden folgende Angaben abgefragt:
 - **Basiswährung**: Währung für zusammengefasste Werte, beispielsweise `CHF`, `EUR` oder `USD`.
 - **Aktualisierungsintervall**: bestimmt, wie oft die Marktdaten aktualisiert werden.
 
-Öffne anschließend beim Integrationseintrag **Konfigurieren**. Die Verwaltung ist in vier Bereiche gegliedert:
+Öffne anschließend beim Integrationseintrag **Konfigurieren**. Die Verwaltung ist in fünf Bereiche gegliedert:
 
 - **Assets**: aktive und beobachtete Assets hinzufügen, bearbeiten oder entfernen.
 - **Transaktionen**: Käufe, Verkäufe und Anfangsbestände verwalten.
 - **Markt & Vergleich**: Marktindizes und Performance-Vergleichsindex festlegen.
+- **Benachrichtigungen**: Mobilgeräte auswählen und Home-Assistant-Meldungen konfigurieren.
 - **Allgemeine Einstellungen**: Basiswährung und Aktualisierungsintervall ändern.
 
 Die Dashboard-Karte enthält den Button **Portfolio verwalten**, der direkt zum passenden Portfolio-Tracker-Eintrag führt.
@@ -120,7 +121,9 @@ Portfolio Tracker verhindert Verkäufe, die zu einem historisch negativen Bestan
 
 ## Kursalarme
 
-Für jedes Asset können eine untere Grenze, eine obere Grenze oder beide Grenzen festgelegt werden. Portfolio Tracker erstellt dafür Binärsensoren und sendet einmalig eine dauerhafte Home-Assistant-Benachrichtigung, sobald eine Grenze aktiv wird. Verlässt der Kurs den Alarmbereich und tritt später erneut ein, kann eine neue Benachrichtigung ausgelöst werden.
+Für jedes Asset können eine untere Grenze, eine obere Grenze oder beide Grenzen festgelegt werden. Portfolio Tracker erstellt dafür Binärsensoren. Unter **Konfigurieren > Benachrichtigungen** können eine oder mehrere `notify`-Entitäten ausgewählt werden, die Kursalarme über die Home Assistant Companion App erhalten. Dauerhafte Meldungen in Home Assistant lassen sich unabhängig davon ein- oder ausschalten.
+
+Jedes Ziel erhält genau eine Meldung, sobald eine Alarmgrenze aktiv wird. Erst nachdem der Kurs in den Normalbereich zurückgekehrt ist, wird der Alarm erneut scharfgeschaltet. Dadurch erzeugen die regelmäßigen Portfolio-Aktualisierungen keine wiederholten Push-Meldungen. Die Companion App und ihre Benachrichtigungsentität müssen bereits in Home Assistant eingerichtet sein.
 
 ## Dashboard-Karten
 

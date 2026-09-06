@@ -16,7 +16,7 @@ Portfolio Tracker provides native Home Assistant entities and two automatically 
 - Warrants using Swissquote, Yahoo Finance, or an existing numeric Home Assistant sensor as the price source
 - CoinGecko market details for cryptocurrencies
 - Active positions and a separate watchlist
-- Upper and lower price alerts with binary sensors and persistent notifications
+- Upper and lower price alerts with binary sensors, mobile push, and optional persistent notifications
 - Editable purchase, sale, and opening-balance transaction ledger
 - Cost basis, realized and unrealized gains, fees, taxes, total return, and time-weighted return
 - Benchmark comparison against configurable market indices
@@ -57,6 +57,7 @@ After setup, open the integration's **Configure** dialog. Configuration is group
 - **Assets**: add, edit, or remove active and watched assets.
 - **Transactions**: maintain purchases, sales, and opening balances.
 - **Market & benchmark**: select market indices and the performance benchmark.
+- **Notifications**: select mobile devices and configure Home Assistant notifications.
 - **General settings**: change the base currency and update interval.
 
 The dashboard card contains a **Manage portfolio** button that links directly to the matching Portfolio Tracker configuration entry.
@@ -120,7 +121,9 @@ Portfolio Tracker prevents sales that would result in a negative historical quan
 
 ## Price alerts
 
-An asset can have a lower threshold, an upper threshold, or both. Portfolio Tracker creates binary sensor entities for configured thresholds and sends one persistent Home Assistant notification when a threshold becomes active. A new notification is possible after the price leaves and later re-enters the alert range.
+An asset can have a lower threshold, an upper threshold, or both. Portfolio Tracker creates binary sensor entities for configured thresholds. Open **Configure > Notifications** and select one or more `notify` entities to receive price alerts through the Home Assistant Companion App. Persistent notifications in Home Assistant can be enabled or disabled independently.
+
+Each destination receives one notification when a threshold becomes active. The alert is armed again only after the price returns to the normal range, so regular portfolio updates do not repeatedly notify the phone. The Companion App and its notification entity must already be configured in Home Assistant.
 
 ## Dashboard cards
 

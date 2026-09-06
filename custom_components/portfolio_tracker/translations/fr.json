@@ -25,12 +25,14 @@
           "assets": "Gérer les actifs",
           "transactions": "Gérer les transactions",
           "market": "Marché et indice de référence",
+          "notifications": "Notifications",
           "general": "Paramètres généraux"
         },
         "menu_option_descriptions": {
           "assets": "Ajoutez, modifiez ou supprimez des positions actives et des actifs surveillés.",
           "transactions": "Gérez les achats, ventes et soldes initiaux dans le journal des positions.",
           "market": "Gérez les indices boursiers et l'indice de référence de la performance.",
+          "notifications": "Sélectionnez les destinataires mobiles et configurez les notifications Home Assistant.",
           "general": "Modifiez la devise de base et l'intervalle d'actualisation."
         }
       },
@@ -61,6 +63,14 @@
           "add_index": "Ajouter un indice boursier",
           "remove_index": "Supprimer un indice boursier",
           "configure_benchmark": "Définir l'indice pour la performance"
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Sélectionnez une ou plusieurs entités de notification pour les alertes de cours mobiles. Une notification est envoyée une seule fois lorsque le seuil devient actif et peut être renvoyée après le retour du cours dans la plage normale.",
+        "data": {
+          "notify_targets": "Destinataires des notifications mobiles",
+          "persistent_notifications": "Afficher également la notification dans Home Assistant"
         }
       },
       "general": {

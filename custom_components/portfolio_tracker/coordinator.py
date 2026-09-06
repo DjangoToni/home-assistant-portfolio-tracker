@@ -7,6 +7,12 @@ import logging
 from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 
+from homeassistant.components.notify import (
+    ATTR_MESSAGE,
+    ATTR_TITLE,
+    DOMAIN as NOTIFY_DOMAIN,
+    SERVICE_SEND_MESSAGE,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -22,6 +28,8 @@ from .const import (
     CONF_HOLDINGS,
     CONF_INDEXES,
     CONF_NAME,
+    CONF_NOTIFY_TARGETS,
+    CONF_PERSISTENT_NOTIFICATIONS,
     CONF_PRICE_CURRENCY,
     CONF_PRICE_ENTITY,
     CONF_PRICE_MODE,
@@ -33,6 +41,7 @@ from .const import (
     CONF_UPDATE_INTERVAL,
     DEFAULT_BASE_CURRENCY,
     DEFAULT_INDEXES,
+    DEFAULT_PERSISTENT_NOTIFICATIONS,
     DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
     coingecko_id_for_holding,
@@ -101,9 +110,11 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
         )
         super().__init__(
             hass,
-            _LOGGER,
+            logger=_LOGGER,
+            config_entry=entry,
             name=f"{DOMAIN}_{entry.entry_id}",
             update_interval=timedelta(minutes=interval),
+            always_update=False,
         )
 
     async def _async_update_data(self) -> PortfolioData:
@@ -431,7 +442,7 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
             stock_markets=stock_markets,
             stock_history=stock_history,
         )
-        self._notify_price_alerts(data, holdings)
+        await self._async_notify_price_alerts(data, holdings)
         return data
 
     def _external_quote(self, holding: dict) -> Quote | None:
@@ -509,12 +520,26 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
             return None
         return value if value.is_finite() and value >= 0 else None
 
-    def _notify_price_alerts(self, data: PortfolioData, holdings: list[dict]) -> None:
+    async def _async_notify_price_alerts(
+        self, data: PortfolioData, holdings: list[dict]
+    ) -> None:
         """Notify once when a configured asset threshold becomes active."""
         hass_config = getattr(self.hass, "config", None)
         language = str(getattr(hass_config, "language", "en"))
         language = language.lower().replace("_", "-").split("-", 1)[0]
         text = ALERT_TEXT.get(language, ALERT_TEXT["en"])
+        notify_targets = [
+            str(entity_id)
+            for entity_id in entry_value(self.entry, CONF_NOTIFY_TARGETS, [])
+            if entity_id
+        ]
+        persistent_notifications = bool(
+            entry_value(
+                self.entry,
+                CONF_PERSISTENT_NOTIFICATIONS,
+                DEFAULT_PERSISTENT_NOTIFICATIONS,
+            )
+        )
         active: set[str] = set()
         for holding in holdings:
             quote = data.quotes.get(holding["symbol"])
@@ -545,17 +570,36 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
                 if alert_id in self._active_alerts:
                     continue
                 relation = text[direction]
-                async_create(
-                    self.hass,
-                    text["message"].format(
-                        name=holding["name"],
-                        symbol=holding["symbol"],
-                        price=price,
-                        currency=currency,
-                        relation=relation,
-                        threshold=threshold,
-                    ),
-                    title=text["title"].format(symbol=holding["symbol"]),
-                    notification_id=f"{DOMAIN}_{self.entry.entry_id}_{alert_id}",
+                message = text["message"].format(
+                    name=holding["name"],
+                    symbol=holding["symbol"],
+                    price=price,
+                    currency=currency,
+                    relation=relation,
+                    threshold=threshold,
                 )
+                title = text["title"].format(symbol=holding["symbol"])
+                if persistent_notifications:
+                    async_create(
+                        self.hass,
+                        message,
+                        title=title,
+                        notification_id=(
+                            f"{DOMAIN}_{self.entry.entry_id}_{alert_id}"
+                        ),
+                    )
+                if notify_targets:
+                    try:
+                        await self.hass.services.async_call(
+                            NOTIFY_DOMAIN,
+                            SERVICE_SEND_MESSAGE,
+                            {ATTR_MESSAGE: message, ATTR_TITLE: title},
+                            target={"entity_id": notify_targets},
+                        )
+                    except Exception:
+                        _LOGGER.exception(
+                            "Could not send the %s price alert to %s",
+                            holding["symbol"],
+                            ", ".join(notify_targets),
+                        )
         self._active_alerts = active
