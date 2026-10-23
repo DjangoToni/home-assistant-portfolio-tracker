@@ -74,3 +74,38 @@ def test_removing_history_requires_confirmation():
             date="2026-10-01", quantity="2", price="100")
     with pytest.raises(ValueError, match="bestätigt"):
         execute(holdings, "remove_asset", asset_id=ident)
+
+
+def test_edit_keeps_market_metadata():
+    holdings = []
+    ident = execute(holdings, "add_asset", symbol="NOVN.SW")
+    execute(holdings, "add_transaction", asset_id=ident, type="buy",
+            date="2026-10-01", quantity="5", price="100")
+    tx = holdings[0]["transactions"][0]
+    tx["transaction_market_price"] = 110
+    tx["transaction_market_currency"] = "CHF"
+    tx["transaction_exchange"] = "SIX"
+    tx["transaction_note"] = "Original broker reference"
+    execute(holdings, "update_transaction", asset_id=ident, transaction_id=tx["transaction_id"],
+            type="buy", date="2026-10-01", quantity="6", price="100")
+    edited = holdings[0]["transactions"][0]
+    assert edited["transaction_market_price"] == 110
+    assert edited["transaction_market_currency"] == "CHF"
+    assert edited["transaction_exchange"] == "SIX"
+    assert edited["transaction_note"] == "Original broker reference"
+
+
+def test_watchlist_requires_real_bool():
+    holdings = []
+    with pytest.raises(ValueError, match="Watchlist"):
+        execute(holdings, "add_asset", symbol="AAPL", watch_only="false")
+
+
+def test_duplicate_client_transaction_id_rejected():
+    holdings = []
+    ident = execute(holdings, "add_asset", symbol="AAPL")
+    execute(holdings, "add_transaction", asset_id=ident, transaction_id="request-one",
+            type="buy", date="2026-10-01", quantity="1", price="100")
+    with pytest.raises(ValueError, match="bereits"):
+        execute(holdings, "add_transaction", asset_id=ident, transaction_id="request-one",
+                type="buy", date="2026-10-01", quantity="1", price="100")
