@@ -1542,7 +1542,7 @@ class PortfolioOverviewCard extends HTMLElement {
       .filter((asset) => asset.assetType === "index" && asset.metrics.holding_price)
       .sort((left, right) => left.symbol.localeCompare(right.symbol));
     const positions = [...assets.values()]
-      .filter((asset) => asset.entityId && Number(asset.metrics.holding_value?.state) > 0)
+      .filter((asset) => asset.entityId && !asset.watchOnly && asset.assetType !== "index")
       .map((asset) => ({
         ...asset,
         value: Number(asset.metrics.holding_value.state),
@@ -1930,8 +1930,9 @@ class PortfolioOverviewCard extends HTMLElement {
       const detailHost = this.shadowRoot.getElementById("watchlist-detail");
       const toolbar = document.createElement("div");
       toolbar.className = "detail-toolbar";
-      toolbar.innerHTML = `<button type="button"><ha-icon icon="mdi:close"></ha-icon>${labels.closeDetails}</button>`;
-      toolbar.querySelector("button").addEventListener("click", () => {
+      toolbar.innerHTML = `<button type="button" data-manage><ha-icon icon="mdi:wallet-outline"></ha-icon>${this._language() === "de" ? "Asset verwalten" : "Manage asset"}</button><button type="button" data-close><ha-icon icon="mdi:close"></ha-icon>${labels.closeDetails}</button>`;
+      toolbar.querySelector("[data-manage]").addEventListener("click", () => this._openManager(portfolioId, (selectedWatchAsset || assets.get(this._hass.states[this._selectedAssetEntity]?.attributes?.asset_id))?.assetId || ""));
+      toolbar.querySelector("[data-close]").addEventListener("click", () => {
         this._selectedAssetEntity = null;
         this._signature = "";
         this._render();
@@ -1945,8 +1946,9 @@ class PortfolioOverviewCard extends HTMLElement {
       const detailHost = this.shadowRoot.getElementById("asset-detail");
       const toolbar = document.createElement("div");
       toolbar.className = "detail-toolbar";
-      toolbar.innerHTML = `<button type="button"><ha-icon icon="mdi:close"></ha-icon>${labels.closeDetails}</button>`;
-      toolbar.querySelector("button").addEventListener("click", () => {
+      toolbar.innerHTML = `<button type="button" data-manage><ha-icon icon="mdi:wallet-outline"></ha-icon>${this._language() === "de" ? "Asset verwalten" : "Manage asset"}</button><button type="button" data-close><ha-icon icon="mdi:close"></ha-icon>${labels.closeDetails}</button>`;
+      toolbar.querySelector("[data-manage]").addEventListener("click", () => this._openManager(portfolioId, (selectedWatchAsset || assets.get(this._hass.states[this._selectedAssetEntity]?.attributes?.asset_id))?.assetId || ""));
+      toolbar.querySelector("[data-close]").addEventListener("click", () => {
         this._selectedAssetEntity = null;
         this._signature = "";
         this._render();
