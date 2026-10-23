@@ -134,7 +134,10 @@ def _mutate(holdings, action, message, base_currency):
                 CONF_TRANSACTION_DATE: trade_date,
                 CONF_QUANTITY: _number(payload.get("quantity"), positive=True),
                 CONF_TRANSACTION_PRICE: _number(payload.get("price"), positive=True),
-                CONF_TRANSACTION_PRICE_MODE: "per_unit",
+                CONF_TRANSACTION_PRICE_MODE: (
+                    existing.get(CONF_TRANSACTION_PRICE_MODE, "per_unit") if existing
+                    else "per_unit"
+                ),
                 CONF_TRANSACTION_CURRENCY: currency,
                 CONF_TRANSACTION_MARKET_PRICE: 0.0,
                 CONF_TRANSACTION_MARKET_CURRENCY: "",
