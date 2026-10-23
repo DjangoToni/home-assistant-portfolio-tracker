@@ -19,11 +19,10 @@ from .const import (
     CONF_TRANSACTION_CURRENCY, CONF_TRANSACTION_FEES, CONF_TRANSACTION_TAXES,
     CONF_TRANSACTION_EXCHANGE, CONF_TRANSACTION_NOTE,
     CONF_TRANSACTION_MARKET_PRICE, CONF_TRANSACTION_MARKET_CURRENCY,
+    CONF_PRICE_SOURCE,
     ASSET_TYPES, DEFAULT_BASE_CURRENCY, entry_value,
 )
-from .transactions import opening_transaction, transaction_balances_are_valid
-
-REGISTERED = False
+from .transactions import transaction_balances_are_valid
 
 
 def _number(value, *, positive=False):
@@ -64,6 +63,7 @@ def _mutate(holdings, action, message, base_currency):
             CONF_ASSET_TYPE: asset_type,
             CONF_WATCH_ONLY: watch,
             CONF_DISPLAY_CURRENCY: currency,
+            CONF_PRICE_SOURCE: "yahoo",
             CONF_QUANTITY: 0.0,
             CONF_AVERAGE_PRICE: 0.0,
             CONF_TRANSACTIONS: [],
@@ -148,10 +148,9 @@ def _mutate(holdings, action, message, base_currency):
 
 def register(hass: HomeAssistant) -> None:
     """Register once; commands locate the active config entry on each request."""
-    global REGISTERED
-    if REGISTERED:
+    if hass.data.get('portfolio_tracker_websocket_registered'):
         return
-    REGISTERED = True
+    hass.data['portfolio_tracker_websocket_registered'] = True
 
     @websocket_api.websocket_command({
         vol.Required("type"): "portfolio_tracker/manage",
