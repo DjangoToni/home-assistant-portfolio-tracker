@@ -122,3 +122,19 @@ def test_edit_preserves_total_price_accounting_mode():
             transaction_id=transaction["transaction_id"],
             type="buy", date="2026-10-01", quantity="5", price="550")
     assert holdings[0]["transactions"][0]["transaction_price_mode"] == "total"
+
+
+def test_legacy_position_cannot_be_removed_silently():
+    holdings = []
+    ident = execute(holdings, "add_asset", symbol="NESN.SW")
+    holdings[0]["quantity"] = 12
+    with pytest.raises(ValueError, match="bestätigt"):
+        execute(holdings, "remove_asset", asset_id=ident)
+    with pytest.raises(ValueError, match="Watchlist"):
+        execute(holdings, "update_asset", asset_id=ident, watch_only=True)
+
+
+def test_case_insensitive_duplicate_ticker():
+    holdings = [{"holding_id": "old", "symbol": "aapl", "transactions": []}]
+    with pytest.raises(ValueError, match="bereits"):
+        execute(holdings, "add_asset", symbol="AAPL")
