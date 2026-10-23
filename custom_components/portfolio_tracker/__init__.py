@@ -33,6 +33,7 @@ from .const import (
 from .coordinator import PortfolioCoordinator
 from .registry import active_device_identifiers
 from .transactions import migrate_opening_transactions
+from .websocket_api import register as register_portfolio_websocket
 
 PortfolioConfigEntry = ConfigEntry[PortfolioCoordinator]
 
@@ -51,6 +52,7 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Register the automatically loaded Portfolio Tracker dashboard card."""
     await _async_register_frontend(hass)
+    register_portfolio_websocket(hass)
     return True
 
 
@@ -133,6 +135,7 @@ async def _async_ensure_lovelace_resource(hass: HomeAssistant) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: PortfolioConfigEntry) -> bool:
     """Set up a portfolio config entry."""
     await _async_register_frontend(hass)
+    register_portfolio_websocket(hass)
     # Also clean positions removed before this version was installed.
     _async_remove_stale_devices(hass, entry)
     coordinator = PortfolioCoordinator(hass, entry)
