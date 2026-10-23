@@ -108,6 +108,8 @@ def _mutate(holdings, action, message, base_currency):
         ledger = target.setdefault(CONF_TRANSACTIONS, [])
         transaction_id = str(payload.get("transaction_id", ""))
         existing = next((t for t in ledger if t.get(CONF_TRANSACTION_ID) == transaction_id), None)
+        if action == "add_transaction" and existing is not None:
+            raise ValueError("Transaktion wurde bereits erfasst")
         if action != "add_transaction" and existing is None:
             raise ValueError("Transaktion nicht gefunden")
         if action == "remove_transaction":
