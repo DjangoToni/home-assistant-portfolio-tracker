@@ -2,7 +2,7 @@ const CARD_TAG = "portfolio-asset-card";
 const EDITOR_TAG = "portfolio-asset-card-editor";
 const PORTFOLIO_CARD_TAG = "portfolio-overview-card";
 const PORTFOLIO_EDITOR_TAG = "portfolio-overview-card-editor";
-const CARD_VERSION = "1.7.0";
+const CARD_VERSION = "1.8.0-dev";
 
 const LABELS = {
   de: {
@@ -1319,6 +1319,121 @@ class PortfolioOverviewCard extends HTMLElement {
     }).format(value / 100);
   }
 
+  async _openManager(entryId, defaultAssetId = "") {
+    if (!this._hass?.user?.is_admin) {
+      alert("Portfolioverwaltung erfordert Administratorrechte.");
+      return;
+    }
+    let assets;
+    try {
+      const result = await this._hass.callWS({ type:"portfolio_tracker/manage", entry_id:entryId, action:"get_assets" });
+      assets = result.assets || [];
+    } catch (error) {
+      alert("Portfolioverwaltung nicht verfügbar: " + String(error.message || error));
+      return;
+    }
+    const language = this._language();
+    const german = language === "de";
+    const tr = (de,en) => german ? de : en;
+    const overlay = document.createElement("div");
+    overlay.className = "portfolio-manager-overlay";
+    const esc = (value) => this._escape(value ?? "");
+    const assetOptions = assets.map((a) => `<option value="${esc(a.holding_id)}" ${a.holding_id === defaultAssetId ? "selected" : ""}>${esc(a.name || a.symbol)} (${esc(a.symbol)})</option>`).join("");
+    const today = new Date().toLocaleDateString("en-CA");
+    overlay.innerHTML = `
+      <section class="portfolio-manager-modal" role="dialog" aria-modal="true" aria-label="Portfolio Manager">
+        <header><strong>Portfolio Manager 1.8</strong><button type="button" data-close aria-label="Schliessen">✕</button></header>
+        <label>${tr("Aktion","Action")}
+          <select name="action">
+            <option value="add_asset">${tr("Asset hinzufügen","Add asset")}</option>
+            <option value="update_asset">${tr("Asset bearbeiten","Edit asset")}</option>
+            <option value="add_transaction">${tr("Kaufen / Verkaufen","Buy / sell")}</option>
+            <option value="update_transaction">${tr("Transaktion bearbeiten","Edit transaction")}</option>
+            <option value="remove_transaction">${tr("Transaktion löschen","Delete transaction")}</option>
+            <option value="set_alerts">${tr("Kursalarme verwalten","Manage alerts")}</option>
+            <option value="remove_asset">${tr("Asset löschen","Delete asset")}</option>
+          </select>
+        </label>
+        <label data-field="asset_id">${tr("Asset","Asset")}<select name="asset_id">${assetOptions}</select></label>
+        <div class="portfolio-manager-fields"></div>
+        <div class="portfolio-manager-error" role="alert"></div>
+        <footer><button type="button" data-close>${tr("Abbrechen","Cancel")}</button><button type="button" data-save>${tr("Speichern","Save")}</button></footer>
+      </section>`;
+    const styles = document.createElement("style");
+    styles.textContent = `
+      .portfolio-manager-overlay{position:fixed;z-index:9999;inset:0;background:#0009;display:grid;place-items:center;padding:14px}
+      .portfolio-manager-modal{box-sizing:border-box;width:min(520px,100%);max-height:90vh;overflow:auto;background:var(--card-background-color,#fff);color:var(--primary-text-color);border-radius:14px;padding:22px;display:grid;gap:14px;box-shadow:0 12px 36px #0004}
+      .portfolio-manager-modal header,.portfolio-manager-modal footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
+      .portfolio-manager-modal label{display:grid;gap:5px;font-size:13px;font-weight:600}
+      .portfolio-manager-modal input,.portfolio-manager-modal select{box-sizing:border-box;width:100%;padding:10px;border-radius:8px;border:1px solid var(--divider-color);background:var(--card-background-color);color:var(--primary-text-color);font:inherit}
+      .portfolio-manager-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+      .portfolio-manager-fields label:first-child{grid-column:span 2}
+      .portfolio-manager-modal button{padding:9px 14px;border-radius:8px;border:1px solid var(--divider-color);background:var(--secondary-background-color);color:var(--primary-text-color);cursor:pointer}
+      .portfolio-manager-modal button[data-save]{background:var(--primary-color);color:var(--text-primary-color,#fff)}
+      .portfolio-manager-error{color:var(--error-color);font-size:13px}
+      @media(max-width:440px){.portfolio-manager-fields{grid-template-columns:1fr}.portfolio-manager-fields label:first-child{grid-column:auto}}
+    `;
+    overlay.prepend(styles);
+    const select = (name) => overlay.querySelector(`[name="${name}"]`);
+    const field = (name,label,type="text",value="",extra="") => `<label>${label}<input name="${name}" type="${type}" value="${esc(value)}" ${extra}></label>`;
+    const chooser = (name,label,options) => `<label>${label}<select name="${name}">${options.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join("")}</select></label>`;
+    const asset = () => assets.find(a=>a.holding_id===select("asset_id")?.value);
+    const renderFields = () => {
+      const action=select("action").value, a=asset()||{}, fields=overlay.querySelector(".portfolio-manager-fields");
+      overlay.querySelector('[data-field="asset_id"]').hidden=action==="add_asset";
+      if(action==="add_asset"){
+        fields.innerHTML=field("symbol","Ticker / Symbol")+field("name",tr("Bezeichnung","Name"))+
+          chooser("asset_type",tr("Assettyp","Asset type"),[["stock","Aktie"],["etf","ETF"],["fund","Fonds"],["crypto","Crypto"],["currency","Währung"],["other","Andere"]])+
+          field("currency",tr("Anzeigewährung","Display currency"),"text","CHF")+
+          chooser("watch_only",tr("Anlage","Destination"),[["true","Watchlist"],["false","Depot"]]);
+      }else if(action==="update_asset"){
+        fields.innerHTML=field("name",tr("Bezeichnung","Name"),"text",a.name||"")+
+          chooser("watch_only",tr("Anlage","Destination"),[["false","Depot"],["true","Watchlist"]]);
+        select("watch_only").value=String(Boolean(a.watch_only));
+      }else if(action==="set_alerts"){
+        fields.innerHTML=field("below",tr("Alarm unter Kurs","Alert below"),"number",a.alert_below??"",'step="any" min="0"')+
+          field("above",tr("Alarm über Kurs","Alert above"),"number",a.alert_above??"",'step="any" min="0"');
+      }else if(action==="add_transaction"||action==="update_transaction"){
+        const opts=[["buy",tr("Kauf","Buy")],["sell",tr("Verkauf","Sell")],["opening",tr("Anfangsbestand","Opening balance")]];
+        fields.innerHTML=(action==="update_transaction"?chooser("transaction_id","Transaktion",(a.transactions||[]).map(t=>[t.transaction_id,`${t.transaction_date} · ${t.transaction_type} · ${t.quantity}`])):"")+
+          chooser("type",tr("Buchung","Type"),opts)+field("date","Datum","date",today)+
+          field("quantity",tr("Stückzahl","Quantity"),"number","",'min="0.00000001" step="any" required')+
+          field("price",tr("Preis pro Stück","Unit price"),"number","",'min="0.00000001" step="any" required')+
+          field("currency","Währung","text",a.display_currency||"CHF")+
+          field("fees",tr("Gebühren","Fees"),"number","0",'min="0" step="any"')+
+          field("taxes",tr("Steuern","Taxes"),"number","0",'min="0" step="any"');
+        if(action==="update_transaction"){
+          const load=()=>{const t=(a.transactions||[]).find(x=>x.transaction_id===select("transaction_id").value);if(!t)return;
+            for(const [k,v] of Object.entries({type:t.transaction_type,date:t.transaction_date,quantity:t.quantity,price:t.transaction_price,currency:t.transaction_currency,fees:t.transaction_fees,taxes:t.transaction_taxes}))if(select(k))select(k).value=v??"";};
+          select("transaction_id")?.addEventListener("change",load);load();
+        }
+      }else if(action==="remove_transaction"){
+        fields.innerHTML=chooser("transaction_id",tr("Transaktion auswählen","Choose transaction"),(a.transactions||[]).map(t=>[t.transaction_id,`${t.transaction_date} · ${t.transaction_type} · ${t.quantity}`]));
+      }else if(action==="remove_asset"){
+        fields.innerHTML=chooser("confirm_history",tr("Historie löschen?","Delete history?"),[["false","Nein"],["true","Ja, inklusive Transaktionen"]]);
+      }
+    };
+    select("action").addEventListener("change",renderFields);
+    select("asset_id").addEventListener("change",renderFields);
+    overlay.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>overlay.remove()));
+    overlay.addEventListener("click",e=>{if(e.target===overlay)overlay.remove()});
+    overlay.querySelector("[data-save]").addEventListener("click",async()=>{
+      const action=select("action").value, payload={};
+      overlay.querySelectorAll(".portfolio-manager-modal input,.portfolio-manager-fields select").forEach(el=>payload[el.name]=el.value);
+      if(action!=="add_asset")payload.asset_id=select("asset_id").value;
+      if("watch_only" in payload)payload.watch_only=payload.watch_only==="true";
+      if("confirm_history" in payload)payload.confirm_history=payload.confirm_history==="true";
+      if(["remove_asset","remove_transaction"].includes(action) && !confirm(tr("Wirklich löschen?","Really delete?")))return;
+      const save=overlay.querySelector("[data-save]");save.disabled=true;
+      try{
+        await this._hass.callWS({type:"portfolio_tracker/manage",entry_id:entryId,action,payload});
+        overlay.remove();this._signature="";this._render();
+      }catch(error){overlay.querySelector(".portfolio-manager-error").textContent=String(error.message||error)}
+      finally{save.disabled=false}
+    });
+    renderFields();document.body.append(overlay);
+  }
+
   _performanceChart(history) {
     if (!Array.isArray(history) || history.length < 2) return null;
     const points = history.filter((point) => Number.isFinite(Number(point.portfolio_percent)));
@@ -1427,7 +1542,7 @@ class PortfolioOverviewCard extends HTMLElement {
       .filter((asset) => asset.assetType === "index" && asset.metrics.holding_price)
       .sort((left, right) => left.symbol.localeCompare(right.symbol));
     const positions = [...assets.values()]
-      .filter((asset) => asset.entityId && Number(asset.metrics.holding_value?.state) > 0)
+      .filter((asset) => asset.entityId && !asset.watchOnly && asset.assetType !== "index")
       .map((asset) => ({
         ...asset,
         value: Number(asset.metrics.holding_value.state),
@@ -1717,7 +1832,7 @@ class PortfolioOverviewCard extends HTMLElement {
         .legend-group { min-width:0; padding:7px 10px; border:1px solid var(--divider-color); border-radius:10px; background:color-mix(in srgb,var(--secondary-text-color) 3%,transparent); }
         .legend-group-title { display:flex; align-items:center; gap:7px; margin-bottom:2px; color:var(--secondary-text-color); font-size:10px; font-weight:700; letter-spacing:.03em; }
         .legend-group-title small { display:grid; place-items:center; min-width:17px; height:17px; border-radius:9px; background:color-mix(in srgb,var(--secondary-text-color) 10%,transparent); font-size:9px; }
-        .allocation-row { width:100%; gap:8px; border:0; padding:6px 0; color:var(--primary-text-color); background:transparent; font:inherit; text-align:left; cursor:pointer; }
+        .portfolio-manager-open{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--divider-color);padding:8px 10px;border-radius:8px;background:var(--secondary-background-color);color:var(--primary-text-color);cursor:pointer;margin-left:auto;margin-right:8px;font:inherit;font-size:12px} .portfolio-manager-open ha-icon{--mdc-icon-size:18px} .allocation-row { width:100%; gap:8px; border:0; padding:6px 0; color:var(--primary-text-color); background:transparent; font:inherit; text-align:left; cursor:pointer; }
         .color { width:9px; height:9px; flex:0 0 9px; border-radius:50%; }
         .allocation-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; }
         .allocation-name { margin-right:auto; }
@@ -1762,7 +1877,7 @@ class PortfolioOverviewCard extends HTMLElement {
       <ha-card><article>
         <header>
           <div class="portfolio-title"><div><h2>${this._escape(title)}</h2><div class="subtitle">${positions.length} ${labels.positions}</div></div></div>
-          <a class="portfolio-settings" href="/config/integrations/integration/portfolio_tracker#config_entry=${encodeURIComponent(portfolioId)}" title="${this._escape(labels.managePortfolio)}" aria-label="${this._escape(labels.managePortfolio)}"><ha-icon icon="mdi:cog-outline"></ha-icon><span>${this._escape(labels.managePortfolio)}</span></a>
+          <button type="button" class="portfolio-manager-open" title="Asset-Verwaltung"><ha-icon icon="mdi:wallet-outline"></ha-icon><span>Assets verwalten</span></button><a class="portfolio-settings" href="/config/integrations/integration/portfolio_tracker#config_entry=${encodeURIComponent(portfolioId)}" title="${this._escape(labels.managePortfolio)}" aria-label="${this._escape(labels.managePortfolio)}"><ha-icon icon="mdi:cog-outline"></ha-icon><span>${this._escape(labels.managePortfolio)}</span></a>
         </header>
         ${indexContent ? `<section class="index-section"><div class="section-title">${labels.marketIndices}</div><div class="index-grid">${indexContent}</div></section>` : ""}
         <section class="top-overview">
@@ -1783,6 +1898,7 @@ class PortfolioOverviewCard extends HTMLElement {
         ${watchlistContent}
         <footer>${labels.updated}: ${new Intl.DateTimeFormat(localeFromHass(this._hass), { hour:"2-digit", minute:"2-digit" }).format(new Date(metrics.portfolio_value?.last_updated || Date.now()))} · Portfolio Card v${CARD_VERSION}</footer>
       </article></ha-card>`;
+    this.shadowRoot.querySelector(".portfolio-manager-open")?.addEventListener("click",()=>this._openManager(portfolioId));
     this.shadowRoot.querySelectorAll(".allocation-row").forEach((row) => {
       row.addEventListener("click", () => this.dispatchEvent(new CustomEvent("hass-more-info", { bubbles:true, composed:true, detail:{ entityId:row.dataset.entity } })));
     });
@@ -1814,8 +1930,9 @@ class PortfolioOverviewCard extends HTMLElement {
       const detailHost = this.shadowRoot.getElementById("watchlist-detail");
       const toolbar = document.createElement("div");
       toolbar.className = "detail-toolbar";
-      toolbar.innerHTML = `<button type="button"><ha-icon icon="mdi:close"></ha-icon>${labels.closeDetails}</button>`;
-      toolbar.querySelector("button").addEventListener("click", () => {
+      toolbar.innerHTML = `<button type="button" data-manage><ha-icon icon="mdi:wallet-outline"></ha-icon>${this._language() === "de" ? "Asset verwalten" : "Manage asset"}</button><button type="button" data-close><ha-icon icon="mdi:close"></ha-icon>${labels.closeDetails}</button>`;
+      toolbar.querySelector("[data-manage]").addEventListener("click", () => this._openManager(portfolioId, (selectedWatchAsset || assets.get(this._hass.states[this._selectedAssetEntity]?.attributes?.asset_id))?.assetId || ""));
+      toolbar.querySelector("[data-close]").addEventListener("click", () => {
         this._selectedAssetEntity = null;
         this._signature = "";
         this._render();
@@ -1829,8 +1946,9 @@ class PortfolioOverviewCard extends HTMLElement {
       const detailHost = this.shadowRoot.getElementById("asset-detail");
       const toolbar = document.createElement("div");
       toolbar.className = "detail-toolbar";
-      toolbar.innerHTML = `<button type="button"><ha-icon icon="mdi:close"></ha-icon>${labels.closeDetails}</button>`;
-      toolbar.querySelector("button").addEventListener("click", () => {
+      toolbar.innerHTML = `<button type="button" data-manage><ha-icon icon="mdi:wallet-outline"></ha-icon>${this._language() === "de" ? "Asset verwalten" : "Manage asset"}</button><button type="button" data-close><ha-icon icon="mdi:close"></ha-icon>${labels.closeDetails}</button>`;
+      toolbar.querySelector("[data-manage]").addEventListener("click", () => this._openManager(portfolioId, (selectedWatchAsset || assets.get(this._hass.states[this._selectedAssetEntity]?.attributes?.asset_id))?.assetId || ""));
+      toolbar.querySelector("[data-close]").addEventListener("click", () => {
         this._selectedAssetEntity = null;
         this._signature = "";
         this._render();
