@@ -109,3 +109,16 @@ def test_duplicate_client_transaction_id_rejected():
     with pytest.raises(ValueError, match="bereits"):
         execute(holdings, "add_transaction", asset_id=ident, transaction_id="request-one",
                 type="buy", date="2026-10-01", quantity="1", price="100")
+
+
+def test_edit_preserves_total_price_accounting_mode():
+    holdings = []
+    ident = execute(holdings, "add_asset", symbol="NOVN.SW")
+    execute(holdings, "add_transaction", asset_id=ident, type="buy",
+            date="2026-10-01", quantity="5", price="500")
+    transaction = holdings[0]["transactions"][0]
+    transaction["transaction_price_mode"] = "total"
+    execute(holdings, "update_transaction", asset_id=ident,
+            transaction_id=transaction["transaction_id"],
+            type="buy", date="2026-10-01", quantity="5", price="550")
+    assert holdings[0]["transactions"][0]["transaction_price_mode"] == "total"
