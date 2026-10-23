@@ -55,7 +55,9 @@ def _mutate(holdings, action, message, base_currency):
         currency = str(payload.get("currency") or base_currency).upper()
         if len(currency) != 3 or not currency.isalpha():
             raise ValueError("Ungültige Währung")
-        watch = bool(payload.get("watch_only", True))
+        watch = payload.get("watch_only", True)
+        if not isinstance(watch, bool):
+            raise ValueError("Ungültiger Watchlist-Wert")
         h = {
             CONF_HOLDING_ID: uuid4().hex,
             CONF_SYMBOL: symbol,
@@ -77,13 +79,15 @@ def _mutate(holdings, action, message, base_currency):
             if field in payload:
                 target[field] = str(payload[field]).strip()[:128]
         if "watch_only" in payload:
-            desired = bool(payload["watch_only"])
+            desired = payload["watch_only"]
+            if not isinstance(desired, bool):
+                raise ValueError("Ungültiger Watchlist-Wert")
             if desired and target.get(CONF_TRANSACTIONS):
                 raise ValueError("Asset mit Transaktionen kann nicht zur Watchlist werden")
             target[CONF_WATCH_ONLY] = desired
         return asset_id
     if action == "remove_asset":
-        if target.get(CONF_TRANSACTIONS) and not payload.get("confirm_history"):
+        if target.get(CONF_TRANSACTIONS) and payload.get("confirm_history") is not True:
             raise ValueError("Transaktionshistorie vorhanden; Löschung muss ausdrücklich bestätigt werden")
         holdings.remove(target)
         return asset_id
@@ -119,8 +123,11 @@ def _mutate(holdings, action, message, base_currency):
             currency = str(payload.get("currency") or base_currency).upper()
             if len(currency) != 3 or not currency.isalpha():
                 raise ValueError("Ungültige Transaktionswährung")
+            if existing is None and transaction_id:
+                if any(t.get(CONF_TRANSACTION_ID) == transaction_id for h in holdings for t in h.get(CONF_TRANSACTIONS, [])):
+                    raise ValueError("Transaktion wurde bereits erfasst")
             transaction = {
-                CONF_TRANSACTION_ID: transaction_id if existing else uuid4().hex,
+                CONF_TRANSACTION_ID: transaction_id if transaction_id else uuid4().hex,
                 CONF_TRANSACTION_TYPE: kind,
                 CONF_TRANSACTION_DATE: trade_date,
                 CONF_QUANTITY: _number(payload.get("quantity"), positive=True),
@@ -135,6 +142,14 @@ def _mutate(holdings, action, message, base_currency):
                 CONF_TRANSACTION_NOTE: str(payload.get("note", ""))[:512],
             }
             if existing:
+                # Preserve optional market-price, broker and future transaction metadata.
+                transaction = {**existing, **transaction}
+                transaction[CONF_TRANSACTION_MARKET_PRICE] = existing.get(CONF_TRANSACTION_MARKET_PRICE, 0.0)
+                transaction[CONF_TRANSACTION_MARKET_CURRENCY] = existing.get(CONF_TRANSACTION_MARKET_CURRENCY, "")
+                if "exchange" not in payload:
+                    transaction[CONF_TRANSACTION_EXCHANGE] = existing.get(CONF_TRANSACTION_EXCHANGE, "")
+                if "note" not in payload:
+                    transaction[CONF_TRANSACTION_NOTE] = existing.get(CONF_TRANSACTION_NOTE, "")
                 ledger[ledger.index(existing)] = transaction
             else:
                 ledger.append(transaction)
