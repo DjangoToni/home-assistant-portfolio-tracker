@@ -2,6 +2,15 @@
 
 All notable changes to Portfolio Tracker are documented here.
 
+## 1.8.0 - in development
+
+- Introduce integrated portfolio asset manager in the Lovelace overview card.
+- Manage assets, buys, sells, transactions, and price thresholds using authenticated WebSocket commands.
+- Restrict write operations to Home Assistant administrators.
+- Display zero-value depot positions in the asset table.
+- Add transaction and alarm regression tests and JavaScript syntax validation.
+- Keep the existing configuration flows available for advanced warrant settings and as a fallback.
+
 ## 1.7.0 - 2026-09-06
 
 - Add configurable mobile push notifications for price alerts through Home
