@@ -50,7 +50,7 @@ def _mutate(holdings, action, message, base_currency):
         asset_type = str(payload.get("asset_type", "stock"))
         if asset_type not in ASSET_TYPES or asset_type == "warrant":
             raise ValueError("Warrants vorerst über die erweiterte Konfiguration erfassen")
-        if any(h.get(CONF_SYMBOL) == symbol for h in holdings):
+        if any(str(h.get(CONF_SYMBOL, "")).upper() == symbol for h in holdings):
             raise ValueError("Asset bereits vorhanden")
         currency = str(payload.get("currency") or base_currency).upper()
         if len(currency) != 3 or not currency.isalpha():
@@ -82,12 +82,12 @@ def _mutate(holdings, action, message, base_currency):
             desired = payload["watch_only"]
             if not isinstance(desired, bool):
                 raise ValueError("Ungültiger Watchlist-Wert")
-            if desired and target.get(CONF_TRANSACTIONS):
+            if desired and (target.get(CONF_TRANSACTIONS) or float(target.get(CONF_QUANTITY, 0) or 0) > 0):
                 raise ValueError("Asset mit Transaktionen kann nicht zur Watchlist werden")
             target[CONF_WATCH_ONLY] = desired
         return asset_id
     if action == "remove_asset":
-        if target.get(CONF_TRANSACTIONS) and payload.get("confirm_history") is not True:
+        if (target.get(CONF_TRANSACTIONS) or float(target.get(CONF_QUANTITY, 0) or 0) > 0) and payload.get("confirm_history") is not True:
             raise ValueError("Transaktionshistorie vorhanden; Löschung muss ausdrücklich bestätigt werden")
         holdings.remove(target)
         return asset_id
