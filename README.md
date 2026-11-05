@@ -25,6 +25,8 @@ Portfolio Tracker provides native Home Assistant entities and two automatically 
 - Multilingual UI: German, English, French, and Italian
 - Resilient quote updates that keep the dashboard available during temporary provider outages
 
+Portfolio Tracker 1.7.1 is tested with Home Assistant 2026.9.1 and 2026.11.0.
+
 ## Installation
 
 ### HACS
@@ -123,7 +125,7 @@ Portfolio Tracker prevents sales that would result in a negative historical quan
 
 An asset can have a lower threshold, an upper threshold, or both. Portfolio Tracker creates binary sensor entities for configured thresholds. Open **Configure > Notifications** and select one or more `notify` entities to receive price alerts through the Home Assistant Companion App. Persistent notifications in Home Assistant can be enabled or disabled independently.
 
-Each destination receives one notification when a threshold becomes active. The alert is armed again only after the price returns to the normal range, so regular portfolio updates do not repeatedly notify the phone. The Companion App and its notification entity must already be configured in Home Assistant.
+Each destination receives one notification when a threshold becomes active. A failed mobile delivery is retried on the next portfolio update; after a successful delivery, duplicates are suppressed. The alert is armed again only after the price returns to the normal range, so regular portfolio updates do not repeatedly notify the phone. The Companion App and its notification entity must already be configured in Home Assistant.
 
 ## Dashboard cards
 
@@ -184,6 +186,7 @@ Portfolio Tracker is an informational tool, not financial advice. Market data ma
 
 - Report bugs or request features through [GitHub Issues](https://github.com/DjangoToni/home-assistant-portfolio-tracker/issues).
 - See [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
+- Automated tests cover portfolio calculations, transactions, provider payloads, alert delivery, translations, and release artifacts on Home Assistant 2026.9.1 and 2026.11.0.
 - Security concerns are covered in [SECURITY.md](SECURITY.md).
 - Release history is available in [CHANGELOG.md](CHANGELOG.md).
 

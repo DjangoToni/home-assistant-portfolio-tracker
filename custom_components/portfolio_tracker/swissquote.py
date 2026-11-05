@@ -24,7 +24,7 @@ HISTORY_URL = (
 HEADERS = {
     "Accept": "application/json",
     "Accept-Language": "en-US,en;q=0.9",
-    "User-Agent": "Home-Assistant-Portfolio-Tracker/1.7.0",
+    "User-Agent": "Home-Assistant-Portfolio-Tracker/1.7.1",
 }
 VENUE_EXCHANGE_IDS = {"six": 4, "swiss_dots": 672}
 
@@ -281,8 +281,6 @@ def _find_warrant(
             and isin[2:11].lstrip("0") == valor.lstrip("0")
         )
         if symbol != valor and not swiss_isin_matches:
-            continue
-        if str(item.get("type", "")).upper() not in {"EXO", "WAR"}:
             continue
         exchange_id = _integer(item.get("exchangeId"))
         if expected_exchange_id is not None and exchange_id != expected_exchange_id:

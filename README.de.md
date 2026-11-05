@@ -25,6 +25,8 @@ Portfolio Tracker stellt native Home-Assistant-Entitäten und zwei automatisch r
 - Mehrsprachige Oberfläche: Deutsch, Englisch, Französisch und Italienisch
 - Robuste Kursaktualisierung, damit das Dashboard bei vorübergehenden Ausfällen verfügbar bleibt
 
+Portfolio Tracker 1.7.1 ist mit Home Assistant 2026.9.1 und 2026.11.0 getestet.
+
 ## Installation
 
 ### HACS
@@ -123,7 +125,7 @@ Portfolio Tracker verhindert Verkäufe, die zu einem historisch negativen Bestan
 
 Für jedes Asset können eine untere Grenze, eine obere Grenze oder beide Grenzen festgelegt werden. Portfolio Tracker erstellt dafür Binärsensoren. Unter **Konfigurieren > Benachrichtigungen** können eine oder mehrere `notify`-Entitäten ausgewählt werden, die Kursalarme über die Home Assistant Companion App erhalten. Dauerhafte Meldungen in Home Assistant lassen sich unabhängig davon ein- oder ausschalten.
 
-Jedes Ziel erhält genau eine Meldung, sobald eine Alarmgrenze aktiv wird. Erst nachdem der Kurs in den Normalbereich zurückgekehrt ist, wird der Alarm erneut scharfgeschaltet. Dadurch erzeugen die regelmäßigen Portfolio-Aktualisierungen keine wiederholten Push-Meldungen. Die Companion App und ihre Benachrichtigungsentität müssen bereits in Home Assistant eingerichtet sein.
+Jedes Ziel erhält genau eine Meldung, sobald eine Alarmgrenze aktiv wird. Eine fehlgeschlagene mobile Zustellung wird beim nächsten Portfolio-Update erneut versucht; nach erfolgreicher Zustellung werden Duplikate unterdrückt. Erst nachdem der Kurs in den Normalbereich zurückgekehrt ist, wird der Alarm erneut scharfgeschaltet. Dadurch erzeugen die regelmäßigen Portfolio-Aktualisierungen keine wiederholten Push-Meldungen. Die Companion App und ihre Benachrichtigungsentität müssen bereits in Home Assistant eingerichtet sein.
 
 ## Dashboard-Karten
 
@@ -184,6 +186,7 @@ Portfolio Tracker ist ein Informationswerkzeug und keine Finanzberatung. Marktda
 
 - Fehler und Funktionswünsche können über [GitHub Issues](https://github.com/DjangoToni/home-assistant-portfolio-tracker/issues) gemeldet werden.
 - Vor Änderungen bitte [CONTRIBUTING.md](CONTRIBUTING.md) lesen.
+- Automatisierte Tests prüfen Portfolioberechnung, Transaktionen, Anbieterantworten, Alarmzustellung, Übersetzungen und Release-Dateien mit Home Assistant 2026.9.1 und 2026.11.0.
 - Sicherheitshinweise stehen in [SECURITY.md](SECURITY.md).
 - Die Versionshistorie steht in [CHANGELOG.md](CHANGELOG.md).
 

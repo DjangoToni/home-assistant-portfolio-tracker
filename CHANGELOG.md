@@ -2,6 +2,17 @@
 
 All notable changes to Portfolio Tracker are documented here.
 
+## 1.7.1 - 2026-11-05
+
+- Restore Swiss warrant lookup for current Swissquote search responses that no
+  longer consistently label SIX products as `WAR` or `EXO`.
+- Retry failed mobile price-alert deliveries on the next update while still
+  suppressing duplicate notifications after a successful delivery.
+- Add the Home Assistant `finance` integration category.
+- Add automated calculation, transaction, provider-parser, coordinator,
+  translation, and release-artifact tests.
+- Validate the integration against Home Assistant 2026.9.1 and 2026.11.0 in CI.
+
 ## 1.7.0 - 2026-09-06
 
 - Add configurable mobile push notifications for price alerts through Home

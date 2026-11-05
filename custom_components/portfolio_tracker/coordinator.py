@@ -105,6 +105,7 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
         self.swissquote = SwissquoteClient(async_get_clientsession(hass))
         self.coingecko = CoinGeckoClient(async_get_clientsession(hass))
         self._active_alerts: set[str] = set()
+        self._mobile_alerts: set[tuple[str, str]] = set()
         interval = int(
             entry_value(entry, CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
         )
@@ -541,6 +542,7 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
             )
         )
         active: set[str] = set()
+        mobile_alerts: set[tuple[str, str]] = set()
         for holding in holdings:
             quote = data.quotes.get(holding["symbol"])
             price = holding_alert_price(data, holding)
@@ -567,8 +569,6 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
                 if not triggered:
                     continue
                 active.add(alert_id)
-                if alert_id in self._active_alerts:
-                    continue
                 relation = text[direction]
                 message = text["message"].format(
                     name=holding["name"],
@@ -579,7 +579,10 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
                     threshold=threshold,
                 )
                 title = text["title"].format(symbol=holding["symbol"])
-                if persistent_notifications:
+                if (
+                    persistent_notifications
+                    and alert_id not in self._active_alerts
+                ):
                     async_create(
                         self.hass,
                         message,
@@ -588,18 +591,25 @@ class PortfolioCoordinator(DataUpdateCoordinator[PortfolioData]):
                             f"{DOMAIN}_{self.entry.entry_id}_{alert_id}"
                         ),
                     )
-                if notify_targets:
+                for notify_target in notify_targets:
+                    delivery_id = (alert_id, notify_target)
+                    if delivery_id in self._mobile_alerts:
+                        mobile_alerts.add(delivery_id)
+                        continue
                     try:
                         await self.hass.services.async_call(
                             NOTIFY_DOMAIN,
                             SERVICE_SEND_MESSAGE,
                             {ATTR_MESSAGE: message, ATTR_TITLE: title},
-                            target={"entity_id": notify_targets},
+                            target={"entity_id": [notify_target]},
                         )
                     except Exception:
                         _LOGGER.exception(
                             "Could not send the %s price alert to %s",
                             holding["symbol"],
-                            ", ".join(notify_targets),
+                            notify_target,
                         )
+                    else:
+                        mobile_alerts.add(delivery_id)
         self._active_alerts = active
+        self._mobile_alerts = mobile_alerts
