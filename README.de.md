@@ -26,7 +26,7 @@ Portfolio Tracker stellt native Home-Assistant-Entitäten und zwei automatisch r
 - Mehrsprachige Oberfläche: Deutsch, Englisch, Französisch und Italienisch
 - Robuste Kursaktualisierung, damit das Dashboard bei vorübergehenden Ausfällen verfügbar bleibt
 
-Portfolio Tracker 1.8.0 ist mit Home Assistant 2026.9.1 und 2026.11.0 getestet.
+Portfolio Tracker 1.8.1 ist mit Home Assistant 2026.9.1 und 2026.11.0 getestet.
 
 ## Installation
 
@@ -74,6 +74,7 @@ Administratoren können das Portfolio direkt im Dashboard pflegen. Die integrier
 - Käufe, Verkäufe, Anfangsbestände, Gebühren, Steuern, Broker, Notizen, Einzelpreise und vollständige Transaktionsbeträge
 - Untere und obere Kursalarme; ein bestehender Grenzwert kann durch Leeren des Feldes entfernt werden
 - Sicheres Löschen von Transaktionen und Assets mit ausdrücklicher Bestätigung bei vorhandener Historie
+- Ausdrücklich bestätigte Konsolidierung doppelter Symbole unter Erhalt eindeutiger Transaktionen, Alarme, Instrumentdaten und der bisherigen aktiven Asset-ID
 
 Das Home-Assistant-Backend prüft die Administratorrechte. Jede Änderung wird validiert und atomar gespeichert. Wird das Portfolio während einer geöffneten Verwaltung in einem anderen Browser oder Konfigurationsdialog verändert, verhindert die Konflikterkennung das Überschreiben der neueren Daten und fordert zum erneuten Öffnen auf.
 

@@ -177,6 +177,150 @@ def test_duplicate_client_transaction_id_is_rejected() -> None:
         add_trade(holdings, second, transaction_id="request-one")
 
 
+def test_duplicate_assets_are_consolidated_without_losing_history() -> None:
+    holdings = [
+        {
+            "holding_id": "watched-copy",
+            "symbol": "novn.sw",
+            "name": "Novartis watchlist",
+            "asset_type": "stock",
+            "watch_only": True,
+            "alert_below": 80,
+            "transactions": [],
+        },
+        {
+            "holding_id": "active-position",
+            "symbol": "NOVN.SW",
+            "name": "Novartis",
+            "asset_type": "stock",
+            "watch_only": False,
+            "alert_above": 120,
+            "transactions": [
+                {
+                    "transaction_id": "buy-one",
+                    "transaction_type": "buy",
+                    "transaction_date": "2026-01-10",
+                    "quantity": 5,
+                    "transaction_price": 90,
+                    "transaction_price_mode": "per_unit",
+                    "transaction_currency": "CHF",
+                }
+            ],
+        },
+    ]
+
+    result = execute(holdings, "consolidate_duplicates", confirmed=True)
+
+    assert result == "consolidated:1"
+    assert len(holdings) == 1
+    assert holdings[0]["holding_id"] == "active-position"
+    assert holdings[0]["watch_only"] is False
+    assert holdings[0]["alert_below"] == 80
+    assert holdings[0]["alert_above"] == 120
+    assert [item["transaction_id"] for item in holdings[0]["transactions"]] == [
+        "buy-one"
+    ]
+
+
+def test_consolidation_deduplicates_copied_transaction_ids() -> None:
+    transaction = {
+        "transaction_id": "same-transaction",
+        "transaction_type": "buy",
+        "transaction_date": "2026-01-10",
+        "quantity": 2,
+        "transaction_price": 100,
+        "transaction_price_mode": "per_unit",
+        "transaction_currency": "CHF",
+    }
+    holdings = [
+        {
+            "holding_id": "first",
+            "symbol": "AAPL",
+            "name": "Apple",
+            "asset_type": "stock",
+            "watch_only": False,
+            "transactions": [deepcopy(transaction)],
+        },
+        {
+            "holding_id": "copy",
+            "symbol": "aapl",
+            "name": "Apple copy",
+            "asset_type": "stock",
+            "watch_only": False,
+            "transactions": [deepcopy(transaction)],
+        },
+    ]
+
+    execute(holdings, "consolidate_duplicates", confirmed=True)
+
+    assert len(holdings) == 1
+    assert len(holdings[0]["transactions"]) == 1
+
+
+def test_consolidation_requires_confirmation_and_duplicates() -> None:
+    holdings = [
+        {
+            "holding_id": "only",
+            "symbol": "AAPL",
+            "name": "Apple",
+            "asset_type": "stock",
+            "watch_only": True,
+            "transactions": [],
+        }
+    ]
+    before = deepcopy(holdings)
+
+    with pytest.raises(PortfolioManagerError) as confirmation:
+        execute(holdings, "consolidate_duplicates")
+    assert confirmation.value.code == "consolidation_confirmation_required"
+    with pytest.raises(PortfolioManagerError) as duplicates:
+        execute(holdings, "consolidate_duplicates", confirmed=True)
+    assert duplicates.value.code == "no_duplicates"
+    assert holdings == before
+
+
+def test_invalid_duplicate_history_is_not_partially_consolidated() -> None:
+    holdings = [
+        {
+            "holding_id": "invalid-sale",
+            "symbol": "TEST",
+            "name": "Invalid sale",
+            "asset_type": "stock",
+            "watch_only": False,
+            "transactions": [
+                {
+                    "transaction_id": "sell-first",
+                    "transaction_type": "sell",
+                    "transaction_date": "2026-01-01",
+                    "quantity": 2,
+                }
+            ],
+        },
+        {
+            "holding_id": "later-buy",
+            "symbol": "test",
+            "name": "Later buy",
+            "asset_type": "stock",
+            "watch_only": False,
+            "transactions": [
+                {
+                    "transaction_id": "buy-later",
+                    "transaction_type": "buy",
+                    "transaction_date": "2026-02-01",
+                    "quantity": 1,
+                }
+            ],
+        },
+    ]
+    before = deepcopy(holdings)
+
+    with pytest.raises(PortfolioManagerError) as error:
+        execute(holdings, "consolidate_duplicates", confirmed=True)
+
+    assert error.value.code == "duplicate_merge_invalid"
+    assert holdings == before
+
+
 def test_warrant_supports_swissquote_and_external_sensor_sources() -> None:
     holdings = []
     swiss_id = add_asset(

@@ -2,6 +2,17 @@
 
 All notable changes to Portfolio Tracker are documented here.
 
+## 1.8.1 - 2026-11-05
+
+- Add an explicitly confirmed duplicate-asset consolidation action to the
+  dashboard manager.
+- Keep the established active asset ID while merging unique transactions,
+  alerts, and missing instrument metadata for matching symbols.
+- Count copied transaction IDs only once and reject unsafe combined histories
+  atomically without changing the original portfolio.
+- Remove obsolete duplicate devices and entities through the existing registry
+  cleanup after the portfolio reloads.
+
 ## 1.8.0 - 2026-11-05
 
 - Add an administrator-only portfolio manager directly to the Lovelace overview

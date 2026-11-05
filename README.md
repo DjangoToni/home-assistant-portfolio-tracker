@@ -26,7 +26,7 @@ Portfolio Tracker provides native Home Assistant entities and two automatically 
 - Multilingual UI: German, English, French, and Italian
 - Resilient quote updates that keep the dashboard available during temporary provider outages
 
-Portfolio Tracker 1.8.0 is tested with Home Assistant 2026.9.1 and 2026.11.0.
+Portfolio Tracker 1.8.1 is tested with Home Assistant 2026.9.1 and 2026.11.0.
 
 ## Installation
 
@@ -74,6 +74,7 @@ Administrators can maintain the portfolio without leaving the dashboard. The int
 - Purchases, sales, opening balances, fees, taxes, brokers, notes, unit prices, and complete transaction amounts
 - Lower and upper price alerts, including clearing an existing threshold with an empty field
 - Safe deletion of transactions and assets with explicit confirmation when history exists
+- Explicit consolidation of duplicate symbols while retaining unique transactions, alerts, instrument data, and the established active asset ID
 
 The manager verifies administrator permissions on the Home Assistant backend. Every update is validated and applied atomically. If the portfolio changes in another browser or configuration dialog while the manager is open, saving is stopped and the manager asks to be reopened instead of overwriting the newer data.
 

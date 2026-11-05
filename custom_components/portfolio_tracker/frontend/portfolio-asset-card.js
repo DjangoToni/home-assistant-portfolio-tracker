@@ -3,7 +3,7 @@ const EDITOR_TAG = "portfolio-asset-card-editor";
 const PORTFOLIO_CARD_TAG = "portfolio-overview-card";
 const PORTFOLIO_EDITOR_TAG = "portfolio-overview-card-editor";
 const MANAGER_TAG = "portfolio-manager-dialog";
-const CARD_VERSION = "1.8.0";
+const CARD_VERSION = "1.8.1";
 
 const LABELS = {
   de: {
@@ -571,6 +571,7 @@ const MANAGER_LABELS = {
     editTransaction: "Edit transaction",
     removeTransaction: "Delete transaction",
     alerts: "Manage price alerts",
+    consolidateDuplicates: "Consolidate duplicate assets",
     removeAsset: "Delete asset",
     symbol: "Ticker / symbol",
     name: "Name",
@@ -627,9 +628,12 @@ const MANAGER_LABELS = {
     note: "Note",
     confirmAsset: "I confirm deletion of the asset and its transaction history.",
     confirmTransaction: "I confirm deletion of this transaction.",
+    consolidateExplanation: "Assets with the same symbol will be combined. Unique transactions, alerts and instrument data are retained; copied transaction IDs are counted only once.",
+    confirmConsolidation: "I have checked the duplicate assets and confirm consolidation.",
     cancel: "Cancel",
     save: "Save",
     delete: "Delete",
+    consolidate: "Consolidate",
     managerButton: "Manage assets",
     manageAsset: "Manage asset",
     closeDetails: "Close details",
@@ -641,6 +645,9 @@ const MANAGER_LABELS = {
       invalid_currency: "Enter a valid three-letter currency code.",
       invalid_alert_range: "The lower alert must be below the upper alert.",
       duplicate_symbol: "This symbol already exists in the portfolio.",
+      no_duplicates: "No duplicate asset symbols were found.",
+      consolidation_confirmation_required: "Confirm consolidation of duplicate assets.",
+      duplicate_merge_invalid: "The transaction histories cannot be combined safely. Check the affected assets manually.",
       symbol_required: "Enter a ticker or symbol.",
       transactions_prevent_watchlist: "Assets with transactions cannot be moved to the watchlist.",
       history_confirmation_required: "Confirm deletion of the transaction history.",
@@ -668,6 +675,7 @@ MANAGER_LABELS.de = {
   editTransaction: "Transaktion bearbeiten",
   removeTransaction: "Transaktion löschen",
   alerts: "Kursalarme verwalten",
+  consolidateDuplicates: "Doppelte Assets konsolidieren",
   removeAsset: "Asset löschen",
   symbol: "Ticker / Symbol",
   name: "Bezeichnung",
@@ -716,9 +724,12 @@ MANAGER_LABELS.de = {
   note: "Notiz",
   confirmAsset: "Ich bestätige das Löschen des Assets und seiner Transaktionshistorie.",
   confirmTransaction: "Ich bestätige das Löschen dieser Transaktion.",
+  consolidateExplanation: "Assets mit demselben Symbol werden zusammengeführt. Eindeutige Transaktionen, Alarme und Instrumentdaten bleiben erhalten; kopierte Transaktions-IDs werden nur einmal gezählt.",
+  confirmConsolidation: "Ich habe die doppelten Assets geprüft und bestätige die Konsolidierung.",
   cancel: "Abbrechen",
   save: "Speichern",
   delete: "Löschen",
+  consolidate: "Konsolidieren",
   managerButton: "Assets verwalten",
   manageAsset: "Asset verwalten",
   closeDetails: "Detailansicht schließen",
@@ -731,6 +742,9 @@ MANAGER_LABELS.de = {
     invalid_currency: "Gib einen gültigen dreistelligen Währungscode ein.",
     invalid_alert_range: "Der untere Alarm muss kleiner als der obere Alarm sein.",
     duplicate_symbol: "Dieses Symbol ist bereits im Portfolio vorhanden.",
+    no_duplicates: "Es wurden keine doppelten Asset-Symbole gefunden.",
+    consolidation_confirmation_required: "Bestätige die Konsolidierung der doppelten Assets.",
+    duplicate_merge_invalid: "Die Transaktionshistorien können nicht sicher zusammengeführt werden. Prüfe die betroffenen Assets manuell.",
     symbol_required: "Gib einen Ticker oder ein Symbol ein.",
     transactions_prevent_watchlist: "Assets mit Transaktionen können nicht zur Beobachtungsliste verschoben werden.",
     history_confirmation_required: "Bestätige das Löschen der Transaktionshistorie.",
@@ -757,6 +771,7 @@ MANAGER_LABELS.fr = {
   editTransaction: "Modifier la transaction",
   removeTransaction: "Supprimer la transaction",
   alerts: "Gérer les alertes de cours",
+  consolidateDuplicates: "Consolider les actifs en double",
   removeAsset: "Supprimer l’actif",
   symbol: "Ticker / symbole",
   name: "Désignation",
@@ -804,9 +819,12 @@ MANAGER_LABELS.fr = {
   note: "Note",
   confirmAsset: "Je confirme la suppression de l’actif et de son historique.",
   confirmTransaction: "Je confirme la suppression de cette transaction.",
+  consolidateExplanation: "Les actifs portant le même symbole seront regroupés. Les transactions uniques, les alertes et les données de l’instrument sont conservées.",
+  confirmConsolidation: "J’ai vérifié les actifs en double et je confirme la consolidation.",
   cancel: "Annuler",
   save: "Enregistrer",
   delete: "Supprimer",
+  consolidate: "Consolider",
   managerButton: "Gérer les actifs",
   manageAsset: "Gérer l’actif",
   closeDetails: "Fermer les détails",
@@ -819,6 +837,9 @@ MANAGER_LABELS.fr = {
     invalid_currency: "Saisissez un code devise valide à trois lettres.",
     invalid_alert_range: "L’alerte basse doit être inférieure à l’alerte haute.",
     duplicate_symbol: "Ce symbole existe déjà dans le portefeuille.",
+    no_duplicates: "Aucun symbole d’actif en double n’a été trouvé.",
+    consolidation_confirmation_required: "Confirmez la consolidation des actifs en double.",
+    duplicate_merge_invalid: "Les historiques de transactions ne peuvent pas être regroupés en toute sécurité.",
     negative_balance: "Cette transaction créerait une position historique négative.",
     invalid_request: "La saisie n’a pas pu être enregistrée.",
   },
@@ -838,6 +859,7 @@ MANAGER_LABELS.it = {
   editTransaction: "Modifica transazione",
   removeTransaction: "Elimina transazione",
   alerts: "Gestisci allarmi prezzo",
+  consolidateDuplicates: "Consolida asset duplicati",
   removeAsset: "Elimina asset",
   symbol: "Ticker / simbolo",
   name: "Denominazione",
@@ -885,9 +907,12 @@ MANAGER_LABELS.it = {
   note: "Nota",
   confirmAsset: "Confermo l’eliminazione dell’asset e della sua cronologia.",
   confirmTransaction: "Confermo l’eliminazione di questa transazione.",
+  consolidateExplanation: "Gli asset con lo stesso simbolo vengono uniti. Le transazioni uniche, gli allarmi e i dati dello strumento vengono conservati.",
+  confirmConsolidation: "Ho controllato gli asset duplicati e confermo il consolidamento.",
   cancel: "Annulla",
   save: "Salva",
   delete: "Elimina",
+  consolidate: "Consolida",
   managerButton: "Gestisci asset",
   manageAsset: "Gestisci asset",
   closeDetails: "Chiudi dettagli",
@@ -900,6 +925,9 @@ MANAGER_LABELS.it = {
     invalid_currency: "Inserisci un codice valuta valido di tre lettere.",
     invalid_alert_range: "L’allarme inferiore deve essere minore di quello superiore.",
     duplicate_symbol: "Questo simbolo esiste già nel portafoglio.",
+    no_duplicates: "Non sono stati trovati simboli di asset duplicati.",
+    consolidation_confirmation_required: "Conferma il consolidamento degli asset duplicati.",
+    duplicate_merge_invalid: "Le cronologie delle transazioni non possono essere unite in modo sicuro.",
     negative_balance: "Questa transazione creerebbe una posizione storica negativa.",
     invalid_request: "Non è stato possibile salvare i dati.",
   },
@@ -1827,6 +1855,9 @@ class PortfolioManagerDialog extends HTMLElement {
     if (this._action === "remove_asset") {
       return `<label class="wide confirmation"><input name="confirm_history" type="checkbox" required><span>${this._escape(labels.confirmAsset)}</span></label>`;
     }
+    if (this._action === "consolidate_duplicates") {
+      return `<p class="wide empty">${this._escape(labels.consolidateExplanation)}</p><label class="wide confirmation"><input name="confirmed" type="checkbox" required><span>${this._escape(labels.confirmConsolidation)}</span></label>`;
+    }
     return "";
   }
 
@@ -1846,10 +1877,14 @@ class PortfolioManagerDialog extends HTMLElement {
       ["update_transaction", labels.editTransaction],
       ["remove_transaction", labels.removeTransaction],
       ["set_alerts", labels.alerts],
+      ["consolidate_duplicates", labels.consolidateDuplicates],
       ["remove_asset", labels.removeAsset],
     ];
-    const needsAsset = !["add_asset", "add_warrant"].includes(this._action);
+    const needsAsset = !["add_asset", "add_warrant", "consolidate_duplicates"].includes(this._action);
     const destructive = ["remove_asset", "remove_transaction"].includes(this._action);
+    const submitLabel = this._action === "consolidate_duplicates"
+      ? labels.consolidate
+      : destructive ? labels.delete : labels.save;
     this.shadowRoot.innerHTML = `
       <style>
         :host{position:fixed;z-index:10000;inset:0;display:grid;place-items:center;padding:14px;background:#0009;color:var(--primary-text-color)}
@@ -1869,7 +1904,7 @@ class PortfolioManagerDialog extends HTMLElement {
         </div>
         <div class="fields">${this._fields()}</div>
         <div class="error" role="alert"></div>
-        <footer><button type="button" data-close>${this._escape(labels.cancel)}</button><button type="submit" class="primary ${destructive ? "danger" : ""}">${this._escape(destructive ? labels.delete : labels.save)}</button></footer>
+        <footer><button type="button" data-close>${this._escape(labels.cancel)}</button><button type="submit" class="primary ${destructive ? "danger" : ""}">${this._escape(submitLabel)}</button></footer>
       </form>`;
     this.shadowRoot.querySelectorAll("[data-close]").forEach((button) => button.addEventListener("click", () => this.remove()));
     this.shadowRoot.querySelector('[name="manager_action"]')?.addEventListener("change", (event) => {
@@ -1908,12 +1943,12 @@ class PortfolioManagerDialog extends HTMLElement {
     }
     const payload = Object.fromEntries(new FormData(form).entries());
     delete payload.manager_action;
-    if (!["add_asset", "add_warrant"].includes(this._action)) {
+    if (!["add_asset", "add_warrant", "consolidate_duplicates"].includes(this._action)) {
       payload.asset_id = this._assetId;
     }
     if ("watch_only" in payload) payload.watch_only = payload.watch_only === "true";
     if ("confirm_history" in payload) payload.confirm_history = true;
-    delete payload.confirmed;
+    if ("confirmed" in payload) payload.confirmed = true;
     const action = this._action === "add_warrant" ? "add_asset" : this._action;
     const save = form.querySelector('button[type="submit"]');
     const errorHost = form.querySelector(".error");

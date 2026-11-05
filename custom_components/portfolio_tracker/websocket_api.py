@@ -68,7 +68,7 @@ from .const import (
     WARRANT_VENUES,
     entry_value,
 )
-from .transactions import transaction_balances_are_valid
+from .transactions import opening_transaction, transaction_balances_are_valid
 
 COMMAND = f"{DOMAIN}/manage"
 DATA_REGISTERED = f"{DOMAIN}_websocket_registered"
@@ -175,6 +175,109 @@ def _holding(
         ),
         None,
     )
+
+
+def _duplicate_symbol_groups(
+    holdings: list[dict[str, Any]],
+) -> list[list[dict[str, Any]]]:
+    """Return case-insensitive symbol groups containing multiple assets."""
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for holding in holdings:
+        symbol = str(holding.get(CONF_SYMBOL, "")).strip().upper()
+        if symbol:
+            grouped.setdefault(symbol, []).append(holding)
+    return [group for group in grouped.values() if len(group) > 1]
+
+
+def _duplicate_primary_score(holding: dict[str, Any]) -> tuple[bool, bool, int]:
+    """Prefer the established active position as consolidation target."""
+    transactions = holding.get(CONF_TRANSACTIONS)
+    history_count = len(transactions) if isinstance(transactions, list) else 0
+    legacy_quantity = _number(holding.get(CONF_QUANTITY, 0), default=0)
+    has_history = history_count > 0 or legacy_quantity > 0
+    return has_history, not bool(holding.get(CONF_WATCH_ONLY, False)), history_count
+
+
+def _merge_duplicate_group(
+    group: list[dict[str, Any]], base_currency: str
+) -> dict[str, Any]:
+    """Merge one duplicate group without losing transactions or metadata."""
+    primary = max(group, key=_duplicate_primary_score)
+    merged = deepcopy(primary)
+    ordered_sources = [primary, *(item for item in group if item is not primary)]
+    transactions: list[dict[str, Any]] = []
+    transaction_ids: set[str] = set()
+    for source in ordered_sources:
+        source_transactions = source.get(CONF_TRANSACTIONS)
+        if source_transactions is None:
+            currency = str(
+                source.get(CONF_PRICE_CURRENCY)
+                or source.get(CONF_DISPLAY_CURRENCY)
+                or base_currency
+            ).upper()
+            opening = opening_transaction(source, currency)
+            source_transactions = [opening] if opening else []
+        for source_transaction in source_transactions:
+            transaction = deepcopy(source_transaction)
+            transaction_id = str(transaction.get(CONF_TRANSACTION_ID, "")).strip()
+            if transaction_id and transaction_id in transaction_ids:
+                continue
+            if not transaction_id:
+                transaction_id = uuid4().hex
+                transaction[CONF_TRANSACTION_ID] = transaction_id
+            transaction_ids.add(transaction_id)
+            transactions.append(transaction)
+
+    merged[CONF_TRANSACTIONS] = transactions
+    merged[CONF_WATCH_ONLY] = all(
+        bool(item.get(CONF_WATCH_ONLY, False)) for item in group
+    ) and not transactions
+    for source in ordered_sources[1:]:
+        for field, value in source.items():
+            if field in {
+                CONF_HOLDING_ID,
+                CONF_TRANSACTIONS,
+                CONF_QUANTITY,
+                CONF_AVERAGE_PRICE,
+                CONF_WATCH_ONLY,
+            }:
+                continue
+            if merged.get(field) in (None, "") and value not in (None, ""):
+                merged[field] = deepcopy(value)
+    if not transaction_balances_are_valid(merged):
+        raise _error(
+            "duplicate_merge_invalid",
+            "Duplicate transaction histories cannot be combined safely",
+        )
+    return merged
+
+
+def _consolidate_duplicate_assets(
+    holdings: list[dict[str, Any]], base_currency: str
+) -> int:
+    """Consolidate duplicate symbols and return the number removed."""
+    groups = _duplicate_symbol_groups(holdings)
+    if not groups:
+        raise _error("no_duplicates", "No duplicate assets were found")
+
+    replacements: dict[str, dict[str, Any]] = {}
+    duplicate_ids: set[int] = set()
+    for group in groups:
+        primary = max(group, key=_duplicate_primary_score)
+        replacements[str(primary[CONF_HOLDING_ID])] = _merge_duplicate_group(
+            group, base_currency
+        )
+        duplicate_ids.update(id(item) for item in group if item is not primary)
+
+    consolidated: list[dict[str, Any]] = []
+    for holding in holdings:
+        if id(holding) in duplicate_ids:
+            continue
+        replacement = replacements.get(str(holding.get(CONF_HOLDING_ID, "")))
+        consolidated.append(replacement or holding)
+    removed = len(holdings) - len(consolidated)
+    holdings[:] = consolidated
+    return removed
 
 
 def _validate_alerts(payload: dict[str, Any]) -> tuple[float | None, float | None]:
@@ -421,6 +524,14 @@ def _mutate_working(
     payload: dict[str, Any],
     base_currency: str,
 ) -> str:
+    if action == "consolidate_duplicates":
+        if payload.get("confirmed") is not True:
+            raise _error(
+                "consolidation_confirmation_required",
+                "Consolidating duplicate assets requires confirmation",
+            )
+        removed = _consolidate_duplicate_assets(holdings, base_currency)
+        return f"consolidated:{removed}"
     asset_id = str(payload.get("asset_id", ""))
     target = _holding(holdings, asset_id)
     if action == "add_asset":
