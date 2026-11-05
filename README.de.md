@@ -16,6 +16,7 @@ Portfolio Tracker stellt native Home-Assistant-Entitäten und zwei automatisch r
 - Warrants wahlweise mit Swissquote, Yahoo Finance oder einem vorhandenen numerischen Home-Assistant-Sensor als Kursquelle
 - Erweiterte CoinGecko-Marktdaten für Kryptowährungen
 - Aktive Positionen und separate Beobachtungsliste
+- Administratorgeschützte Verwaltung von Assets, Warrants, Transaktionen und Alarmen direkt im Dashboard
 - Obere und untere Kursalarme mit Binärsensoren, mobilen Push-Meldungen und optionalen dauerhaften Benachrichtigungen
 - Bearbeitbares Transaktionsjournal für Käufe, Verkäufe und Anfangsbestände
 - Einstandswert, realisierte und unrealisierte Gewinne, Gebühren, Steuern, Gesamtrendite und zeitgewichtete Rendite
@@ -24,6 +25,8 @@ Portfolio Tracker stellt native Home-Assistant-Entitäten und zwei automatisch r
 - Professioneller Performanceverlauf mit täglichem Raster
 - Mehrsprachige Oberfläche: Deutsch, Englisch, Französisch und Italienisch
 - Robuste Kursaktualisierung, damit das Dashboard bei vorübergehenden Ausfällen verfügbar bleibt
+
+Portfolio Tracker 1.8.0 ist mit Home Assistant 2026.9.1 und 2026.11.0 getestet.
 
 ## Installation
 
@@ -60,7 +63,19 @@ Bei der Ersteinrichtung werden folgende Angaben abgefragt:
 - **Benachrichtigungen**: Mobilgeräte auswählen und Home-Assistant-Meldungen konfigurieren.
 - **Allgemeine Einstellungen**: Basiswährung und Aktualisierungsintervall ändern.
 
-Die Dashboard-Karte enthält den Button **Portfolio verwalten**, der direkt zum passenden Portfolio-Tracker-Eintrag führt.
+Für Administratoren enthält die Dashboard-Karte den Button **Assets verwalten** für die tägliche Portfolio-Pflege. Der danebenliegende Button **Portfolio verwalten** führt weiterhin zur vollständigen Integrationseinstellung für Marktindizes, Vergleichsindex, Benachrichtigungen und allgemeine Einstellungen.
+
+## Integrierte Portfolioverwaltung
+
+Administratoren können das Portfolio direkt im Dashboard pflegen. Die integrierte Verwaltung unterstützt:
+
+- Aktive und beobachtete Aktien, ETFs, Fonds, Kryptowährungen, Währungen und weitere Yahoo-Finance-Assets
+- Schweizer Warrants über Swissquote, Yahoo-Finance-Warrants und Warrants mit einem numerischen Home-Assistant-Kurssensor
+- Käufe, Verkäufe, Anfangsbestände, Gebühren, Steuern, Broker, Notizen, Einzelpreise und vollständige Transaktionsbeträge
+- Untere und obere Kursalarme; ein bestehender Grenzwert kann durch Leeren des Feldes entfernt werden
+- Sicheres Löschen von Transaktionen und Assets mit ausdrücklicher Bestätigung bei vorhandener Historie
+
+Das Home-Assistant-Backend prüft die Administratorrechte. Jede Änderung wird validiert und atomar gespeichert. Wird das Portfolio während einer geöffneten Verwaltung in einem anderen Browser oder Konfigurationsdialog verändert, verhindert die Konflikterkennung das Überschreiben der neueren Daten und fordert zum erneuten Öffnen auf.
 
 ## Assets
 
@@ -108,7 +123,7 @@ Geldkurs, Briefkurs, Spread, Handelsplatz und der ausgewählte Bewertungskurs er
 
 ## Transaktionen
 
-Unterstützt werden Anfangsbestand, Kauf und Verkauf. Eine Transaktion kann enthalten:
+Transaktionen können über **Assets verwalten** im Dashboard oder über die vollständige Integrationskonfiguration gepflegt werden. Unterstützt werden Anfangsbestand, Kauf und Verkauf. Eine Transaktion kann enthalten:
 
 - Handelsdatum und Stückzahl
 - Einzelpreis oder vollständiger Betrag
@@ -123,7 +138,7 @@ Portfolio Tracker verhindert Verkäufe, die zu einem historisch negativen Bestan
 
 Für jedes Asset können eine untere Grenze, eine obere Grenze oder beide Grenzen festgelegt werden. Portfolio Tracker erstellt dafür Binärsensoren. Unter **Konfigurieren > Benachrichtigungen** können eine oder mehrere `notify`-Entitäten ausgewählt werden, die Kursalarme über die Home Assistant Companion App erhalten. Dauerhafte Meldungen in Home Assistant lassen sich unabhängig davon ein- oder ausschalten.
 
-Jedes Ziel erhält genau eine Meldung, sobald eine Alarmgrenze aktiv wird. Erst nachdem der Kurs in den Normalbereich zurückgekehrt ist, wird der Alarm erneut scharfgeschaltet. Dadurch erzeugen die regelmäßigen Portfolio-Aktualisierungen keine wiederholten Push-Meldungen. Die Companion App und ihre Benachrichtigungsentität müssen bereits in Home Assistant eingerichtet sein.
+Jedes Ziel erhält genau eine Meldung, sobald eine Alarmgrenze aktiv wird. Eine fehlgeschlagene mobile Zustellung wird beim nächsten Portfolio-Update erneut versucht; nach erfolgreicher Zustellung werden Duplikate unterdrückt. Erst nachdem der Kurs in den Normalbereich zurückgekehrt ist, wird der Alarm erneut scharfgeschaltet. Dadurch erzeugen die regelmäßigen Portfolio-Aktualisierungen keine wiederholten Push-Meldungen. Die Companion App und ihre Benachrichtigungsentität müssen bereits in Home Assistant eingerichtet sein.
 
 ## Dashboard-Karten
 
@@ -184,6 +199,7 @@ Portfolio Tracker ist ein Informationswerkzeug und keine Finanzberatung. Marktda
 
 - Fehler und Funktionswünsche können über [GitHub Issues](https://github.com/DjangoToni/home-assistant-portfolio-tracker/issues) gemeldet werden.
 - Vor Änderungen bitte [CONTRIBUTING.md](CONTRIBUTING.md) lesen.
+- Automatisierte Tests prüfen Portfolioberechnung, Dashboard-Verwaltung, Berechtigungen, Konflikte, Transaktionen, Anbieterantworten, Alarmzustellung, Übersetzungen und Release-Dateien mit Home Assistant 2026.9.1 und 2026.11.0.
 - Sicherheitshinweise stehen in [SECURITY.md](SECURITY.md).
 - Die Versionshistorie steht in [CHANGELOG.md](CHANGELOG.md).
 

@@ -25,8 +25,8 @@ from .const import (
     DEFAULT_BASE_CURRENCY,
     DEFAULT_INDEXES,
     DOMAIN,
-    FRONTEND_VERSION,
     FRONTEND_URL,
+    FRONTEND_VERSION,
     PLATFORMS,
     entry_value,
 )

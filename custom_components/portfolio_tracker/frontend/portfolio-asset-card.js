@@ -2,7 +2,8 @@ const CARD_TAG = "portfolio-asset-card";
 const EDITOR_TAG = "portfolio-asset-card-editor";
 const PORTFOLIO_CARD_TAG = "portfolio-overview-card";
 const PORTFOLIO_EDITOR_TAG = "portfolio-overview-card-editor";
-const CARD_VERSION = "1.8.0-dev";
+const MANAGER_TAG = "portfolio-manager-dialog";
+const CARD_VERSION = "1.8.0";
 
 const LABELS = {
   de: {
@@ -553,6 +554,354 @@ PORTFOLIO_LABELS.it = {
     currency: "Valuta",
     warrant: "Warrant",
     other: "Altro",
+  },
+};
+
+const MANAGER_LABELS = {
+  en: {
+    title: "Portfolio manager",
+    loading: "Loading portfolio…",
+    adminRequired: "Portfolio management requires administrator permissions.",
+    action: "Action",
+    asset: "Asset",
+    addAsset: "Add asset",
+    addWarrant: "Add warrant",
+    editAsset: "Edit asset",
+    addTransaction: "Buy / sell",
+    editTransaction: "Edit transaction",
+    removeTransaction: "Delete transaction",
+    alerts: "Manage price alerts",
+    removeAsset: "Delete asset",
+    symbol: "Ticker / symbol",
+    name: "Name",
+    assetType: "Asset type",
+    destination: "Destination",
+    active: "Active portfolio",
+    watched: "Watchlist",
+    displayCurrency: "Display currency",
+    coinGeckoId: "CoinGecko ID (optional)",
+    priceSource: "Price source",
+    yahoo: "Yahoo Finance",
+    swissquote: "Swissquote",
+    entity: "Home Assistant sensor",
+    priceEntity: "Price sensor",
+    priceMode: "Price used",
+    last: "Last price / sensor state",
+    bid: "Bid",
+    ask: "Ask",
+    midpoint: "Bid/ask midpoint",
+    priceCurrency: "Price currency",
+    venue: "Trading venue",
+    six: "SIX Structured Products",
+    swissDots: "Swiss DOTS",
+    other: "Other venue",
+    valor: "Swiss valor",
+    isin: "ISIN",
+    wkn: "WKN",
+    issuer: "Issuer",
+    underlying: "Underlying",
+    warrantType: "Warrant type",
+    call: "Call",
+    put: "Put",
+    strike: "Strike",
+    ratio: "Ratio",
+    expiry: "Expiry",
+    alertBelow: "Alert below",
+    alertAbove: "Alert above",
+    transaction: "Transaction",
+    transactionType: "Transaction type",
+    opening: "Opening balance",
+    buy: "Buy",
+    sell: "Sell",
+    date: "Trade date",
+    quantity: "Quantity",
+    price: "Price / amount",
+    priceModePerUnit: "Price per unit",
+    priceModeTotal: "Complete amount",
+    currency: "Transaction currency",
+    marketPrice: "Market price at trade (optional)",
+    marketCurrency: "Market-price currency",
+    fees: "Fees",
+    taxes: "Taxes",
+    exchange: "Exchange / broker",
+    note: "Note",
+    confirmAsset: "I confirm deletion of the asset and its transaction history.",
+    confirmTransaction: "I confirm deletion of this transaction.",
+    cancel: "Cancel",
+    save: "Save",
+    delete: "Delete",
+    managerButton: "Manage assets",
+    manageAsset: "Manage asset",
+    closeDetails: "Close details",
+    noTransactions: "No transactions available",
+    errors: {
+      unauthorized: "Administrator permissions are required.",
+      conflict: "The portfolio changed in the meantime. Close and reopen the manager.",
+      invalid_number: "Check the entered numbers.",
+      invalid_currency: "Enter a valid three-letter currency code.",
+      invalid_alert_range: "The lower alert must be below the upper alert.",
+      duplicate_symbol: "This symbol already exists in the portfolio.",
+      symbol_required: "Enter a ticker or symbol.",
+      transactions_prevent_watchlist: "Assets with transactions cannot be moved to the watchlist.",
+      history_confirmation_required: "Confirm deletion of the transaction history.",
+      invalid_valor: "Enter a valid Swiss valor number.",
+      price_entity_required: "Select a numeric Home Assistant sensor.",
+      negative_balance: "This transaction would create a negative historical position.",
+      transaction_not_found: "The selected transaction no longer exists.",
+      asset_not_found: "The selected asset no longer exists.",
+      invalid_request: "The input could not be saved.",
+    },
+  },
+};
+
+MANAGER_LABELS.de = {
+  ...MANAGER_LABELS.en,
+  title: "Portfolioverwaltung",
+  loading: "Portfolio wird geladen…",
+  adminRequired: "Die Portfolioverwaltung erfordert Administratorrechte.",
+  action: "Aktion",
+  asset: "Asset",
+  addAsset: "Asset hinzufügen",
+  addWarrant: "Warrant hinzufügen",
+  editAsset: "Asset bearbeiten",
+  addTransaction: "Kaufen / verkaufen",
+  editTransaction: "Transaktion bearbeiten",
+  removeTransaction: "Transaktion löschen",
+  alerts: "Kursalarme verwalten",
+  removeAsset: "Asset löschen",
+  symbol: "Ticker / Symbol",
+  name: "Bezeichnung",
+  assetType: "Assettyp",
+  destination: "Zuordnung",
+  active: "Aktives Portfolio",
+  watched: "Beobachtungsliste",
+  displayCurrency: "Anzeigewährung",
+  coinGeckoId: "CoinGecko-ID (optional)",
+  priceSource: "Kursquelle",
+  entity: "Home-Assistant-Sensor",
+  priceEntity: "Kurssensor",
+  priceMode: "Verwendeter Kurs",
+  last: "Letzter Kurs / Sensorzustand",
+  bid: "Geldkurs",
+  ask: "Briefkurs",
+  midpoint: "Mittel aus Geld/Brief",
+  priceCurrency: "Kurswährung",
+  venue: "Handelsplatz",
+  other: "Anderer Handelsplatz",
+  valor: "Schweizer Valor",
+  issuer: "Emittent",
+  underlying: "Basiswert",
+  warrantType: "Warrant-Typ",
+  strike: "Ausübungspreis",
+  ratio: "Bezugsverhältnis",
+  expiry: "Verfall",
+  alertBelow: "Alarm unter Kurs",
+  alertAbove: "Alarm über Kurs",
+  transaction: "Transaktion",
+  transactionType: "Buchungstyp",
+  opening: "Anfangsbestand",
+  buy: "Kauf",
+  sell: "Verkauf",
+  date: "Handelsdatum",
+  quantity: "Stückzahl",
+  price: "Preis / Betrag",
+  priceModePerUnit: "Preis pro Stück",
+  priceModeTotal: "Vollständiger Betrag",
+  currency: "Transaktionswährung",
+  marketPrice: "Marktkurs beim Handel (optional)",
+  marketCurrency: "Währung des Marktkurses",
+  fees: "Gebühren",
+  taxes: "Steuern",
+  exchange: "Börse / Broker",
+  note: "Notiz",
+  confirmAsset: "Ich bestätige das Löschen des Assets und seiner Transaktionshistorie.",
+  confirmTransaction: "Ich bestätige das Löschen dieser Transaktion.",
+  cancel: "Abbrechen",
+  save: "Speichern",
+  delete: "Löschen",
+  managerButton: "Assets verwalten",
+  manageAsset: "Asset verwalten",
+  closeDetails: "Detailansicht schließen",
+  noTransactions: "Keine Transaktionen vorhanden",
+  errors: {
+    ...MANAGER_LABELS.en.errors,
+    unauthorized: "Administratorrechte sind erforderlich.",
+    conflict: "Das Portfolio wurde zwischenzeitlich geändert. Schließe und öffne die Verwaltung erneut.",
+    invalid_number: "Prüfe die eingegebenen Zahlenwerte.",
+    invalid_currency: "Gib einen gültigen dreistelligen Währungscode ein.",
+    invalid_alert_range: "Der untere Alarm muss kleiner als der obere Alarm sein.",
+    duplicate_symbol: "Dieses Symbol ist bereits im Portfolio vorhanden.",
+    symbol_required: "Gib einen Ticker oder ein Symbol ein.",
+    transactions_prevent_watchlist: "Assets mit Transaktionen können nicht zur Beobachtungsliste verschoben werden.",
+    history_confirmation_required: "Bestätige das Löschen der Transaktionshistorie.",
+    invalid_valor: "Gib eine gültige Schweizer Valorennummer ein.",
+    price_entity_required: "Wähle einen numerischen Home-Assistant-Sensor.",
+    negative_balance: "Diese Transaktion würde einen historisch negativen Bestand erzeugen.",
+    transaction_not_found: "Die ausgewählte Transaktion existiert nicht mehr.",
+    asset_not_found: "Das ausgewählte Asset existiert nicht mehr.",
+    invalid_request: "Die Eingabe konnte nicht gespeichert werden.",
+  },
+};
+
+MANAGER_LABELS.fr = {
+  ...MANAGER_LABELS.en,
+  title: "Gestion du portefeuille",
+  loading: "Chargement du portefeuille…",
+  adminRequired: "La gestion du portefeuille nécessite des droits administrateur.",
+  action: "Action",
+  asset: "Actif",
+  addAsset: "Ajouter un actif",
+  addWarrant: "Ajouter un warrant",
+  editAsset: "Modifier l’actif",
+  addTransaction: "Acheter / vendre",
+  editTransaction: "Modifier la transaction",
+  removeTransaction: "Supprimer la transaction",
+  alerts: "Gérer les alertes de cours",
+  removeAsset: "Supprimer l’actif",
+  symbol: "Ticker / symbole",
+  name: "Désignation",
+  assetType: "Type d’actif",
+  destination: "Affectation",
+  active: "Portefeuille actif",
+  watched: "Liste de surveillance",
+  displayCurrency: "Devise d’affichage",
+  coinGeckoId: "Identifiant CoinGecko (facultatif)",
+  priceSource: "Source du cours",
+  entity: "Capteur Home Assistant",
+  priceEntity: "Capteur de cours",
+  priceMode: "Cours utilisé",
+  last: "Dernier cours / état du capteur",
+  bid: "Achat",
+  ask: "Vente",
+  midpoint: "Milieu achat/vente",
+  priceCurrency: "Devise du cours",
+  venue: "Place de négoce",
+  other: "Autre place",
+  valor: "Numéro de valeur suisse",
+  issuer: "Émetteur",
+  underlying: "Sous-jacent",
+  warrantType: "Type de warrant",
+  ratio: "Parité",
+  expiry: "Échéance",
+  alertBelow: "Alerte sous le cours",
+  alertAbove: "Alerte au-dessus du cours",
+  transaction: "Transaction",
+  transactionType: "Type de transaction",
+  opening: "Solde initial",
+  buy: "Achat",
+  sell: "Vente",
+  date: "Date de négociation",
+  quantity: "Quantité",
+  price: "Prix / montant",
+  priceModePerUnit: "Prix unitaire",
+  priceModeTotal: "Montant total",
+  currency: "Devise de transaction",
+  marketPrice: "Cours du marché (facultatif)",
+  marketCurrency: "Devise du cours du marché",
+  fees: "Frais",
+  taxes: "Impôts",
+  exchange: "Bourse / courtier",
+  note: "Note",
+  confirmAsset: "Je confirme la suppression de l’actif et de son historique.",
+  confirmTransaction: "Je confirme la suppression de cette transaction.",
+  cancel: "Annuler",
+  save: "Enregistrer",
+  delete: "Supprimer",
+  managerButton: "Gérer les actifs",
+  manageAsset: "Gérer l’actif",
+  closeDetails: "Fermer les détails",
+  noTransactions: "Aucune transaction disponible",
+  errors: {
+    ...MANAGER_LABELS.en.errors,
+    unauthorized: "Des droits administrateur sont nécessaires.",
+    conflict: "Le portefeuille a été modifié. Fermez puis rouvrez la gestion.",
+    invalid_number: "Vérifiez les valeurs numériques.",
+    invalid_currency: "Saisissez un code devise valide à trois lettres.",
+    invalid_alert_range: "L’alerte basse doit être inférieure à l’alerte haute.",
+    duplicate_symbol: "Ce symbole existe déjà dans le portefeuille.",
+    negative_balance: "Cette transaction créerait une position historique négative.",
+    invalid_request: "La saisie n’a pas pu être enregistrée.",
+  },
+};
+
+MANAGER_LABELS.it = {
+  ...MANAGER_LABELS.en,
+  title: "Gestione portafoglio",
+  loading: "Caricamento del portafoglio…",
+  adminRequired: "La gestione del portafoglio richiede diritti di amministratore.",
+  action: "Azione",
+  asset: "Asset",
+  addAsset: "Aggiungi asset",
+  addWarrant: "Aggiungi warrant",
+  editAsset: "Modifica asset",
+  addTransaction: "Acquista / vendi",
+  editTransaction: "Modifica transazione",
+  removeTransaction: "Elimina transazione",
+  alerts: "Gestisci allarmi prezzo",
+  removeAsset: "Elimina asset",
+  symbol: "Ticker / simbolo",
+  name: "Denominazione",
+  assetType: "Tipo di asset",
+  destination: "Assegnazione",
+  active: "Portafoglio attivo",
+  watched: "Lista di osservazione",
+  displayCurrency: "Valuta di visualizzazione",
+  coinGeckoId: "ID CoinGecko (facoltativo)",
+  priceSource: "Fonte del prezzo",
+  entity: "Sensore Home Assistant",
+  priceEntity: "Sensore del prezzo",
+  priceMode: "Prezzo utilizzato",
+  last: "Ultimo prezzo / stato sensore",
+  bid: "Denaro",
+  ask: "Lettera",
+  midpoint: "Media denaro/lettera",
+  priceCurrency: "Valuta del prezzo",
+  venue: "Sede di negoziazione",
+  other: "Altra sede",
+  valor: "Numero di valore svizzero",
+  issuer: "Emittente",
+  underlying: "Sottostante",
+  warrantType: "Tipo di warrant",
+  ratio: "Rapporto",
+  expiry: "Scadenza",
+  alertBelow: "Allarme sotto il prezzo",
+  alertAbove: "Allarme sopra il prezzo",
+  transaction: "Transazione",
+  transactionType: "Tipo di transazione",
+  opening: "Saldo iniziale",
+  buy: "Acquisto",
+  sell: "Vendita",
+  date: "Data di negoziazione",
+  quantity: "Quantità",
+  price: "Prezzo / importo",
+  priceModePerUnit: "Prezzo unitario",
+  priceModeTotal: "Importo totale",
+  currency: "Valuta della transazione",
+  marketPrice: "Prezzo di mercato (facoltativo)",
+  marketCurrency: "Valuta del prezzo di mercato",
+  fees: "Commissioni",
+  taxes: "Imposte",
+  exchange: "Borsa / broker",
+  note: "Nota",
+  confirmAsset: "Confermo l’eliminazione dell’asset e della sua cronologia.",
+  confirmTransaction: "Confermo l’eliminazione di questa transazione.",
+  cancel: "Annulla",
+  save: "Salva",
+  delete: "Elimina",
+  managerButton: "Gestisci asset",
+  manageAsset: "Gestisci asset",
+  closeDetails: "Chiudi dettagli",
+  noTransactions: "Nessuna transazione disponibile",
+  errors: {
+    ...MANAGER_LABELS.en.errors,
+    unauthorized: "Sono necessari diritti di amministratore.",
+    conflict: "Il portafoglio è stato modificato. Chiudi e riapri la gestione.",
+    invalid_number: "Controlla i valori numerici inseriti.",
+    invalid_currency: "Inserisci un codice valuta valido di tre lettere.",
+    invalid_alert_range: "L’allarme inferiore deve essere minore di quello superiore.",
+    duplicate_symbol: "Questo simbolo esiste già nel portafoglio.",
+    negative_balance: "Questa transazione creerebbe una posizione storica negativa.",
+    invalid_request: "Non è stato possibile salvare i dati.",
   },
 };
 
@@ -1239,6 +1588,355 @@ class PortfolioAssetCardEditor extends HTMLElement {
   }
 }
 
+class PortfolioManagerDialog extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._hass = null;
+    this._entryId = "";
+    this._assets = [];
+    this._revision = "";
+    this._baseCurrency = "CHF";
+    this._action = "add_asset";
+    this._assetId = "";
+    this._transactionId = "";
+    this._onSaved = null;
+  }
+
+  async open(hass, entryId, defaultAssetId = "", onSaved = null) {
+    this._hass = hass;
+    this._entryId = entryId;
+    this._assetId = defaultAssetId;
+    this._action = defaultAssetId ? "update_asset" : "add_asset";
+    this._onSaved = onSaved;
+    if (!hass?.user?.is_admin) {
+      this._renderMessage(this._labels().adminRequired);
+      return;
+    }
+    this._renderMessage(this._labels().loading);
+    try {
+      const result = await hass.callWS({
+        type: "portfolio_tracker/manage",
+        entry_id: entryId,
+        action: "get_assets",
+      });
+      this._assets = Array.isArray(result.assets) ? result.assets : [];
+      this._revision = String(result.revision || "");
+      this._baseCurrency = String(result.base_currency || "CHF").toUpperCase();
+      if (!this._assetId || !this._asset()) {
+        this._assetId = this._assets[0]?.holding_id || "";
+      }
+      this._render();
+    } catch (error) {
+      this._renderMessage(this._errorText(error));
+    }
+  }
+
+  _labels() {
+    return MANAGER_LABELS[languageFromHass(this._hass)];
+  }
+
+  _escape(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+
+  _errorText(error) {
+    const labels = this._labels();
+    const code = String(error?.code || error?.error?.code || "invalid_request");
+    return labels.errors[code] || String(error?.message || labels.errors.invalid_request);
+  }
+
+  _asset() {
+    return this._assets.find((asset) => asset.holding_id === this._assetId);
+  }
+
+  _transactions() {
+    return Array.isArray(this._asset()?.transactions)
+      ? this._asset().transactions
+      : [];
+  }
+
+  _field(name, label, value = "", type = "text", attributes = "") {
+    return `<label>${this._escape(label)}<input name="${this._escape(name)}" type="${type}" value="${this._escape(value)}" ${attributes}></label>`;
+  }
+
+  _hidden(name, value) {
+    return `<input name="${this._escape(name)}" type="hidden" value="${this._escape(value)}">`;
+  }
+
+  _textarea(name, label, value = "") {
+    return `<label class="wide">${this._escape(label)}<textarea name="${this._escape(name)}" rows="2">${this._escape(value)}</textarea></label>`;
+  }
+
+  _select(name, label, options, selected = "", attributes = "") {
+    return `<label>${this._escape(label)}<select name="${this._escape(name)}" ${attributes}>${options.map(([value, text]) => `<option value="${this._escape(value)}" ${String(value) === String(selected) ? "selected" : ""}>${this._escape(text)}</option>`).join("")}</select></label>`;
+  }
+
+  _assetOptions() {
+    return this._assets.map((asset) => [
+      asset.holding_id,
+      `${asset.name || asset.symbol} (${asset.symbol})`,
+    ]);
+  }
+
+  _sensorOptions(selected = "") {
+    const options = Object.entries(this._hass?.states || {})
+      .filter(([entityId, state]) => entityId.startsWith("sensor.") && Number.isFinite(Number(state.state)))
+      .map(([entityId, state]) => [entityId, state.attributes?.friendly_name || entityId])
+      .sort((left, right) => left[1].localeCompare(right[1]));
+    if (selected && !options.some(([entityId]) => entityId === selected)) {
+      options.unshift([selected, selected]);
+    }
+    return [["", "—"], ...options];
+  }
+
+  _standardAssetFields(asset = {}) {
+    const labels = this._labels();
+    const isEdit = this._action === "update_asset";
+    const assetType = asset.asset_type || "stock";
+    return [
+      this._field("symbol", labels.symbol, asset.symbol || "", "text", "required maxlength=80"),
+      this._field("name", labels.name, asset.name || "", "text", "maxlength=128"),
+      isEdit
+        ? this._hidden("asset_type", assetType)
+        : this._select("asset_type", labels.assetType, [
+          ["stock", PORTFOLIO_LABELS[this._language()].assetTypes.stock],
+          ["etf", PORTFOLIO_LABELS[this._language()].assetTypes.etf],
+          ["fund", PORTFOLIO_LABELS[this._language()].assetTypes.fund],
+          ["crypto", PORTFOLIO_LABELS[this._language()].assetTypes.crypto],
+          ["currency", PORTFOLIO_LABELS[this._language()].assetTypes.currency],
+          ["other", PORTFOLIO_LABELS[this._language()].assetTypes.other],
+        ], assetType),
+      this._field("display_currency", labels.displayCurrency, asset.display_currency || this._baseCurrency, "text", "required maxlength=3"),
+      this._field("coingecko_id", labels.coinGeckoId, asset.coingecko_id || "", "text", "maxlength=128"),
+      this._select("watch_only", labels.destination, [
+        ["false", labels.active],
+        ["true", labels.watched],
+      ], String(Boolean(asset.watch_only))),
+    ].join("");
+  }
+
+  _warrantFields(asset = {}) {
+    const labels = this._labels();
+    const expiry = asset.expiry || new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10);
+    return [
+      this._hidden("asset_type", "warrant"),
+      this._field("symbol", labels.symbol, asset.symbol || "", "text", "maxlength=80"),
+      this._field("name", labels.name, asset.name || "", "text", "maxlength=128"),
+      this._select("price_source", labels.priceSource, [
+        ["swissquote", labels.swissquote],
+        ["yahoo", labels.yahoo],
+        ["entity", labels.entity],
+      ], asset.price_source || "swissquote"),
+      this._select("price_mode", labels.priceMode, [
+        ["state", labels.last],
+        ["bid", labels.bid],
+        ["ask", labels.ask],
+        ["midpoint", labels.midpoint],
+      ], asset.price_mode || "midpoint"),
+      this._select("price_entity", labels.priceEntity, this._sensorOptions(asset.price_entity || ""), asset.price_entity || ""),
+      this._field("price_currency", labels.priceCurrency, asset.price_currency || "CHF", "text", "required maxlength=3"),
+      this._select("trading_venue", labels.venue, [
+        ["six", labels.six],
+        ["swiss_dots", labels.swissDots],
+        ["other", labels.other],
+      ], asset.trading_venue || "six"),
+      this._field("valor", labels.valor, asset.valor || "", "text", "maxlength=12"),
+      this._field("isin", labels.isin, asset.isin || "", "text", "maxlength=32"),
+      this._field("wkn", labels.wkn, asset.wkn || "", "text", "maxlength=32"),
+      this._field("issuer", labels.issuer, asset.issuer || "", "text", "maxlength=128"),
+      this._field("underlying", labels.underlying, asset.underlying || "", "text", "maxlength=128"),
+      this._select("warrant_type", labels.warrantType, [
+        ["call", labels.call],
+        ["put", labels.put],
+      ], asset.warrant_type || "call"),
+      this._field("strike", labels.strike, asset.strike || "", "number", "required min=0.00000001 step=any"),
+      this._field("ratio", labels.ratio, asset.ratio || 1, "number", "required min=0.00000001 step=any"),
+      this._field("expiry", labels.expiry, expiry, "date", "required"),
+      this._select("watch_only", labels.destination, [
+        ["false", labels.active],
+        ["true", labels.watched],
+      ], String(Boolean(asset.watch_only))),
+    ].join("");
+  }
+
+  _transactionFields(transaction = {}) {
+    const labels = this._labels();
+    const asset = this._asset() || {};
+    const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    return [
+      this._select("type", labels.transactionType, [
+        ["opening", labels.opening],
+        ["buy", labels.buy],
+        ["sell", labels.sell],
+      ], transaction.transaction_type || "buy"),
+      this._field("date", labels.date, transaction.transaction_date || today, "date", "required"),
+      this._field("quantity", labels.quantity, transaction.quantity || "", "number", "required min=0.00000001 step=any"),
+      this._field("price", labels.price, transaction.transaction_price || "", "number", "required min=0.00000001 step=any"),
+      this._select("price_mode", labels.priceMode, [
+        ["per_unit", labels.priceModePerUnit],
+        ["total", labels.priceModeTotal],
+      ], transaction.transaction_price_mode || "per_unit"),
+      this._field("currency", labels.currency, transaction.transaction_currency || asset.price_currency || asset.display_currency || this._baseCurrency, "text", "required maxlength=3"),
+      this._field("market_price", labels.marketPrice, transaction.transaction_market_price || "", "number", "min=0 step=any"),
+      this._field("market_currency", labels.marketCurrency, transaction.transaction_market_currency || "", "text", "maxlength=3"),
+      this._field("fees", labels.fees, transaction.transaction_fees || 0, "number", "min=0 step=any"),
+      this._field("taxes", labels.taxes, transaction.transaction_taxes || 0, "number", "min=0 step=any"),
+      this._field("exchange", labels.exchange, transaction.transaction_exchange || "", "text", "maxlength=128"),
+      this._textarea("note", labels.note, transaction.transaction_note || ""),
+    ].join("");
+  }
+
+  _fields() {
+    const labels = this._labels();
+    const asset = this._asset() || {};
+    const transactions = this._transactions();
+    if (this._action === "add_asset") return this._standardAssetFields();
+    if (this._action === "add_warrant") return this._warrantFields();
+    if (this._action === "update_asset") {
+      return asset.asset_type === "warrant"
+        ? this._warrantFields(asset)
+        : this._standardAssetFields(asset);
+    }
+    if (this._action === "set_alerts") {
+      return this._field("below", labels.alertBelow, asset.alert_below || "", "number", "min=0 step=any")
+        + this._field("above", labels.alertAbove, asset.alert_above || "", "number", "min=0 step=any");
+    }
+    if (this._action === "add_transaction") return this._transactionFields();
+    if (this._action === "update_transaction") {
+      const selected = transactions.find((item) => item.transaction_id === this._transactionId) || transactions[0];
+      this._transactionId = selected?.transaction_id || "";
+      return this._select("transaction_id", labels.transaction, transactions.map((item) => [
+        item.transaction_id,
+        `${item.transaction_date} · ${labels[item.transaction_type] || item.transaction_type} · ${item.quantity}`,
+      ]), this._transactionId)
+        + (selected ? this._transactionFields(selected) : `<p class="wide empty">${this._escape(labels.noTransactions)}</p>`);
+    }
+    if (this._action === "remove_transaction") {
+      return this._select("transaction_id", labels.transaction, transactions.map((item) => [
+        item.transaction_id,
+        `${item.transaction_date} · ${labels[item.transaction_type] || item.transaction_type} · ${item.quantity}`,
+      ]), this._transactionId)
+        + `<label class="wide confirmation"><input name="confirmed" type="checkbox" required><span>${this._escape(labels.confirmTransaction)}</span></label>`;
+    }
+    if (this._action === "remove_asset") {
+      return `<label class="wide confirmation"><input name="confirm_history" type="checkbox" required><span>${this._escape(labels.confirmAsset)}</span></label>`;
+    }
+    return "";
+  }
+
+  _renderMessage(message) {
+    const labels = this._labels();
+    this.shadowRoot.innerHTML = `<style>:host{position:fixed;z-index:10000;inset:0;display:grid;place-items:center;padding:16px;background:#0009;color:var(--primary-text-color)}section{width:min(480px,100%);box-sizing:border-box;border-radius:14px;padding:22px;background:var(--card-background-color,#fff);box-shadow:0 14px 44px #0006}header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}button{border:1px solid var(--divider-color);border-radius:8px;padding:8px 12px;background:var(--secondary-background-color);color:var(--primary-text-color);cursor:pointer}</style><section role="dialog" aria-modal="true"><header><strong>${this._escape(labels.title)}</strong><button type="button" data-close aria-label="${this._escape(labels.cancel)}">✕</button></header><p>${this._escape(message)}</p></section>`;
+    this.shadowRoot.querySelector("[data-close]")?.addEventListener("click", () => this.remove());
+  }
+
+  _render() {
+    const labels = this._labels();
+    const actionOptions = [
+      ["add_asset", labels.addAsset],
+      ["add_warrant", labels.addWarrant],
+      ["update_asset", labels.editAsset],
+      ["add_transaction", labels.addTransaction],
+      ["update_transaction", labels.editTransaction],
+      ["remove_transaction", labels.removeTransaction],
+      ["set_alerts", labels.alerts],
+      ["remove_asset", labels.removeAsset],
+    ];
+    const needsAsset = !["add_asset", "add_warrant"].includes(this._action);
+    const destructive = ["remove_asset", "remove_transaction"].includes(this._action);
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host{position:fixed;z-index:10000;inset:0;display:grid;place-items:center;padding:14px;background:#0009;color:var(--primary-text-color)}
+        form{box-sizing:border-box;width:min(720px,100%);max-height:92vh;overflow:auto;border-radius:16px;padding:22px;background:var(--card-background-color,#fff);box-shadow:0 14px 44px #0006}
+        header,footer{display:flex;align-items:center;justify-content:space-between;gap:12px}header{margin-bottom:18px}footer{margin-top:18px;justify-content:flex-end}
+        .selectors,.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.fields{margin-top:13px}.wide{grid-column:1/-1}
+        label{display:grid;gap:6px;font-size:12px;font-weight:650}input,select,textarea,button{box-sizing:border-box;font:inherit}input,select,textarea{width:100%;min-height:42px;border:1px solid var(--divider-color);border-radius:9px;padding:9px 10px;background:var(--card-background-color);color:var(--primary-text-color)}textarea{resize:vertical}
+        button{border:1px solid var(--divider-color);border-radius:9px;padding:9px 14px;background:var(--secondary-background-color);color:var(--primary-text-color);cursor:pointer}button.primary{border-color:var(--primary-color);background:var(--primary-color);color:var(--text-primary-color,#fff)}button.danger{border-color:var(--error-color);background:var(--error-color);color:#fff}button:disabled{opacity:.55;cursor:wait}
+        .confirmation{display:flex;grid-column:1/-1;grid-template-columns:auto 1fr;align-items:flex-start;padding:12px;border:1px solid var(--warning-color,#e3a73f);border-radius:9px;background:color-mix(in srgb,var(--warning-color,#e3a73f) 9%,transparent)}.confirmation input{width:18px;min-height:18px;margin:0}.error{min-height:18px;margin-top:12px;color:var(--error-color);font-size:12px}.empty{color:var(--secondary-text-color)}
+        @media(max-width:560px){form{padding:17px}.selectors,.fields{grid-template-columns:1fr}.wide{grid-column:auto}footer{display:grid;grid-template-columns:1fr 1fr}footer button{width:100%}}
+      </style>
+      <form novalidate role="dialog" aria-modal="true" aria-label="${this._escape(labels.title)}">
+        <header><strong>${this._escape(labels.title)}</strong><button type="button" data-close aria-label="${this._escape(labels.cancel)}">✕</button></header>
+        <div class="selectors">
+          ${this._select("manager_action", labels.action, actionOptions, this._action)}
+          ${needsAsset ? this._select("asset_id", labels.asset, this._assetOptions(), this._assetId) : ""}
+        </div>
+        <div class="fields">${this._fields()}</div>
+        <div class="error" role="alert"></div>
+        <footer><button type="button" data-close>${this._escape(labels.cancel)}</button><button type="submit" class="primary ${destructive ? "danger" : ""}">${this._escape(destructive ? labels.delete : labels.save)}</button></footer>
+      </form>`;
+    this.shadowRoot.querySelectorAll("[data-close]").forEach((button) => button.addEventListener("click", () => this.remove()));
+    this.shadowRoot.querySelector('[name="manager_action"]')?.addEventListener("change", (event) => {
+      this._action = event.target.value;
+      this._transactionId = "";
+      this._render();
+    });
+    this.shadowRoot.querySelector('[name="asset_id"]')?.addEventListener("change", (event) => {
+      this._assetId = event.target.value;
+      this._transactionId = "";
+      this._render();
+    });
+    this.shadowRoot.querySelector('[name="transaction_id"]')?.addEventListener("change", (event) => {
+      this._transactionId = event.target.value;
+      if (this._action === "update_transaction") this._render();
+    });
+    this.shadowRoot.querySelector("form")?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      this._save(event.currentTarget);
+    });
+    this.shadowRoot.querySelector("form")?.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") this.remove();
+    });
+  }
+
+  _language() {
+    return languageFromHass(this._hass);
+  }
+
+  async _save(form) {
+    const controls = [...form.querySelectorAll("input,select,textarea")];
+    const invalid = controls.find((control) => !control.checkValidity());
+    if (invalid) {
+      invalid.reportValidity();
+      return;
+    }
+    const payload = Object.fromEntries(new FormData(form).entries());
+    delete payload.manager_action;
+    if (!["add_asset", "add_warrant"].includes(this._action)) {
+      payload.asset_id = this._assetId;
+    }
+    if ("watch_only" in payload) payload.watch_only = payload.watch_only === "true";
+    if ("confirm_history" in payload) payload.confirm_history = true;
+    delete payload.confirmed;
+    const action = this._action === "add_warrant" ? "add_asset" : this._action;
+    const save = form.querySelector('button[type="submit"]');
+    const errorHost = form.querySelector(".error");
+    save.disabled = true;
+    errorHost.textContent = "";
+    try {
+      const result = await this._hass.callWS({
+        type: "portfolio_tracker/manage",
+        entry_id: this._entryId,
+        action,
+        revision: this._revision,
+        payload,
+      });
+      this._revision = result.revision || this._revision;
+      this.remove();
+      this._onSaved?.();
+    } catch (error) {
+      errorHost.textContent = this._errorText(error);
+      save.disabled = false;
+    }
+  }
+}
+
 class PortfolioOverviewCard extends HTMLElement {
   static getStubConfig(hass, entities = [], entitiesFallback = []) {
     const candidates = [
@@ -1319,119 +2017,13 @@ class PortfolioOverviewCard extends HTMLElement {
     }).format(value / 100);
   }
 
-  async _openManager(entryId, defaultAssetId = "") {
-    if (!this._hass?.user?.is_admin) {
-      alert("Portfolioverwaltung erfordert Administratorrechte.");
-      return;
-    }
-    let assets;
-    try {
-      const result = await this._hass.callWS({ type:"portfolio_tracker/manage", entry_id:entryId, action:"get_assets" });
-      assets = result.assets || [];
-    } catch (error) {
-      alert("Portfolioverwaltung nicht verfügbar: " + String(error.message || error));
-      return;
-    }
-    const language = this._language();
-    const german = language === "de";
-    const tr = (de,en) => german ? de : en;
-    const overlay = document.createElement("div");
-    overlay.className = "portfolio-manager-overlay";
-    const esc = (value) => this._escape(value ?? "");
-    const assetOptions = assets.map((a) => `<option value="${esc(a.holding_id)}" ${a.holding_id === defaultAssetId ? "selected" : ""}>${esc(a.name || a.symbol)} (${esc(a.symbol)})</option>`).join("");
-    const today = new Date().toLocaleDateString("en-CA");
-    overlay.innerHTML = `
-      <section class="portfolio-manager-modal" role="dialog" aria-modal="true" aria-label="Portfolio Manager">
-        <header><strong>Portfolio Manager 1.8</strong><button type="button" data-close aria-label="Schliessen">✕</button></header>
-        <label>${tr("Aktion","Action")}
-          <select name="action">
-            <option value="add_asset">${tr("Asset hinzufügen","Add asset")}</option>
-            <option value="update_asset">${tr("Asset bearbeiten","Edit asset")}</option>
-            <option value="add_transaction">${tr("Kaufen / Verkaufen","Buy / sell")}</option>
-            <option value="update_transaction">${tr("Transaktion bearbeiten","Edit transaction")}</option>
-            <option value="remove_transaction">${tr("Transaktion löschen","Delete transaction")}</option>
-            <option value="set_alerts">${tr("Kursalarme verwalten","Manage alerts")}</option>
-            <option value="remove_asset">${tr("Asset löschen","Delete asset")}</option>
-          </select>
-        </label>
-        <label data-field="asset_id">${tr("Asset","Asset")}<select name="asset_id">${assetOptions}</select></label>
-        <div class="portfolio-manager-fields"></div>
-        <div class="portfolio-manager-error" role="alert"></div>
-        <footer><button type="button" data-close>${tr("Abbrechen","Cancel")}</button><button type="button" data-save>${tr("Speichern","Save")}</button></footer>
-      </section>`;
-    const styles = document.createElement("style");
-    styles.textContent = `
-      .portfolio-manager-overlay{position:fixed;z-index:9999;inset:0;background:#0009;display:grid;place-items:center;padding:14px}
-      .portfolio-manager-modal{box-sizing:border-box;width:min(520px,100%);max-height:90vh;overflow:auto;background:var(--card-background-color,#fff);color:var(--primary-text-color);border-radius:14px;padding:22px;display:grid;gap:14px;box-shadow:0 12px 36px #0004}
-      .portfolio-manager-modal header,.portfolio-manager-modal footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
-      .portfolio-manager-modal label{display:grid;gap:5px;font-size:13px;font-weight:600}
-      .portfolio-manager-modal input,.portfolio-manager-modal select{box-sizing:border-box;width:100%;padding:10px;border-radius:8px;border:1px solid var(--divider-color);background:var(--card-background-color);color:var(--primary-text-color);font:inherit}
-      .portfolio-manager-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-      .portfolio-manager-fields label:first-child{grid-column:span 2}
-      .portfolio-manager-modal button{padding:9px 14px;border-radius:8px;border:1px solid var(--divider-color);background:var(--secondary-background-color);color:var(--primary-text-color);cursor:pointer}
-      .portfolio-manager-modal button[data-save]{background:var(--primary-color);color:var(--text-primary-color,#fff)}
-      .portfolio-manager-error{color:var(--error-color);font-size:13px}
-      @media(max-width:440px){.portfolio-manager-fields{grid-template-columns:1fr}.portfolio-manager-fields label:first-child{grid-column:auto}}
-    `;
-    overlay.prepend(styles);
-    const select = (name) => overlay.querySelector(`[name="${name}"]`);
-    const field = (name,label,type="text",value="",extra="") => `<label>${label}<input name="${name}" type="${type}" value="${esc(value)}" ${extra}></label>`;
-    const chooser = (name,label,options) => `<label>${label}<select name="${name}">${options.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join("")}</select></label>`;
-    const asset = () => assets.find(a=>a.holding_id===select("asset_id")?.value);
-    const renderFields = () => {
-      const action=select("action").value, a=asset()||{}, fields=overlay.querySelector(".portfolio-manager-fields");
-      overlay.querySelector('[data-field="asset_id"]').hidden=action==="add_asset";
-      if(action==="add_asset"){
-        fields.innerHTML=field("symbol","Ticker / Symbol")+field("name",tr("Bezeichnung","Name"))+
-          chooser("asset_type",tr("Assettyp","Asset type"),[["stock","Aktie"],["etf","ETF"],["fund","Fonds"],["crypto","Crypto"],["currency","Währung"],["other","Andere"]])+
-          field("currency",tr("Anzeigewährung","Display currency"),"text","CHF")+
-          chooser("watch_only",tr("Anlage","Destination"),[["true","Watchlist"],["false","Depot"]]);
-      }else if(action==="update_asset"){
-        fields.innerHTML=field("name",tr("Bezeichnung","Name"),"text",a.name||"")+
-          chooser("watch_only",tr("Anlage","Destination"),[["false","Depot"],["true","Watchlist"]]);
-        select("watch_only").value=String(Boolean(a.watch_only));
-      }else if(action==="set_alerts"){
-        fields.innerHTML=field("below",tr("Alarm unter Kurs","Alert below"),"number",a.alert_below??"",'step="any" min="0"')+
-          field("above",tr("Alarm über Kurs","Alert above"),"number",a.alert_above??"",'step="any" min="0"');
-      }else if(action==="add_transaction"||action==="update_transaction"){
-        const opts=[["buy",tr("Kauf","Buy")],["sell",tr("Verkauf","Sell")],["opening",tr("Anfangsbestand","Opening balance")]];
-        fields.innerHTML=(action==="update_transaction"?chooser("transaction_id","Transaktion",(a.transactions||[]).map(t=>[t.transaction_id,`${t.transaction_date} · ${t.transaction_type} · ${t.quantity}`])):"")+
-          chooser("type",tr("Buchung","Type"),opts)+field("date","Datum","date",today)+
-          field("quantity",tr("Stückzahl","Quantity"),"number","",'min="0.00000001" step="any" required')+
-          field("price",tr("Preis pro Stück","Unit price"),"number","",'min="0.00000001" step="any" required')+
-          field("currency","Währung","text",a.display_currency||"CHF")+
-          field("fees",tr("Gebühren","Fees"),"number","0",'min="0" step="any"')+
-          field("taxes",tr("Steuern","Taxes"),"number","0",'min="0" step="any"');
-        if(action==="update_transaction"){
-          const load=()=>{const t=(a.transactions||[]).find(x=>x.transaction_id===select("transaction_id").value);if(!t)return;
-            for(const [k,v] of Object.entries({type:t.transaction_type,date:t.transaction_date,quantity:t.quantity,price:t.transaction_price,currency:t.transaction_currency,fees:t.transaction_fees,taxes:t.transaction_taxes}))if(select(k))select(k).value=v??"";};
-          select("transaction_id")?.addEventListener("change",load);load();
-        }
-      }else if(action==="remove_transaction"){
-        fields.innerHTML=chooser("transaction_id",tr("Transaktion auswählen","Choose transaction"),(a.transactions||[]).map(t=>[t.transaction_id,`${t.transaction_date} · ${t.transaction_type} · ${t.quantity}`]));
-      }else if(action==="remove_asset"){
-        fields.innerHTML=chooser("confirm_history",tr("Historie löschen?","Delete history?"),[["false","Nein"],["true","Ja, inklusive Transaktionen"]]);
-      }
-    };
-    select("action").addEventListener("change",renderFields);
-    select("asset_id").addEventListener("change",renderFields);
-    overlay.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>overlay.remove()));
-    overlay.addEventListener("click",e=>{if(e.target===overlay)overlay.remove()});
-    overlay.querySelector("[data-save]").addEventListener("click",async()=>{
-      const action=select("action").value, payload={};
-      overlay.querySelectorAll(".portfolio-manager-modal input,.portfolio-manager-fields select").forEach(el=>payload[el.name]=el.value);
-      if(action!=="add_asset")payload.asset_id=select("asset_id").value;
-      if("watch_only" in payload)payload.watch_only=payload.watch_only==="true";
-      if("confirm_history" in payload)payload.confirm_history=payload.confirm_history==="true";
-      if(["remove_asset","remove_transaction"].includes(action) && !confirm(tr("Wirklich löschen?","Really delete?")))return;
-      const save=overlay.querySelector("[data-save]");save.disabled=true;
-      try{
-        await this._hass.callWS({type:"portfolio_tracker/manage",entry_id:entryId,action,payload});
-        overlay.remove();this._signature="";this._render();
-      }catch(error){overlay.querySelector(".portfolio-manager-error").textContent=String(error.message||error)}
-      finally{save.disabled=false}
+  _openManager(entryId, defaultAssetId = "") {
+    const dialog = document.createElement(MANAGER_TAG);
+    document.body.append(dialog);
+    dialog.open(this._hass, entryId, defaultAssetId, () => {
+      this._signature = "";
+      this._render();
     });
-    renderFields();document.body.append(overlay);
   }
 
   _performanceChart(history) {
@@ -1768,9 +2360,10 @@ class PortfolioOverviewCard extends HTMLElement {
         header,.portfolio-title,.headline,.summary,.allocation-content,.allocation-row { display:flex; align-items:center; }
         header,.headline { justify-content:space-between; gap:16px; }
         .portfolio-title { gap:12px; min-width:0; }
-        .portfolio-settings { display:flex; align-items:center; flex:0 0 auto; gap:7px; min-height:36px; border:1px solid var(--divider-color); border-radius:8px; padding:0 11px; color:var(--primary-text-color); background:color-mix(in srgb,var(--secondary-text-color) 5%,transparent); font-size:12px; font-weight:600; text-decoration:none; }
-        .portfolio-settings:hover { color:var(--primary-color); background:color-mix(in srgb,var(--primary-color) 9%,transparent); }
-        .portfolio-settings ha-icon { --mdc-icon-size:18px; }
+        .portfolio-actions { display:flex; align-items:center; gap:8px; }
+        .portfolio-settings,.portfolio-manager-open { display:flex; align-items:center; flex:0 0 auto; gap:7px; min-height:36px; border:1px solid var(--divider-color); border-radius:8px; padding:0 11px; color:var(--primary-text-color); background:color-mix(in srgb,var(--secondary-text-color) 5%,transparent); font:inherit; font-size:12px; font-weight:600; text-decoration:none; cursor:pointer; }
+        .portfolio-settings:hover,.portfolio-manager-open:hover { color:var(--primary-color); background:color-mix(in srgb,var(--primary-color) 9%,transparent); }
+        .portfolio-settings ha-icon,.portfolio-manager-open ha-icon { --mdc-icon-size:18px; }
         h2 { margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:19px; }
         .subtitle,.label,.allocation-type,footer { color:var(--secondary-text-color); }
         .subtitle { margin-top:3px; font-size:12px; }
@@ -1832,7 +2425,7 @@ class PortfolioOverviewCard extends HTMLElement {
         .legend-group { min-width:0; padding:7px 10px; border:1px solid var(--divider-color); border-radius:10px; background:color-mix(in srgb,var(--secondary-text-color) 3%,transparent); }
         .legend-group-title { display:flex; align-items:center; gap:7px; margin-bottom:2px; color:var(--secondary-text-color); font-size:10px; font-weight:700; letter-spacing:.03em; }
         .legend-group-title small { display:grid; place-items:center; min-width:17px; height:17px; border-radius:9px; background:color-mix(in srgb,var(--secondary-text-color) 10%,transparent); font-size:9px; }
-        .portfolio-manager-open{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--divider-color);padding:8px 10px;border-radius:8px;background:var(--secondary-background-color);color:var(--primary-text-color);cursor:pointer;margin-left:auto;margin-right:8px;font:inherit;font-size:12px} .portfolio-manager-open ha-icon{--mdc-icon-size:18px} .allocation-row { width:100%; gap:8px; border:0; padding:6px 0; color:var(--primary-text-color); background:transparent; font:inherit; text-align:left; cursor:pointer; }
+        .allocation-row { width:100%; gap:8px; border:0; padding:6px 0; color:var(--primary-text-color); background:transparent; font:inherit; text-align:left; cursor:pointer; }
         .color { width:9px; height:9px; flex:0 0 9px; border-radius:50%; }
         .allocation-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; }
         .allocation-name { margin-right:auto; }
@@ -1866,18 +2459,18 @@ class PortfolioOverviewCard extends HTMLElement {
         .alert-status.alarm { color:var(--error-color,#d95c5c); }
         .alert-status ha-icon { --mdc-icon-size:17px; }
         #asset-detail { margin-top:18px; }
-        .detail-toolbar { display:flex; justify-content:flex-end; margin-bottom:8px; }
+        .detail-toolbar { display:flex; justify-content:flex-end; gap:8px; margin-bottom:8px; }
         .detail-toolbar button { display:flex; align-items:center; gap:5px; border:0; padding:7px 10px; border-radius:8px; color:var(--primary-color); background:color-mix(in srgb,var(--primary-color) 9%,transparent); font:inherit; font-size:12px; cursor:pointer; }
         .detail-toolbar ha-icon { --mdc-icon-size:17px; }
         .empty { color:var(--secondary-text-color); font-size:13px; }
         footer { margin-top:16px; font-size:11px; }
         @media(max-width:850px){.top-overview{grid-template-columns:1fr}.headline{padding:18px 0 0;border-top:1px solid var(--divider-color);border-left:0}.performance-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
-        @media(max-width:520px){ article{padding:18px}.portfolio-settings{width:36px;padding:0;justify-content:center}.portfolio-settings span{display:none}.headline{align-items:flex-start;flex-direction:column}.summary{grid-template-columns:1fr}.summary-item+ .summary-item{border-top:1px solid var(--divider-color)}.allocation-content{grid-template-columns:1fr}.donut{width:118px;height:118px;justify-self:start}.allocation-list{grid-template-columns:1fr;width:100%}.allocation{margin-inline:-6px}.section-title{margin-inline:6px}.performance-section{padding:13px}.performance-header{display:grid}.performance-kpis{grid-template-columns:repeat(2,minmax(0,1fr))} }
+        @media(max-width:520px){ article{padding:18px}.portfolio-settings,.portfolio-manager-open{width:36px;padding:0;justify-content:center}.portfolio-settings span,.portfolio-manager-open span{display:none}.headline{align-items:flex-start;flex-direction:column}.summary{grid-template-columns:1fr}.summary-item+ .summary-item{border-top:1px solid var(--divider-color)}.allocation-content{grid-template-columns:1fr}.donut{width:118px;height:118px;justify-self:start}.allocation-list{grid-template-columns:1fr;width:100%}.allocation{margin-inline:-6px}.section-title{margin-inline:6px}.performance-section{padding:13px}.performance-header{display:grid}.performance-kpis{grid-template-columns:repeat(2,minmax(0,1fr))} }
       </style>
       <ha-card><article>
         <header>
           <div class="portfolio-title"><div><h2>${this._escape(title)}</h2><div class="subtitle">${positions.length} ${labels.positions}</div></div></div>
-          <button type="button" class="portfolio-manager-open" title="Asset-Verwaltung"><ha-icon icon="mdi:wallet-outline"></ha-icon><span>Assets verwalten</span></button><a class="portfolio-settings" href="/config/integrations/integration/portfolio_tracker#config_entry=${encodeURIComponent(portfolioId)}" title="${this._escape(labels.managePortfolio)}" aria-label="${this._escape(labels.managePortfolio)}"><ha-icon icon="mdi:cog-outline"></ha-icon><span>${this._escape(labels.managePortfolio)}</span></a>
+          <div class="portfolio-actions">${this._hass.user?.is_admin ? `<button type="button" class="portfolio-manager-open" title="${this._escape(MANAGER_LABELS[this._language()].managerButton)}"><ha-icon icon="mdi:wallet-outline"></ha-icon><span>${this._escape(MANAGER_LABELS[this._language()].managerButton)}</span></button>` : ""}<a class="portfolio-settings" href="/config/integrations/integration/portfolio_tracker#config_entry=${encodeURIComponent(portfolioId)}" title="${this._escape(labels.managePortfolio)}" aria-label="${this._escape(labels.managePortfolio)}"><ha-icon icon="mdi:cog-outline"></ha-icon><span>${this._escape(labels.managePortfolio)}</span></a></div>
         </header>
         ${indexContent ? `<section class="index-section"><div class="section-title">${labels.marketIndices}</div><div class="index-grid">${indexContent}</div></section>` : ""}
         <section class="top-overview">
@@ -1898,7 +2491,7 @@ class PortfolioOverviewCard extends HTMLElement {
         ${watchlistContent}
         <footer>${labels.updated}: ${new Intl.DateTimeFormat(localeFromHass(this._hass), { hour:"2-digit", minute:"2-digit" }).format(new Date(metrics.portfolio_value?.last_updated || Date.now()))} · Portfolio Card v${CARD_VERSION}</footer>
       </article></ha-card>`;
-    this.shadowRoot.querySelector(".portfolio-manager-open")?.addEventListener("click",()=>this._openManager(portfolioId));
+    this.shadowRoot.querySelector(".portfolio-manager-open")?.addEventListener("click", () => this._openManager(portfolioId));
     this.shadowRoot.querySelectorAll(".allocation-row").forEach((row) => {
       row.addEventListener("click", () => this.dispatchEvent(new CustomEvent("hass-more-info", { bubbles:true, composed:true, detail:{ entityId:row.dataset.entity } })));
     });
@@ -1930,8 +2523,8 @@ class PortfolioOverviewCard extends HTMLElement {
       const detailHost = this.shadowRoot.getElementById("watchlist-detail");
       const toolbar = document.createElement("div");
       toolbar.className = "detail-toolbar";
-      toolbar.innerHTML = `<button type="button" data-manage><ha-icon icon="mdi:wallet-outline"></ha-icon>${this._language() === "de" ? "Asset verwalten" : "Manage asset"}</button><button type="button" data-close><ha-icon icon="mdi:close"></ha-icon>${labels.closeDetails}</button>`;
-      toolbar.querySelector("[data-manage]").addEventListener("click", () => this._openManager(portfolioId, (selectedWatchAsset || assets.get(this._hass.states[this._selectedAssetEntity]?.attributes?.asset_id))?.assetId || ""));
+      toolbar.innerHTML = `${this._hass.user?.is_admin ? `<button type="button" data-manage><ha-icon icon="mdi:wallet-outline"></ha-icon>${this._escape(MANAGER_LABELS[this._language()].manageAsset)}</button>` : ""}<button type="button" data-close><ha-icon icon="mdi:close"></ha-icon>${this._escape(labels.closeDetails)}</button>`;
+      toolbar.querySelector("[data-manage]")?.addEventListener("click", () => this._openManager(portfolioId, selectedWatchAsset.assetId));
       toolbar.querySelector("[data-close]").addEventListener("click", () => {
         this._selectedAssetEntity = null;
         this._signature = "";
@@ -1946,8 +2539,9 @@ class PortfolioOverviewCard extends HTMLElement {
       const detailHost = this.shadowRoot.getElementById("asset-detail");
       const toolbar = document.createElement("div");
       toolbar.className = "detail-toolbar";
-      toolbar.innerHTML = `<button type="button" data-manage><ha-icon icon="mdi:wallet-outline"></ha-icon>${this._language() === "de" ? "Asset verwalten" : "Manage asset"}</button><button type="button" data-close><ha-icon icon="mdi:close"></ha-icon>${labels.closeDetails}</button>`;
-      toolbar.querySelector("[data-manage]").addEventListener("click", () => this._openManager(portfolioId, (selectedWatchAsset || assets.get(this._hass.states[this._selectedAssetEntity]?.attributes?.asset_id))?.assetId || ""));
+      const selectedAssetId = this._hass.states[this._selectedAssetEntity]?.attributes?.asset_id || "";
+      toolbar.innerHTML = `${this._hass.user?.is_admin ? `<button type="button" data-manage><ha-icon icon="mdi:wallet-outline"></ha-icon>${this._escape(MANAGER_LABELS[this._language()].manageAsset)}</button>` : ""}<button type="button" data-close><ha-icon icon="mdi:close"></ha-icon>${this._escape(labels.closeDetails)}</button>`;
+      toolbar.querySelector("[data-manage]")?.addEventListener("click", () => this._openManager(portfolioId, selectedAssetId));
       toolbar.querySelector("[data-close]").addEventListener("click", () => {
         this._selectedAssetEntity = null;
         this._signature = "";
@@ -1996,6 +2590,7 @@ class PortfolioOverviewCardEditor extends HTMLElement {
 
 if (!customElements.get(CARD_TAG)) customElements.define(CARD_TAG, PortfolioAssetCard);
 if (!customElements.get(EDITOR_TAG)) customElements.define(EDITOR_TAG, PortfolioAssetCardEditor);
+if (!customElements.get(MANAGER_TAG)) customElements.define(MANAGER_TAG, PortfolioManagerDialog);
 if (!customElements.get(PORTFOLIO_CARD_TAG)) customElements.define(PORTFOLIO_CARD_TAG, PortfolioOverviewCard);
 if (!customElements.get(PORTFOLIO_EDITOR_TAG)) customElements.define(PORTFOLIO_EDITOR_TAG, PortfolioOverviewCardEditor);
 

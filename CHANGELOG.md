@@ -2,14 +2,31 @@
 
 All notable changes to Portfolio Tracker are documented here.
 
-## 1.8.0 - in development
+## 1.8.0 - 2026-11-05
 
-- Introduce integrated portfolio asset manager in the Lovelace overview card.
-- Manage assets, buys, sells, transactions, and price thresholds using authenticated WebSocket commands.
-- Restrict write operations to Home Assistant administrators.
-- Display zero-value depot positions in the asset table.
-- Add transaction and alarm regression tests and JavaScript syntax validation.
-- Keep the existing configuration flows available for advanced warrant settings and as a fallback.
+- Add an administrator-only portfolio manager directly to the Lovelace overview
+  card for active assets, watched assets, warrants, transactions, and alerts.
+- Support Swissquote, Yahoo Finance, and numeric Home Assistant sensor settings
+  when adding or editing warrants from the dashboard.
+- Add complete dashboard-manager translations for German, English, French, and
+  Italian, including responsive mobile layouts and accessible confirmation UI.
+- Protect dashboard writes with per-portfolio locks, revision conflict checks,
+  atomic rollback, strict input validation, and transaction-balance checks.
+- Keep the full integration configuration available for portfolio-wide market,
+  notification, benchmark, and general settings.
+- Add manager regression tests for permissions, conflicts, warrants, alerts,
+  transaction metadata, deletion confirmation, and failed-write rollback.
+
+## 1.7.1 - 2026-11-05
+
+- Restore Swiss warrant lookup for current Swissquote search responses that no
+  longer consistently label SIX products as `WAR` or `EXO`.
+- Retry failed mobile price-alert deliveries on the next update while still
+  suppressing duplicate notifications after a successful delivery.
+- Add the Home Assistant `finance` integration category.
+- Add automated calculation, transaction, provider-parser, coordinator,
+  translation, and release-artifact tests.
+- Validate the integration against Home Assistant 2026.9.1 and 2026.11.0 in CI.
 
 ## 1.7.0 - 2026-09-06
 

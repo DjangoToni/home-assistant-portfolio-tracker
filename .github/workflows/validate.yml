@@ -27,24 +27,33 @@ jobs:
       - uses: home-assistant/actions/hassfest@master
 
   syntax:
-    name: Python and JSON
+    name: Python and JSON (${{ matrix.homeassistant }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        homeassistant: ["2026.9.1", "2026.11.0"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
       - name: Install supported Home Assistant
-        run: python -m pip install "homeassistant==2026.9.1"
+        run: >-
+          python -m pip install
+          "homeassistant==${{ matrix.homeassistant }}"
+          -r requirements_test.txt
       - name: Import integration with Home Assistant
         run: python -c "import custom_components.portfolio_tracker, custom_components.portfolio_tracker.binary_sensor, custom_components.portfolio_tracker.config_flow, custom_components.portfolio_tracker.sensor"
-      - name: Install test runner
-        run: python -m pip install pytest
-      - name: Run portfolio manager regression tests
-        run: python -m pytest -q tests/test_portfolio_manager.py
-      - name: Validate frontend JavaScript syntax
-        run: node --check custom_components/portfolio_tracker/frontend/portfolio-asset-card.js
       - name: Compile Python
         run: python -m compileall -q custom_components/portfolio_tracker
       - name: Validate JSON
         run: python -c "import json,pathlib; [json.loads(path.read_text(encoding='utf-8')) for path in pathlib.Path('.').rglob('*.json')]"
+      - name: Lint Python
+        run: python -m ruff check custom_components tests --select E9,F63,F7,F82
+      - name: Run tests
+        run: python -m pytest -q
+      - name: Validate JavaScript
+        run: |
+          node --check custom_components/portfolio_tracker/frontend/portfolio-asset-card.js
+          node --check custom_components/portfolio_tracker/frontend/portfolio-asset-card-loader.js

@@ -16,6 +16,7 @@ Portfolio Tracker provides native Home Assistant entities and two automatically 
 - Warrants using Swissquote, Yahoo Finance, or an existing numeric Home Assistant sensor as the price source
 - CoinGecko market details for cryptocurrencies
 - Active positions and a separate watchlist
+- Administrator-only asset, warrant, transaction, and alert management directly in the dashboard
 - Upper and lower price alerts with binary sensors, mobile push, and optional persistent notifications
 - Editable purchase, sale, and opening-balance transaction ledger
 - Cost basis, realized and unrealized gains, fees, taxes, total return, and time-weighted return
@@ -24,6 +25,8 @@ Portfolio Tracker provides native Home Assistant entities and two automatically 
 - Professional portfolio performance chart with daily grid lines
 - Multilingual UI: German, English, French, and Italian
 - Resilient quote updates that keep the dashboard available during temporary provider outages
+
+Portfolio Tracker 1.8.0 is tested with Home Assistant 2026.9.1 and 2026.11.0.
 
 ## Installation
 
@@ -60,7 +63,19 @@ After setup, open the integration's **Configure** dialog. Configuration is group
 - **Notifications**: select mobile devices and configure Home Assistant notifications.
 - **General settings**: change the base currency and update interval.
 
-The dashboard card contains a **Manage portfolio** button that links directly to the matching Portfolio Tracker configuration entry.
+For administrators, the dashboard card contains a **Manage assets** button for day-to-day portfolio maintenance. The adjacent **Manage portfolio** button links to the full Portfolio Tracker configuration entry for market indices, benchmark, notifications, and general settings.
+
+## Integrated portfolio manager
+
+Administrators can maintain the portfolio without leaving the dashboard. The integrated manager supports:
+
+- Active and watched stocks, ETFs, funds, cryptocurrencies, currencies, and other Yahoo Finance assets
+- Swiss warrants from Swissquote, Yahoo Finance warrants, and warrants supplied by numeric Home Assistant sensors
+- Purchases, sales, opening balances, fees, taxes, brokers, notes, unit prices, and complete transaction amounts
+- Lower and upper price alerts, including clearing an existing threshold with an empty field
+- Safe deletion of transactions and assets with explicit confirmation when history exists
+
+The manager verifies administrator permissions on the Home Assistant backend. Every update is validated and applied atomically. If the portfolio changes in another browser or configuration dialog while the manager is open, saving is stopped and the manager asks to be reopened instead of overwriting the newer data.
 
 ## Assets
 
@@ -108,7 +123,7 @@ Bid, ask, midpoint spread, venue, and the selected valuation price are shown in 
 
 ## Transactions
 
-Supported transaction types are opening balance, purchase, and sale. Each transaction can contain:
+Transactions can be maintained through **Manage assets** in the dashboard or through the full integration configuration. Supported transaction types are opening balance, purchase, and sale. Each transaction can contain:
 
 - Trade date and quantity
 - Unit price or complete amount
@@ -123,7 +138,7 @@ Portfolio Tracker prevents sales that would result in a negative historical quan
 
 An asset can have a lower threshold, an upper threshold, or both. Portfolio Tracker creates binary sensor entities for configured thresholds. Open **Configure > Notifications** and select one or more `notify` entities to receive price alerts through the Home Assistant Companion App. Persistent notifications in Home Assistant can be enabled or disabled independently.
 
-Each destination receives one notification when a threshold becomes active. The alert is armed again only after the price returns to the normal range, so regular portfolio updates do not repeatedly notify the phone. The Companion App and its notification entity must already be configured in Home Assistant.
+Each destination receives one notification when a threshold becomes active. A failed mobile delivery is retried on the next portfolio update; after a successful delivery, duplicates are suppressed. The alert is armed again only after the price returns to the normal range, so regular portfolio updates do not repeatedly notify the phone. The Companion App and its notification entity must already be configured in Home Assistant.
 
 ## Dashboard cards
 
@@ -184,6 +199,7 @@ Portfolio Tracker is an informational tool, not financial advice. Market data ma
 
 - Report bugs or request features through [GitHub Issues](https://github.com/DjangoToni/home-assistant-portfolio-tracker/issues).
 - See [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
+- Automated tests cover portfolio calculations, dashboard management, permissions, conflicts, transactions, provider payloads, alert delivery, translations, and release artifacts on Home Assistant 2026.9.1 and 2026.11.0.
 - Security concerns are covered in [SECURITY.md](SECURITY.md).
 - Release history is available in [CHANGELOG.md](CHANGELOG.md).
 
