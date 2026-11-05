@@ -26,7 +26,7 @@ Portfolio Tracker stellt native Home-Assistant-Entitäten und zwei automatisch r
 - Mehrsprachige Oberfläche: Deutsch, Englisch, Französisch und Italienisch
 - Robuste Kursaktualisierung, damit das Dashboard bei vorübergehenden Ausfällen verfügbar bleibt
 
-Portfolio Tracker 1.8.1 ist mit Home Assistant 2026.9.1 und 2026.11.0 getestet.
+Portfolio Tracker 1.8.2 ist mit Home Assistant 2026.9.1 und 2026.11.0 getestet.
 
 ## Installation
 

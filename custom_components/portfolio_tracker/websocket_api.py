@@ -73,6 +73,18 @@ from .transactions import opening_transaction, transaction_balances_are_valid
 COMMAND = f"{DOMAIN}/manage"
 DATA_REGISTERED = f"{DOMAIN}_websocket_registered"
 DATA_LOCKS = f"{DOMAIN}_manager_locks"
+MANAGER_ACTIONS = {
+    "get_assets",
+    "add_asset",
+    "update_asset",
+    "remove_asset",
+    "set_alerts",
+    "add_transaction",
+    "update_transaction",
+    "remove_transaction",
+    "consolidate_duplicates",
+}
+MANAGER_ACTION_SCHEMA = vol.In(MANAGER_ACTIONS)
 
 _ASSET_TEXT_FIELDS = {
     CONF_NAME: 128,
@@ -703,18 +715,7 @@ def register(hass: HomeAssistant) -> None:
         {
             vol.Required("type"): COMMAND,
             vol.Required("entry_id"): str,
-            vol.Required("action"): vol.In(
-                {
-                    "get_assets",
-                    "add_asset",
-                    "update_asset",
-                    "remove_asset",
-                    "set_alerts",
-                    "add_transaction",
-                    "update_transaction",
-                    "remove_transaction",
-                }
-            ),
+            vol.Required("action"): MANAGER_ACTION_SCHEMA,
             vol.Optional("payload", default={}): dict,
             vol.Optional("revision", default=""): str,
         }

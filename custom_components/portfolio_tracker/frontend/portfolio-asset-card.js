@@ -3,7 +3,7 @@ const EDITOR_TAG = "portfolio-asset-card-editor";
 const PORTFOLIO_CARD_TAG = "portfolio-overview-card";
 const PORTFOLIO_EDITOR_TAG = "portfolio-overview-card-editor";
 const MANAGER_TAG = "portfolio-manager-dialog";
-const CARD_VERSION = "1.8.1";
+const CARD_VERSION = "1.8.2";
 
 const LABELS = {
   de: {

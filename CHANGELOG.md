@@ -2,6 +2,13 @@
 
 All notable changes to Portfolio Tracker are documented here.
 
+## 1.8.2 - 2026-11-05
+
+- Register the duplicate-consolidation command in the Home Assistant WebSocket
+  schema so the backend accepts the dashboard action.
+- Keep the allowed manager actions in one shared backend constant and add a
+  regression test preventing another schema/implementation mismatch.
+
 ## 1.8.1 - 2026-11-05
 
 - Add an explicitly confirmed duplicate-asset consolidation action to the

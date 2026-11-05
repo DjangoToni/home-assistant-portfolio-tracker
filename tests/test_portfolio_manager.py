@@ -8,11 +8,18 @@ import pytest
 
 from custom_components.portfolio_tracker.const import DOMAIN
 from custom_components.portfolio_tracker.websocket_api import (
+    MANAGER_ACTION_SCHEMA,
+    MANAGER_ACTIONS,
     PortfolioManagerError,
     _mutate,
     _revision,
     async_handle_manage,
 )
+
+
+def test_consolidation_is_registered_as_websocket_action() -> None:
+    assert "consolidate_duplicates" in MANAGER_ACTIONS
+    assert MANAGER_ACTION_SCHEMA("consolidate_duplicates") == "consolidate_duplicates"
 
 
 def execute(holdings, action, **payload):
