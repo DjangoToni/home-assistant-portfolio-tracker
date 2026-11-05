@@ -1,9 +1,8 @@
 """Tests for release metadata and translation completeness."""
 
 import json
-from pathlib import Path
 import re
-
+from pathlib import Path
 
 ROOT = Path(__file__).parents[1]
 INTEGRATION = ROOT / "custom_components" / "portfolio_tracker"
@@ -41,9 +40,23 @@ def test_release_versions_and_marketplace_category_are_consistent() -> None:
     loader_source = (
         INTEGRATION / "frontend" / "portfolio-asset-card-loader.js"
     ).read_text(encoding="utf-8")
+    swissquote_source = (INTEGRATION / "swissquote.py").read_text(encoding="utf-8")
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     version = manifest["version"]
 
     assert manifest["categories"] == ["finance"]
     assert re.search(rf'FRONTEND_VERSION: Final = "{re.escape(version)}"', const_source)
     assert f'const CARD_VERSION = "{version}";' in card_source
     assert f"portfolio-asset-card.js?v={version}" in loader_source
+    assert f"Home-Assistant-Portfolio-Tracker/{version}" in swissquote_source
+    assert f"## {version} -" in changelog
+
+
+def test_dashboard_filters_only_numeric_zero_value_active_assets() -> None:
+    card_source = (INTEGRATION / "frontend" / "portfolio-asset-card.js").read_text(
+        encoding="utf-8"
+    )
+
+    assert "function shouldDisplayActiveAsset(asset)" in card_source
+    assert "!Number.isFinite(value) || value !== 0" in card_source
+    assert "&& shouldDisplayActiveAsset(asset)" in card_source

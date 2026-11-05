@@ -16,6 +16,7 @@ Portfolio Tracker stellt native Home-Assistant-Entitäten und zwei automatisch r
 - Warrants wahlweise mit Swissquote, Yahoo Finance oder einem vorhandenen numerischen Home-Assistant-Sensor als Kursquelle
 - Erweiterte CoinGecko-Marktdaten für Kryptowährungen
 - Aktive Positionen und separate Beobachtungsliste
+- Administratorgeschützte Verwaltung von Assets, Warrants, Transaktionen und Alarmen direkt im Dashboard
 - Obere und untere Kursalarme mit Binärsensoren, mobilen Push-Meldungen und optionalen dauerhaften Benachrichtigungen
 - Bearbeitbares Transaktionsjournal für Käufe, Verkäufe und Anfangsbestände
 - Einstandswert, realisierte und unrealisierte Gewinne, Gebühren, Steuern, Gesamtrendite und zeitgewichtete Rendite
@@ -25,7 +26,7 @@ Portfolio Tracker stellt native Home-Assistant-Entitäten und zwei automatisch r
 - Mehrsprachige Oberfläche: Deutsch, Englisch, Französisch und Italienisch
 - Robuste Kursaktualisierung, damit das Dashboard bei vorübergehenden Ausfällen verfügbar bleibt
 
-Portfolio Tracker 1.7.1 ist mit Home Assistant 2026.9.1 und 2026.11.0 getestet.
+Portfolio Tracker 1.8.3 ist mit Home Assistant 2026.9.1 und 2026.11.0 getestet.
 
 ## Installation
 
@@ -62,13 +63,28 @@ Bei der Ersteinrichtung werden folgende Angaben abgefragt:
 - **Benachrichtigungen**: Mobilgeräte auswählen und Home-Assistant-Meldungen konfigurieren.
 - **Allgemeine Einstellungen**: Basiswährung und Aktualisierungsintervall ändern.
 
-Die Dashboard-Karte enthält den Button **Portfolio verwalten**, der direkt zum passenden Portfolio-Tracker-Eintrag führt.
+Für Administratoren enthält die Dashboard-Karte den Button **Assets verwalten** für die tägliche Portfolio-Pflege. Der danebenliegende Button **Portfolio verwalten** führt weiterhin zur vollständigen Integrationseinstellung für Marktindizes, Vergleichsindex, Benachrichtigungen und allgemeine Einstellungen.
+
+## Integrierte Portfolioverwaltung
+
+Administratoren können das Portfolio direkt im Dashboard pflegen. Die integrierte Verwaltung unterstützt:
+
+- Aktive und beobachtete Aktien, ETFs, Fonds, Kryptowährungen, Währungen und weitere Yahoo-Finance-Assets
+- Schweizer Warrants über Swissquote, Yahoo-Finance-Warrants und Warrants mit einem numerischen Home-Assistant-Kurssensor
+- Käufe, Verkäufe, Anfangsbestände, Gebühren, Steuern, Broker, Notizen, Einzelpreise und vollständige Transaktionsbeträge
+- Untere und obere Kursalarme; ein bestehender Grenzwert kann durch Leeren des Feldes entfernt werden
+- Sicheres Löschen von Transaktionen und Assets mit ausdrücklicher Bestätigung bei vorhandener Historie
+- Ausdrücklich bestätigte Konsolidierung doppelter Symbole unter Erhalt eindeutiger Transaktionen, Alarme, Instrumentdaten und der bisherigen aktiven Asset-ID
+
+Das Home-Assistant-Backend prüft die Administratorrechte. Jede Änderung wird validiert und atomar gespeichert. Wird das Portfolio während einer geöffneten Verwaltung in einem anderen Browser oder Konfigurationsdialog verändert, verhindert die Konflikterkennung das Überschreiben der neueren Daten und fordert zum erneuten Öffnen auf.
 
 ## Assets
 
 ### Aktive Positionen
 
 Aktive Positionen beeinflussen Portfoliowert, Aufteilung, Gewinn und Performance. Das Symbol muss der Schreibweise von Yahoo Finance entsprechen, zum Beispiel:
+
+Aktive Assets mit einem aktuellen Portfoliowert von exakt null werden in der Dashboard-Tabelle und der Aufteilung ausgeblendet. Unter **Assets verwalten** bleiben sie erhalten, damit die Historie bearbeitet oder die Position wieder eröffnet werden kann.
 
 - `NOVN.SW` für Novartis an der SIX
 - `AAPL` für Apple
@@ -110,7 +126,7 @@ Geldkurs, Briefkurs, Spread, Handelsplatz und der ausgewählte Bewertungskurs er
 
 ## Transaktionen
 
-Unterstützt werden Anfangsbestand, Kauf und Verkauf. Eine Transaktion kann enthalten:
+Transaktionen können über **Assets verwalten** im Dashboard oder über die vollständige Integrationskonfiguration gepflegt werden. Unterstützt werden Anfangsbestand, Kauf und Verkauf. Eine Transaktion kann enthalten:
 
 - Handelsdatum und Stückzahl
 - Einzelpreis oder vollständiger Betrag
@@ -186,7 +202,7 @@ Portfolio Tracker ist ein Informationswerkzeug und keine Finanzberatung. Marktda
 
 - Fehler und Funktionswünsche können über [GitHub Issues](https://github.com/DjangoToni/home-assistant-portfolio-tracker/issues) gemeldet werden.
 - Vor Änderungen bitte [CONTRIBUTING.md](CONTRIBUTING.md) lesen.
-- Automatisierte Tests prüfen Portfolioberechnung, Transaktionen, Anbieterantworten, Alarmzustellung, Übersetzungen und Release-Dateien mit Home Assistant 2026.9.1 und 2026.11.0.
+- Automatisierte Tests prüfen Portfolioberechnung, Dashboard-Verwaltung, Berechtigungen, Konflikte, Transaktionen, Anbieterantworten, Alarmzustellung, Übersetzungen und Release-Dateien mit Home Assistant 2026.9.1 und 2026.11.0.
 - Sicherheitshinweise stehen in [SECURITY.md](SECURITY.md).
 - Die Versionshistorie steht in [CHANGELOG.md](CHANGELOG.md).
 

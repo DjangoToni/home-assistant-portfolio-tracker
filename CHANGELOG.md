@@ -2,6 +2,48 @@
 
 All notable changes to Portfolio Tracker are documented here.
 
+## 1.8.3 - 2026-11-05
+
+- Hide active assets whose current portfolio value is exactly zero from the
+  dashboard table, allocation chart, currency summary, and position count.
+- Keep zero-value assets available in the integrated manager so their
+  transaction history can still be edited or the position reopened.
+- Continue showing unavailable or temporarily non-numeric positions so data
+  source problems are not silently hidden; watched assets remain unchanged.
+
+## 1.8.2 - 2026-11-05
+
+- Register the duplicate-consolidation command in the Home Assistant WebSocket
+  schema so the backend accepts the dashboard action.
+- Keep the allowed manager actions in one shared backend constant and add a
+  regression test preventing another schema/implementation mismatch.
+
+## 1.8.1 - 2026-11-05
+
+- Add an explicitly confirmed duplicate-asset consolidation action to the
+  dashboard manager.
+- Keep the established active asset ID while merging unique transactions,
+  alerts, and missing instrument metadata for matching symbols.
+- Count copied transaction IDs only once and reject unsafe combined histories
+  atomically without changing the original portfolio.
+- Remove obsolete duplicate devices and entities through the existing registry
+  cleanup after the portfolio reloads.
+
+## 1.8.0 - 2026-11-05
+
+- Add an administrator-only portfolio manager directly to the Lovelace overview
+  card for active assets, watched assets, warrants, transactions, and alerts.
+- Support Swissquote, Yahoo Finance, and numeric Home Assistant sensor settings
+  when adding or editing warrants from the dashboard.
+- Add complete dashboard-manager translations for German, English, French, and
+  Italian, including responsive mobile layouts and accessible confirmation UI.
+- Protect dashboard writes with per-portfolio locks, revision conflict checks,
+  atomic rollback, strict input validation, and transaction-balance checks.
+- Keep the full integration configuration available for portfolio-wide market,
+  notification, benchmark, and general settings.
+- Add manager regression tests for permissions, conflicts, warrants, alerts,
+  transaction metadata, deletion confirmation, and failed-write rollback.
+
 ## 1.7.1 - 2026-11-05
 
 - Restore Swiss warrant lookup for current Swissquote search responses that no

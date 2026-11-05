@@ -16,6 +16,7 @@ Portfolio Tracker provides native Home Assistant entities and two automatically 
 - Warrants using Swissquote, Yahoo Finance, or an existing numeric Home Assistant sensor as the price source
 - CoinGecko market details for cryptocurrencies
 - Active positions and a separate watchlist
+- Administrator-only asset, warrant, transaction, and alert management directly in the dashboard
 - Upper and lower price alerts with binary sensors, mobile push, and optional persistent notifications
 - Editable purchase, sale, and opening-balance transaction ledger
 - Cost basis, realized and unrealized gains, fees, taxes, total return, and time-weighted return
@@ -25,7 +26,7 @@ Portfolio Tracker provides native Home Assistant entities and two automatically 
 - Multilingual UI: German, English, French, and Italian
 - Resilient quote updates that keep the dashboard available during temporary provider outages
 
-Portfolio Tracker 1.7.1 is tested with Home Assistant 2026.9.1 and 2026.11.0.
+Portfolio Tracker 1.8.3 is tested with Home Assistant 2026.9.1 and 2026.11.0.
 
 ## Installation
 
@@ -62,13 +63,28 @@ After setup, open the integration's **Configure** dialog. Configuration is group
 - **Notifications**: select mobile devices and configure Home Assistant notifications.
 - **General settings**: change the base currency and update interval.
 
-The dashboard card contains a **Manage portfolio** button that links directly to the matching Portfolio Tracker configuration entry.
+For administrators, the dashboard card contains a **Manage assets** button for day-to-day portfolio maintenance. The adjacent **Manage portfolio** button links to the full Portfolio Tracker configuration entry for market indices, benchmark, notifications, and general settings.
+
+## Integrated portfolio manager
+
+Administrators can maintain the portfolio without leaving the dashboard. The integrated manager supports:
+
+- Active and watched stocks, ETFs, funds, cryptocurrencies, currencies, and other Yahoo Finance assets
+- Swiss warrants from Swissquote, Yahoo Finance warrants, and warrants supplied by numeric Home Assistant sensors
+- Purchases, sales, opening balances, fees, taxes, brokers, notes, unit prices, and complete transaction amounts
+- Lower and upper price alerts, including clearing an existing threshold with an empty field
+- Safe deletion of transactions and assets with explicit confirmation when history exists
+- Explicit consolidation of duplicate symbols while retaining unique transactions, alerts, instrument data, and the established active asset ID
+
+The manager verifies administrator permissions on the Home Assistant backend. Every update is validated and applied atomically. If the portfolio changes in another browser or configuration dialog while the manager is open, saving is stopped and the manager asks to be reopened instead of overwriting the newer data.
 
 ## Assets
 
 ### Active positions
 
 Active positions affect portfolio value, allocation, gains, and performance. Enter the symbol exactly as used by Yahoo Finance, for example:
+
+Active assets whose current portfolio value is exactly zero are omitted from the dashboard table and allocation view. They remain available in **Manage assets** so their history can be maintained or the position can be reopened.
 
 - `NOVN.SW` for Novartis on SIX
 - `AAPL` for Apple
@@ -110,7 +126,7 @@ Bid, ask, midpoint spread, venue, and the selected valuation price are shown in 
 
 ## Transactions
 
-Supported transaction types are opening balance, purchase, and sale. Each transaction can contain:
+Transactions can be maintained through **Manage assets** in the dashboard or through the full integration configuration. Supported transaction types are opening balance, purchase, and sale. Each transaction can contain:
 
 - Trade date and quantity
 - Unit price or complete amount
@@ -186,7 +202,7 @@ Portfolio Tracker is an informational tool, not financial advice. Market data ma
 
 - Report bugs or request features through [GitHub Issues](https://github.com/DjangoToni/home-assistant-portfolio-tracker/issues).
 - See [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
-- Automated tests cover portfolio calculations, transactions, provider payloads, alert delivery, translations, and release artifacts on Home Assistant 2026.9.1 and 2026.11.0.
+- Automated tests cover portfolio calculations, dashboard management, permissions, conflicts, transactions, provider payloads, alert delivery, translations, and release artifacts on Home Assistant 2026.9.1 and 2026.11.0.
 - Security concerns are covered in [SECURITY.md](SECURITY.md).
 - Release history is available in [CHANGELOG.md](CHANGELOG.md).
 
