@@ -26,7 +26,7 @@ Portfolio Tracker provides native Home Assistant entities and two automatically 
 - Multilingual UI: German, English, French, and Italian
 - Resilient quote updates that keep the dashboard available during temporary provider outages
 
-Portfolio Tracker 1.8.2 is tested with Home Assistant 2026.9.1 and 2026.11.0.
+Portfolio Tracker 1.8.3 is tested with Home Assistant 2026.9.1 and 2026.11.0.
 
 ## Installation
 
@@ -83,6 +83,8 @@ The manager verifies administrator permissions on the Home Assistant backend. Ev
 ### Active positions
 
 Active positions affect portfolio value, allocation, gains, and performance. Enter the symbol exactly as used by Yahoo Finance, for example:
+
+Active assets whose current portfolio value is exactly zero are omitted from the dashboard table and allocation view. They remain available in **Manage assets** so their history can be maintained or the position can be reopened.
 
 - `NOVN.SW` for Novartis on SIX
 - `AAPL` for Apple

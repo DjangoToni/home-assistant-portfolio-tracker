@@ -2,6 +2,15 @@
 
 All notable changes to Portfolio Tracker are documented here.
 
+## 1.8.3 - 2026-11-05
+
+- Hide active assets whose current portfolio value is exactly zero from the
+  dashboard table, allocation chart, currency summary, and position count.
+- Keep zero-value assets available in the integrated manager so their
+  transaction history can still be edited or the position reopened.
+- Continue showing unavailable or temporarily non-numeric positions so data
+  source problems are not silently hidden; watched assets remain unchanged.
+
 ## 1.8.2 - 2026-11-05
 
 - Register the duplicate-consolidation command in the Home Assistant WebSocket

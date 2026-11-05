@@ -26,7 +26,7 @@ Portfolio Tracker stellt native Home-Assistant-Entitäten und zwei automatisch r
 - Mehrsprachige Oberfläche: Deutsch, Englisch, Französisch und Italienisch
 - Robuste Kursaktualisierung, damit das Dashboard bei vorübergehenden Ausfällen verfügbar bleibt
 
-Portfolio Tracker 1.8.2 ist mit Home Assistant 2026.9.1 und 2026.11.0 getestet.
+Portfolio Tracker 1.8.3 ist mit Home Assistant 2026.9.1 und 2026.11.0 getestet.
 
 ## Installation
 
@@ -83,6 +83,8 @@ Das Home-Assistant-Backend prüft die Administratorrechte. Jede Änderung wird v
 ### Aktive Positionen
 
 Aktive Positionen beeinflussen Portfoliowert, Aufteilung, Gewinn und Performance. Das Symbol muss der Schreibweise von Yahoo Finance entsprechen, zum Beispiel:
+
+Aktive Assets mit einem aktuellen Portfoliowert von exakt null werden in der Dashboard-Tabelle und der Aufteilung ausgeblendet. Unter **Assets verwalten** bleiben sie erhalten, damit die Historie bearbeitet oder die Position wieder eröffnet werden kann.
 
 - `NOVN.SW` für Novartis an der SIX
 - `AAPL` für Apple

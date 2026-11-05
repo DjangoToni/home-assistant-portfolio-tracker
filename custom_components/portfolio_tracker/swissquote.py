@@ -24,7 +24,7 @@ HISTORY_URL = (
 HEADERS = {
     "Accept": "application/json",
     "Accept-Language": "en-US,en;q=0.9",
-    "User-Agent": "Home-Assistant-Portfolio-Tracker/1.8.2",
+    "User-Agent": "Home-Assistant-Portfolio-Tracker/1.8.3",
 }
 VENUE_EXCHANGE_IDS = {"six": 4, "swiss_dots": 672}
 

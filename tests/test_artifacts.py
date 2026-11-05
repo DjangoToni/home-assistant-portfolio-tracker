@@ -50,3 +50,13 @@ def test_release_versions_and_marketplace_category_are_consistent() -> None:
     assert f"portfolio-asset-card.js?v={version}" in loader_source
     assert f"Home-Assistant-Portfolio-Tracker/{version}" in swissquote_source
     assert f"## {version} -" in changelog
+
+
+def test_dashboard_filters_only_numeric_zero_value_active_assets() -> None:
+    card_source = (INTEGRATION / "frontend" / "portfolio-asset-card.js").read_text(
+        encoding="utf-8"
+    )
+
+    assert "function shouldDisplayActiveAsset(asset)" in card_source
+    assert "!Number.isFinite(value) || value !== 0" in card_source
+    assert "&& shouldDisplayActiveAsset(asset)" in card_source

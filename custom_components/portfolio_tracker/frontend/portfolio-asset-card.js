@@ -3,7 +3,12 @@ const EDITOR_TAG = "portfolio-asset-card-editor";
 const PORTFOLIO_CARD_TAG = "portfolio-overview-card";
 const PORTFOLIO_EDITOR_TAG = "portfolio-overview-card-editor";
 const MANAGER_TAG = "portfolio-manager-dialog";
-const CARD_VERSION = "1.8.2";
+const CARD_VERSION = "1.8.3";
+
+function shouldDisplayActiveAsset(asset) {
+  const value = Number(asset?.metrics?.holding_value?.state);
+  return !Number.isFinite(value) || value !== 0;
+}
 
 const LABELS = {
   de: {
@@ -2169,7 +2174,10 @@ class PortfolioOverviewCard extends HTMLElement {
       .filter((asset) => asset.assetType === "index" && asset.metrics.holding_price)
       .sort((left, right) => left.symbol.localeCompare(right.symbol));
     const positions = [...assets.values()]
-      .filter((asset) => asset.entityId && !asset.watchOnly && asset.assetType !== "index")
+      .filter((asset) => asset.entityId
+        && !asset.watchOnly
+        && asset.assetType !== "index"
+        && shouldDisplayActiveAsset(asset))
       .map((asset) => ({
         ...asset,
         value: Number(asset.metrics.holding_value.state),
